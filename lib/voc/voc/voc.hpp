@@ -16,8 +16,16 @@ struct vocabel
 };
 struct vocabels
 {
+    using container = std::vector<vocabel>;
+    using size_type = container::size_type;
+
+    auto empty() const -> bool;
+    auto size() const -> size_type;
+
+    auto add(vocabel v) -> void;
+
     std::string chapter{};
-    std::vector<vocabel> vocs{};
+    container vocs{};
 };
 }
 }

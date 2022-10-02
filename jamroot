@@ -6,6 +6,8 @@ project app_project
 build-project app
     ;
 
+build-project lib/voc
+    ;
 
 use-project /voc
     : lib/voc
