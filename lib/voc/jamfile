@@ -12,7 +12,7 @@ constant inc_dir
     ;
 
 constant src_dir
-    : $(inc_dir)/lib
+    : $(inc_dir)/voc
     ;
 
 constant test_sources
