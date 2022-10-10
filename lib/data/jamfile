@@ -12,7 +12,7 @@ constant inc_dir
     ;
 
 constant src_dir
-    : $(inc_dir)/voc
+    : $(inc_dir)/data
     ;
 
 constant test_sources

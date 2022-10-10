@@ -3,30 +3,27 @@
 #include <string>
 #include <vector>
 
-namespace xzr
-{
-namespace voc
+namespace xzr::learn::data
 {
 inline namespace v1
 {
-struct vocabel
+struct card
 {
-    std::string de{};
-    std::string en{};
+    std::string front{};
+    std::string back{};
 };
-struct vocabels
+struct cards
 {
-    using container = std::vector<vocabel>;
+    using container = std::vector<card>;
     using size_type = container::size_type;
 
     auto empty() const -> bool;
     auto size() const -> size_type;
 
-    auto add(vocabel v) -> void;
+    auto add(card v) -> void;
 
     std::string chapter{};
     container vocs{};
 };
-}
 }
 }

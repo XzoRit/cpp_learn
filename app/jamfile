@@ -10,7 +10,7 @@ constant sources
 
 exe exe
     : $(sources)
-      /voc//lib
+      /data//lib
       /boost//program_options
     ;
 
@@ -19,8 +19,4 @@ import testing
 
 unit-test run
     : exe
-    : <testing.arg>"--help"
-    ;
-
-always run
     ;

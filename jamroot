@@ -6,11 +6,11 @@ project app_project
 build-project app
     ;
 
-build-project lib/voc
+build-project lib/data
     ;
 
-use-project /voc
-    : lib/voc
+use-project /data
+    : lib/data
     ;
 
 use-project /external
