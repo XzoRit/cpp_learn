@@ -1,15 +1,13 @@
 cmake_minimum_required(VERSION 3.21)
 
 project(
-  project_name
+  cpp_learn
   VERSION 0.0
-  DESCRIPTION "enter description here"
+  DESCRIPTION "learning with cards"
 )
 
 enable_testing()
 
 add_subdirectory(app)
-
 add_subdirectory(lib/data)
-
 add_subdirectory(external)
