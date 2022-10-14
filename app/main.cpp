@@ -20,7 +20,7 @@ q    quit program
 }
 auto cards() -> learn_cards&
 {
-    static learn_cards cs{};
+    static auto cs{learn_cards{}};
     return cs;
 }
 auto list_cards() -> void
@@ -30,8 +30,8 @@ auto list_cards() -> void
 }
 auto add_card() -> void
 {
-    std::string front{};
-    std::string back{};
+    auto front{std::string{}};
+    auto back{std::string{}};
     std::cout << "front: ";
     std::cin >> front;
     std::cout << "back: ";
@@ -44,9 +44,9 @@ auto main(int ac, char* av[]) -> int
     std::cout << "voc trainer\n";
     try
     {
-        po::options_description desc("Allowed options");
+        auto desc{po::options_description{"Allowed options"}};
         desc.add_options()("help,h", "produce help message");
-        po::variables_map vm;
+        auto vm{po::variables_map{}};
         po::store(po::parse_command_line(ac, av, desc), vm);
         po::notify(vm);
         if (vm.count("help"))
@@ -54,7 +54,7 @@ auto main(int ac, char* av[]) -> int
             std::cout << desc << "\n";
             return 0;
         }
-        char cmd{};
+        auto cmd{char{}};
         do
         {
             ::print_menue();
