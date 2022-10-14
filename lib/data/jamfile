@@ -26,8 +26,10 @@ constant sources
 lib lib
     : $(sources)
     : <include>$(inc_dir)
+      <library>/boost//serialization
     :
     : <include>$(inc_dir)
+      <library>/boost//serialization
     ;
 
 run $(test_sources)
@@ -35,5 +37,6 @@ run $(test_sources)
     :
     : <library>lib
       <library>/boost//unit_test_framework
+      <library>/boost//serialization
     : test
     ;
