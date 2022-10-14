@@ -25,16 +25,15 @@ using cards = ::xzr::learn::data::cards;
 BOOST_AUTO_TEST_CASE(cards_ctor)
 {
     cards a{};
-    BOOST_TEST(a.empty());
-    BOOST_TEST(a.size() == 0u);
+    BOOST_TEST(a.content.empty());
     BOOST_TEST(a.name == "");
 }
 BOOST_AUTO_TEST_CASE(add_cards)
 {
     cards a{.name = "ch_01"};
-    a.add({.front = "Hello", .back = "Hallo"});
-    BOOST_TEST(!a.empty());
-    BOOST_TEST(a.size() == 1u);
+    a.content.push_back({.front = "Hello", .back = "Hallo"});
+    BOOST_TEST(!a.content.empty());
+    BOOST_TEST(a.content.size() == 1u);
 }
 BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE(package_tests)
@@ -42,16 +41,16 @@ using package = ::xzr::learn::data::package;
 BOOST_AUTO_TEST_CASE(package_ctor)
 {
     package a{};
-    BOOST_TEST(a.empty());
-    BOOST_TEST(a.size() == 0u);
+    BOOST_TEST(a.content.empty());
     BOOST_TEST(a.name == "");
 }
 BOOST_AUTO_TEST_CASE(add_package)
 {
     package a{.name = "pack_01"};
-    a.add({.name = "ch_01", .cont = {{.front = "Hello", .back = "Hallo"}}});
-    BOOST_TEST(!a.empty());
-    BOOST_TEST(a.size() == 1u);
+    a.content.push_back(
+        {.name = "ch_01", .content = {{.front = "Hello", .back = "Hallo"}}});
+    BOOST_TEST(!a.content.empty());
+    BOOST_TEST(a.content.size() == 1u);
 }
 BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()

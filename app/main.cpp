@@ -25,7 +25,7 @@ auto cards() -> learn_cards&
 }
 auto list_cards() -> void
 {
-    for (const auto& v : cards().cont)
+    for (const auto& v : cards().content)
         std::cout << v.front << "\t\t" << v.back << '\n';
 }
 auto add_card() -> void
@@ -36,7 +36,7 @@ auto add_card() -> void
     std::cin >> front;
     std::cout << "back: ";
     std::cin >> back;
-    cards().add({.front = front, .back = back});
+    cards().content.push_back({.front = front, .back = back});
 }
 }
 auto main(int ac, char* av[]) -> int
