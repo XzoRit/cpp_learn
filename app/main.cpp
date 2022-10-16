@@ -18,7 +18,7 @@ a    add cards
 q    quit program
 )";
 }
-auto cards() -> learn_cards&
+[[nodiscard]] auto cards() -> learn_cards&
 {
     static auto cs{learn_cards{}};
     return cs;
@@ -41,7 +41,7 @@ auto add_card() -> void
 }
 auto main(int ac, char* av[]) -> int
 {
-    std::cout << "voc trainer\n";
+    std::cout << "xzr learn\n";
     try
     {
         auto desc{po::options_description{"Allowed options"}};
