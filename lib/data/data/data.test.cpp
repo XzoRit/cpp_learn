@@ -31,12 +31,12 @@ BOOST_AUTO_TEST_CASE(card_serialization)
     const auto a{card{.front = "Hello", .back = "Hallo"}};
     auto ss{std::stringstream{}};
     {
-        auto oa{boost::archive::text_oarchive{ss}};
+        auto oa{::boost::archive::text_oarchive{ss}};
         oa << a;
     }
     auto b{card{}};
     {
-        auto ia{boost::archive::text_iarchive{ss}};
+        auto ia{::boost::archive::text_iarchive{ss}};
         ia >> b;
     }
     BOOST_TEST(a == b);
