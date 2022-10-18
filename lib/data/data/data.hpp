@@ -104,6 +104,8 @@ struct cards
 
 XZR_LEARN_DATA_OPS_FOR(cards)
 
+auto shuffle(cards cs) -> cards;
+
 struct package
 {
     std::string name{};
