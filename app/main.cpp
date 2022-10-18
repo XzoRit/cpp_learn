@@ -11,55 +11,64 @@
 
 namespace fs = std::filesystem;
 namespace po = ::boost::program_options;
-using learn_card = ::xzr::learn::data::card;
-using learn_cards = ::xzr::learn::data::cards;
-using learn_package = ::xzr::learn::data::package;
+using word = ::xzr::learn::data::card;
+using chapter = ::xzr::learn::data::cards;
+using book = ::xzr::learn::data::package;
 namespace
 {
-const auto cards_path{fs::path{"xzr_learn_package.txt"}};
+const auto books_path{fs::path{"xzr_learn_books.txt"}};
 auto print_menue() -> void
 {
     std::cout << R"(
-l    list package
-a    add cards
+l    list all chapters of the book
+b    list all words of the first chapters of the book
+c    create chapter in the book
+a    add word to the first chapter of the book
 q    quit program
 )";
 }
-[[nodiscard]] auto package() -> learn_package&
+[[nodiscard]] auto the_book() -> book&
 {
-    static auto p{learn_package{}};
+    static auto p{book{}};
     return p;
 }
-[[nodiscard]] auto cards() -> learn_cards&
+[[nodiscard]] auto first_chapter_of_the_book() -> chapter&
 {
-    return package().content.at(0);
+    return the_book().content.at(0);
 }
-auto list_package() -> void
+auto list_chapters_of_the_book() -> void
 {
-    for (int i{}; const auto& cs : package().content)
+    for (int i{}; const auto& cs : the_book().content)
         std::cout << ++i << ".\t" << cs.name << '\n';
 }
-auto list_cards() -> void
+auto list_words_of_the_first_chapter_of_the_book() -> void
 {
-    for (const auto& c : cards().content)
+    for (const auto& c : first_chapter_of_the_book().content)
         std::cout << c.front << "\t\t" << c.back << '\n';
 }
-auto add_card() -> void
+auto create_chapter_in_the_book() -> void
 {
     auto name{std::string{}};
-    auto front{std::string{}};
-    auto back{std::string{}};
     std::cout << "name: ";
     std::cin >> name;
-    package().content.push_back({.name = name, .content = {}});
+    the_book().content.push_back({.name = name, .content = {}});
+    auto of{std::ofstream{books_path}};
+    auto oa{::boost::archive::text_oarchive{of}};
+    oa << first_chapter_of_the_book();
+}
+auto add_card_to_the_first_chapter_of_the_book() -> void
+{
+    auto front{std::string{}};
+    auto back{std::string{}};
     std::cout << "front: ";
     std::cin >> front;
     std::cout << "back: ";
     std::cin >> back;
-    package().content.back().content.push_back({.front = front, .back = back});
-    auto of{std::ofstream{cards_path}};
+    first_chapter_of_the_book().content.push_back(
+        {.front = front, .back = back});
+    auto of{std::ofstream{books_path}};
     auto oa{::boost::archive::text_oarchive{of}};
-    oa << cards();
+    oa << the_book();
 }
 }
 auto main(int ac, char* av[]) -> int
@@ -78,17 +87,17 @@ auto main(int ac, char* av[]) -> int
             return 0;
         }
         //
-        if (!fs::exists(cards_path))
+        if (!fs::exists(books_path))
         {
-            auto f{std::ofstream{cards_path}};
+            auto f{std::ofstream{books_path}};
             auto o{::boost::archive::text_oarchive{f}};
-            o << package();
+            o << the_book();
         }
         else
         {
-            auto f{std::ifstream{cards_path}};
+            auto f{std::ifstream{books_path}};
             auto i{::boost::archive::text_iarchive{f}};
-            i >> package();
+            i >> the_book();
         }
         //
         auto cmd{char{}};
@@ -98,11 +107,19 @@ auto main(int ac, char* av[]) -> int
             std::cin >> cmd;
             if (cmd == 'l')
             {
-                ::list_package();
+                ::list_chapters_of_the_book();
+            }
+            if (cmd == 'b')
+            {
+                ::list_words_of_the_first_chapter_of_the_book();
+            }
+            if (cmd == 'c')
+            {
+                ::create_chapter_in_the_book();
             }
             if (cmd == 'a')
             {
-                ::add_card();
+                ::add_card_to_the_first_chapter_of_the_book();
             }
         } while (cmd != 'q');
         std::cout << "bye\n";
