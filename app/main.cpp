@@ -1,3 +1,4 @@
+#include <data/box.hpp>
 #include <data/data.hpp>
 
 #include <boost/archive/text_iarchive.hpp>
@@ -14,6 +15,7 @@ namespace po = ::boost::program_options;
 using word = ::xzr::learn::data::card;
 using chapter = ::xzr::learn::data::cards;
 using book = ::xzr::learn::data::package;
+using box = ::xzr::learn::data::box;
 namespace
 {
 const auto books_path{fs::path{"xzr_learn_books.txt"}};
@@ -24,6 +26,7 @@ l    list all chapters of the book
 b    list all words of the first chapters of the book
 c    create chapter in the book
 a    add word to the first chapter of the book
+s    start training with words of the first chapter of the book
 q    quit program
 )";
 }
@@ -69,6 +72,21 @@ auto add_card_to_the_first_chapter_of_the_book() -> void
     auto of{std::ofstream{books_path}};
     auto oa{::boost::archive::text_oarchive{of}};
     oa << the_book();
+}
+auto start_training() -> void
+{
+    std::cout << "starting training\n";
+    auto b{box{first_chapter_of_the_book()}};
+    while (b.has_next())
+    {
+        const auto& c{b.next()};
+        std::cout << c.front;
+        std::cout << "\ntype back: ";
+        std::string back{};
+        std::cin >> back;
+        b.move_card(c, back);
+    }
+    std::cout << "end training\n";
 }
 }
 auto main(int ac, char* av[]) -> int
@@ -120,6 +138,10 @@ auto main(int ac, char* av[]) -> int
             if (cmd == 'a')
             {
                 ::add_card_to_the_first_chapter_of_the_book();
+            }
+            if (cmd == 's')
+            {
+                ::start_training();
             }
         } while (cmd != 'q');
         std::cout << "bye\n";

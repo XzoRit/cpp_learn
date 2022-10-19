@@ -49,7 +49,6 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE(cards_tests)
 
 using cards = ::xzr::learn::data::cards;
-using ::xzr::learn::data::shuffle;
 
 BOOST_AUTO_TEST_CASE(cards_default_ctor)
 {
@@ -79,19 +78,6 @@ BOOST_AUTO_TEST_CASE(cards_serialization)
         ia >> b;
     }
 
-    BOOST_TEST(a == b);
-}
-BOOST_AUTO_TEST_CASE(cards_shuffle)
-{
-    auto a{cards{}};
-    for (int i{}; i < 10;)
-    {
-        a.content.push_back(
-            {.front = std::to_string(++i), .back = std::to_string(++i)});
-    }
-    auto b{shuffle(a)};
-    BOOST_TEST(a != b);
-    std::ranges::sort(b.content);
     BOOST_TEST(a == b);
 }
 BOOST_AUTO_TEST_SUITE_END()
