@@ -64,18 +64,22 @@ struct card
     [[nodiscard]] auto operator<=>(const card&) const = default;
 };
 
+using cards = container<card>;
+
 struct chapter
 {
     std::string name{};
-    container<card> content{};
+    cards content{};
 
     [[nodiscard]] auto operator<=>(const chapter&) const = default;
 };
 
+using chapters = container<chapter>;
+
 struct book
 {
     std::string name{};
-    container<chapter> content{};
+    chapters content{};
 
     [[nodiscard]] auto operator<=>(const book&) const = default;
 };
