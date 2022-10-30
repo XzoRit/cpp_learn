@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_SUITE(box_tests)
 
 using box = ::xzr::learn::data::box;
 using card = ::xzr::learn::data::card;
-using cards = ::xzr::learn::data::cards;
+using cards = ::xzr::learn::data::chapter;
 
 BOOST_AUTO_TEST_CASE(all_cards_always_correct)
 {

@@ -12,9 +12,9 @@
 
 namespace fs = std::filesystem;
 namespace po = ::boost::program_options;
-using word = ::xzr::learn::data::card;
-using chapter = ::xzr::learn::data::cards;
-using book = ::xzr::learn::data::package;
+using card = ::xzr::learn::data::card;
+using chapter = ::xzr::learn::data::chapter;
+using book = ::xzr::learn::data::book;
 using box = ::xzr::learn::data::box;
 namespace
 {
@@ -23,10 +23,10 @@ auto print_menue() -> void
 {
     std::cout << R"(
 l    list all chapters of the book
-b    list all words of the first chapters of the book
+b    list all cards of the first chapters of the book
 c    create chapter in the book
-a    add word to the first chapter of the book
-s    start training with words of the first chapter of the book
+a    add card to the first chapter of the book
+s    start training with cards of the first chapter of the book
 q    quit program
 )";
 }
@@ -44,7 +44,7 @@ auto list_chapters_of_the_book() -> void
     for (int i{}; const auto& cs : the_book().content)
         std::cout << ++i << ".\t" << cs.name << '\n';
 }
-auto list_words_of_the_first_chapter_of_the_book() -> void
+auto list_cards_of_the_first_chapter_of_the_book() -> void
 {
     for (const auto& c : first_chapter_of_the_book().content)
         std::cout << c.front << "\t\t" << c.back << '\n';
@@ -129,7 +129,7 @@ auto main(int ac, char* av[]) -> int
             }
             if (cmd == 'b')
             {
-                ::list_words_of_the_first_chapter_of_the_book();
+                ::list_cards_of_the_first_chapter_of_the_book();
             }
             if (cmd == 'c')
             {

@@ -19,7 +19,7 @@ namespace xzr::learn::data
 {
 inline namespace v1
 {
-box::box(cards c)
+box::box(chapter c)
     : cs{std::move(c)}
 {
     ::shuffle(cs.content);

@@ -64,20 +64,20 @@ struct card
     [[nodiscard]] auto operator<=>(const card&) const = default;
 };
 
-struct cards
+struct chapter
 {
     std::string name{};
     container<card> content{};
 
-    [[nodiscard]] auto operator<=>(const cards&) const = default;
+    [[nodiscard]] auto operator<=>(const chapter&) const = default;
 };
 
-struct package
+struct book
 {
     std::string name{};
-    container<cards> content{};
+    container<chapter> content{};
 
-    [[nodiscard]] auto operator<=>(const package&) const = default;
+    [[nodiscard]] auto operator<=>(const book&) const = default;
 };
 }
 }
@@ -97,8 +97,8 @@ namespace xzr::learn::data
 inline namespace v1
 {
 XZR_LEARN_DATA_OSTREAM_FOR(card)
-XZR_LEARN_DATA_OSTREAM_FOR(cards)
-XZR_LEARN_DATA_OSTREAM_FOR(package)
+XZR_LEARN_DATA_OSTREAM_FOR(chapter)
+XZR_LEARN_DATA_OSTREAM_FOR(book)
 }
 }
 
@@ -117,5 +117,5 @@ XZR_LEARN_DATA_OSTREAM_FOR(package)
 #include <boost/serialization/string.hpp>
 
 XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::card)
-XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::cards)
-XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::package)
+XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::chapter)
+XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::book)

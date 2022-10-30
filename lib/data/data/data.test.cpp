@@ -22,12 +22,14 @@ BOOST_AUTO_TEST_CASE(card_default_ctor)
     BOOST_TEST(a.front == "");
     BOOST_TEST(a.back == "");
 }
+
 BOOST_AUTO_TEST_CASE(card_initialized_ctor)
 {
     const auto a{card{.front = "Hello", .back = "Hallo"}};
     BOOST_TEST(a.front == "Hello");
     BOOST_TEST(a.back == "Hallo");
 }
+
 BOOST_AUTO_TEST_CASE(card_serialization)
 {
     const auto a{card{.front = "Hello", .back = "Hallo"}};
@@ -46,33 +48,35 @@ BOOST_AUTO_TEST_CASE(card_serialization)
 
 BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_SUITE(cards_tests)
+BOOST_AUTO_TEST_SUITE(chapter_tests)
 
-using cards = ::xzr::learn::data::cards;
+using chapter = ::xzr::learn::data::chapter;
 
-BOOST_AUTO_TEST_CASE(cards_default_ctor)
+BOOST_AUTO_TEST_CASE(chapter_default_ctor)
 {
-    const auto a{cards{}};
+    const auto a{chapter{}};
     BOOST_TEST(a.content.empty());
     BOOST_TEST(a.name == "");
 }
-BOOST_AUTO_TEST_CASE(cards_initialized_ctor)
+
+BOOST_AUTO_TEST_CASE(chapter_initialized_ctor)
 {
-    const auto a{cards{.name = "ch_01",
-                       .content = {{.front = "Hello", .back = "Hallo"}}}};
+    const auto a{chapter{.name = "ch_01",
+                         .content = {{.front = "Hello", .back = "Hallo"}}}};
     BOOST_TEST(!a.content.empty());
     BOOST_TEST(a.content.size() == 1u);
 }
-BOOST_AUTO_TEST_CASE(cards_serialization)
+
+BOOST_AUTO_TEST_CASE(chapter_serialization)
 {
-    const auto a{cards{.name = "ch_01",
-                       .content = {{.front = "Hello", .back = "Hallo"}}}};
+    const auto a{chapter{.name = "ch_01",
+                         .content = {{.front = "Hello", .back = "Hallo"}}}};
     auto ss{std::stringstream{}};
     {
         auto oa{boost::archive::text_oarchive{ss}};
         oa << a;
     }
-    auto b{cards{}};
+    auto b{chapter{}};
     {
         auto ia{boost::archive::text_iarchive{ss}};
         ia >> b;
@@ -82,37 +86,39 @@ BOOST_AUTO_TEST_CASE(cards_serialization)
 }
 BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_SUITE(package_tests)
+BOOST_AUTO_TEST_SUITE(book_tests)
 
-using package = ::xzr::learn::data::package;
+using book = ::xzr::learn::data::book;
 
-BOOST_AUTO_TEST_CASE(package_ctor)
+BOOST_AUTO_TEST_CASE(book_ctor)
 {
-    const auto a{package{}};
+    const auto a{book{}};
     BOOST_TEST(a.content.empty());
     BOOST_TEST(a.name == "");
 }
-BOOST_AUTO_TEST_CASE(package_initialized_ctor)
+
+BOOST_AUTO_TEST_CASE(book_initialized_ctor)
 {
-    const auto a{package{
-        .name = "pack_01",
-        .content = {{.name = "ch_01",
-                     .content = {{.front = "Hello", .back = "Hallo"}}}}}};
+    const auto a{
+        book{.name = "pack_01",
+             .content = {{.name = "ch_01",
+                          .content = {{.front = "Hello", .back = "Hallo"}}}}}};
     BOOST_TEST(!a.content.empty());
     BOOST_TEST(a.content.size() == 1u);
 }
-BOOST_AUTO_TEST_CASE(package_serialization)
+
+BOOST_AUTO_TEST_CASE(book_serialization)
 {
-    const auto a{package{
-        .name = "pack_01",
-        .content = {{.name = "ch_01",
-                     .content = {{.front = "Hello", .back = "Hallo"}}}}}};
+    const auto a{
+        book{.name = "pack_01",
+             .content = {{.name = "ch_01",
+                          .content = {{.front = "Hello", .back = "Hallo"}}}}}};
     auto ss{std::stringstream{}};
     {
         auto oa{boost::archive::text_oarchive{ss}};
         oa << a;
     }
-    auto b{package{}};
+    auto b{book{}};
     {
         auto ia{boost::archive::text_iarchive{ss}};
         ia >> b;
