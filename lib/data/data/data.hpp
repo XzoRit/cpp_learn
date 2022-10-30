@@ -47,41 +47,6 @@ inline auto serialize(Ar& ar,
 }
 }
 
-#include <boost/pfr/functions_for.hpp>
-
-#include <ostream>
-
-#define XZR_LEARN_DATA_OPS_FOR(A)                                              \
-    [[nodiscard]] inline bool operator==(const A& lhs, const A& rhs)           \
-    {                                                                          \
-        return ::boost::pfr::eq_fields(lhs, rhs);                              \
-    }                                                                          \
-    [[nodiscard]] inline bool operator!=(const A& lhs, const A& rhs)           \
-    {                                                                          \
-        return ::boost::pfr::ne_fields(lhs, rhs);                              \
-    }                                                                          \
-    [[nodiscard]] inline bool operator<(const A& lhs, const A& rhs)            \
-    {                                                                          \
-        return ::boost::pfr::lt_fields(lhs, rhs);                              \
-    }                                                                          \
-    [[nodiscard]] inline bool operator>(const A& lhs, const A& rhs)            \
-    {                                                                          \
-        return ::boost::pfr::gt_fields(lhs, rhs);                              \
-    }                                                                          \
-    [[nodiscard]] inline bool operator<=(const A& lhs, const A& rhs)           \
-    {                                                                          \
-        return ::boost::pfr::le_fields(lhs, rhs);                              \
-    }                                                                          \
-    [[nodiscard]] inline bool operator>=(const A& lhs, const A& rhs)           \
-    {                                                                          \
-        return ::boost::pfr::ge_fields(lhs, rhs);                              \
-    }                                                                          \
-    [[maybe_unused]] inline ::std::ostream& operator<<(::std::ostream& out,    \
-                                                       const A& value)         \
-    {                                                                          \
-        return out << ::boost::pfr::io_fields(value);                          \
-    }
-
 #include <string>
 
 namespace xzr::learn::data
@@ -92,25 +57,45 @@ struct card
 {
     std::string front{};
     std::string back{};
-};
 
-XZR_LEARN_DATA_OPS_FOR(card)
+    [[nodiscard]] auto operator<=>(const card&) const = default;
+};
 
 struct cards
 {
     std::string name{};
     container<card> content{};
-};
 
-XZR_LEARN_DATA_OPS_FOR(cards)
+    [[nodiscard]] auto operator<=>(const cards&) const = default;
+};
 
 struct package
 {
     std::string name{};
     container<cards> content{};
-};
 
-XZR_LEARN_DATA_OPS_FOR(package)
+    [[nodiscard]] auto operator<=>(const package&) const = default;
+};
+}
+}
+
+#include <boost/pfr/functions_for.hpp>
+
+#include <ostream>
+
+#define XZR_LEARN_DATA_OSTREAM_FOR(A)                                          \
+    inline ::std::ostream& operator<<(::std::ostream& out, const A& value)     \
+    {                                                                          \
+        return out << ::boost::pfr::io_fields(value);                          \
+    }
+
+namespace xzr::learn::data
+{
+inline namespace v1
+{
+XZR_LEARN_DATA_OSTREAM_FOR(card)
+XZR_LEARN_DATA_OSTREAM_FOR(cards)
+XZR_LEARN_DATA_OSTREAM_FOR(package)
 }
 }
 
@@ -120,7 +105,7 @@ XZR_LEARN_DATA_OPS_FOR(package)
     namespace boost::serialization                                             \
     {                                                                          \
     template <class Ar>                                                        \
-    inline auto serialize(Ar& ar, A& a, const unsigned int) -> void            \
+    inline auto serialize(Ar& ar, A& a, const unsigned int)                    \
     {                                                                          \
         ::boost::pfr::for_each_field(a, [&ar](auto& field) { ar& field; });    \
     }                                                                          \
