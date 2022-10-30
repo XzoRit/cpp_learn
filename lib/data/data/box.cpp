@@ -22,23 +22,23 @@ inline namespace v1
 box::box(chapter c)
     : cs{std::move(c)}
 {
-    ::shuffle(cs.content);
+    ::shuffle(cs.cards);
 }
 auto box::has_next() const -> bool
 {
-    return !cs.content.empty();
+    return !cs.cards.empty();
 }
 auto box::next() const -> const card&
 {
-    return cs.content.back();
+    return cs.cards.back();
 }
 auto box::move_card(const card& c, const std::string& back) -> void
 {
     if (c.back != back)
     {
-        cs.content.insert(cs.content.begin(), c);
+        cs.cards.insert(cs.cards.begin(), c);
     }
-    cs.content.pop_back();
+    cs.cards.pop_back();
 }
 }
 }

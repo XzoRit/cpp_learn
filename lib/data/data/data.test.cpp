@@ -55,22 +55,22 @@ using chapter = ::xzr::learn::data::chapter;
 BOOST_AUTO_TEST_CASE(chapter_default_ctor)
 {
     const auto a{chapter{}};
-    BOOST_TEST(a.content.empty());
+    BOOST_TEST(a.cards.empty());
     BOOST_TEST(a.name == "");
 }
 
 BOOST_AUTO_TEST_CASE(chapter_initialized_ctor)
 {
     const auto a{chapter{.name = "ch_01",
-                         .content = {{.front = "Hello", .back = "Hallo"}}}};
-    BOOST_TEST(!a.content.empty());
-    BOOST_TEST(a.content.size() == 1u);
+                         .cards = {{.front = "Hello", .back = "Hallo"}}}};
+    BOOST_TEST(!a.cards.empty());
+    BOOST_TEST(a.cards.size() == 1u);
 }
 
 BOOST_AUTO_TEST_CASE(chapter_serialization)
 {
     const auto a{chapter{.name = "ch_01",
-                         .content = {{.front = "Hello", .back = "Hallo"}}}};
+                         .cards = {{.front = "Hello", .back = "Hallo"}}}};
     auto ss{std::stringstream{}};
     {
         auto oa{boost::archive::text_oarchive{ss}};
@@ -93,7 +93,7 @@ using book = ::xzr::learn::data::book;
 BOOST_AUTO_TEST_CASE(book_ctor)
 {
     const auto a{book{}};
-    BOOST_TEST(a.content.empty());
+    BOOST_TEST(a.chapters.empty());
     BOOST_TEST(a.name == "");
 }
 
@@ -101,18 +101,18 @@ BOOST_AUTO_TEST_CASE(book_initialized_ctor)
 {
     const auto a{
         book{.name = "pack_01",
-             .content = {{.name = "ch_01",
-                          .content = {{.front = "Hello", .back = "Hallo"}}}}}};
-    BOOST_TEST(!a.content.empty());
-    BOOST_TEST(a.content.size() == 1u);
+             .chapters = {{.name = "ch_01",
+                           .cards = {{.front = "Hello", .back = "Hallo"}}}}}};
+    BOOST_TEST(!a.chapters.empty());
+    BOOST_TEST(a.chapters.size() == 1u);
 }
 
 BOOST_AUTO_TEST_CASE(book_serialization)
 {
     const auto a{
         book{.name = "pack_01",
-             .content = {{.name = "ch_01",
-                          .content = {{.front = "Hello", .back = "Hallo"}}}}}};
+             .chapters = {{.name = "ch_01",
+                           .cards = {{.front = "Hello", .back = "Hallo"}}}}}};
     auto ss{std::stringstream{}};
     {
         auto oa{boost::archive::text_oarchive{ss}};

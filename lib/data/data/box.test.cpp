@@ -23,16 +23,16 @@ BOOST_AUTO_TEST_CASE(all_cards_always_correct)
     auto cs{cards{}};
     for (int i{}; i < 10;)
     {
-        cs.content.push_back(
+        cs.cards.push_back(
             {.front = std::to_string(++i), .back = std::to_string(++i)});
     }
 
     auto b{box{cs}};
     BOOST_TEST(b.has_next());
-    for (std::size_t i{}; i < cs.content.size(); ++i)
+    for (std::size_t i{}; i < cs.cards.size(); ++i)
     {
         const auto& c{b.next()};
-        const auto it{std::ranges::find(cs.content, c)};
+        const auto it{std::ranges::find(cs.cards, c)};
         BOOST_TEST(*it == c);
         b.move_card(c, it->back);
     }

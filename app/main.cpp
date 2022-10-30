@@ -37,16 +37,16 @@ q    quit program
 }
 [[nodiscard]] auto first_chapter_of_the_book() -> chapter&
 {
-    return the_book().content.at(0);
+    return the_book().chapters.at(0);
 }
 auto list_chapters_of_the_book() -> void
 {
-    for (int i{}; const auto& cs : the_book().content)
+    for (int i{}; const auto& cs : the_book().chapters)
         std::cout << ++i << ".\t" << cs.name << '\n';
 }
 auto list_cards_of_the_first_chapter_of_the_book() -> void
 {
-    for (const auto& c : first_chapter_of_the_book().content)
+    for (const auto& c : first_chapter_of_the_book().cards)
         std::cout << c.front << "\t\t" << c.back << '\n';
 }
 auto create_chapter_in_the_book() -> void
@@ -54,7 +54,7 @@ auto create_chapter_in_the_book() -> void
     auto name{std::string{}};
     std::cout << "name: ";
     std::cin >> name;
-    the_book().content.push_back({.name = name, .content = {}});
+    the_book().chapters.push_back({.name = name, .cards = {}});
     auto of{std::ofstream{books_path}};
     auto oa{::boost::archive::text_oarchive{of}};
     oa << first_chapter_of_the_book();
@@ -67,8 +67,7 @@ auto add_card_to_the_first_chapter_of_the_book() -> void
     std::cin >> front;
     std::cout << "back: ";
     std::cin >> back;
-    first_chapter_of_the_book().content.push_back(
-        {.front = front, .back = back});
+    first_chapter_of_the_book().cards.push_back({.front = front, .back = back});
     auto of{std::ofstream{books_path}};
     auto oa{::boost::archive::text_oarchive{of}};
     oa << the_book();

@@ -27,10 +27,10 @@ struct container : public std::vector<A>
 template <class A>
 inline auto operator<<(std::ostream& o, const container<A>& v) -> std::ostream&
 {
-    o << "{ ";
+    o << "[ ";
     for (auto&& it : v)
         o << it << ' ';
-    o << '}';
+    o << ']';
 
     return o;
 }
@@ -69,7 +69,7 @@ using cards = container<card>;
 struct chapter
 {
     std::string name{};
-    cards content{};
+    cards cards{};
 
     [[nodiscard]] auto operator<=>(const chapter&) const = default;
 };
@@ -79,7 +79,7 @@ using chapters = container<chapter>;
 struct book
 {
     std::string name{};
-    chapters content{};
+    chapters chapters{};
 
     [[nodiscard]] auto operator<=>(const book&) const = default;
 };
