@@ -12,15 +12,18 @@ struct container : public std::vector<A>
 {
   public:
     using std::vector<A>::vector;
-    auto base() const -> const std::vector<A>&
+
+    [[nodiscard]] auto base() const -> const std::vector<A>&
     {
         return *this;
     }
-    auto base() -> std::vector<A>&
+
+    [[nodiscard]] auto base() -> std::vector<A>&
     {
         return *this;
     }
 };
+
 template <class A>
 inline auto operator<<(std::ostream& o, const container<A>& v) -> std::ostream&
 {
