@@ -16,25 +16,37 @@ BOOST_AUTO_TEST_SUITE(box_tests)
 
 using box = ::xzr::learn::data::box;
 using card = ::xzr::learn::data::card;
-using cards = ::xzr::learn::data::chapter;
+using chapter = ::xzr::learn::data::chapter;
 
-BOOST_AUTO_TEST_CASE(all_cards_always_correct)
+auto create_chapter()
 {
-    auto cs{cards{}};
+    auto chptr{chapter{}};
     for (int i{}; i < 10;)
     {
-        cs.cards.push_back(
+        chptr.cards.push_back(
             {.front = std::to_string(++i), .back = std::to_string(++i)});
     }
 
-    auto b{box{cs}};
-    BOOST_TEST(b.has_next());
-    for (std::size_t i{}; i < cs.cards.size(); ++i)
+    return chptr;
+}
+
+BOOST_AUTO_TEST_CASE(all_cards_always_correct)
+{
+    auto chptr{create_chapter()};
+    for (int i{}; i < 10;)
     {
-        const auto& c{b.next()};
-        const auto it{std::ranges::find(cs.cards, c)};
-        BOOST_TEST(*it == c);
-        b.move_card(c, it->back);
+        chptr.cards.push_back(
+            {.front = std::to_string(++i), .back = std::to_string(++i)});
+    }
+
+    auto b{box{chptr}};
+    BOOST_TEST(b.has_next());
+    for (std::size_t i{}; i < chptr.cards.size(); ++i)
+    {
+        const auto& crd{b.next()};
+        const auto it{std::ranges::find(chptr.cards, crd)};
+        BOOST_TEST(*it == crd);
+        b.move_card(crd, it->back);
     }
     BOOST_TEST(!b.has_next());
 }
