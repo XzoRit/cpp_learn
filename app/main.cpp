@@ -1,5 +1,5 @@
-#include <data/box.hpp>
 #include <data/data.hpp>
+#include <data/training.hpp>
 
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -12,11 +12,12 @@
 
 namespace fs = std::filesystem;
 namespace po = ::boost::program_options;
+
 using card = ::xzr::learn::data::card;
 using cards = ::xzr::learn::data::cards;
 using chapter = ::xzr::learn::data::chapter;
 using book = ::xzr::learn::data::book;
-using box = ::xzr::learn::data::training;
+
 namespace
 {
 const auto books_path{fs::path{"xzr_learn_books.txt"}};
@@ -81,15 +82,15 @@ auto add_card_to_the_first_chapter_of_the_book() -> void
 auto start_training() -> void
 {
     std::cout << "starting training\n";
-    auto b{box{cards_of_the_first_chapter_of_the_book()}};
-    while (b.has_next())
+    auto t{start_training(cards_of_the_first_chapter_of_the_book())};
+    while (const auto maybe_crd{current_card(t)})
     {
-        const auto& c{b.next()};
-        std::cout << c.front;
+        const auto& crd{maybe_crd.value()};
+        std::cout << "\nfront: " << crd.front;
         std::cout << "\ntype back: ";
         std::string back{};
         std::cin >> back;
-        b.move_card(c, back);
+        t = eval_answer(t, crd, back);
     }
     std::cout << "end training\n";
 }
