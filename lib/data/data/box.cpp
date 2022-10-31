@@ -19,20 +19,20 @@ namespace xzr::learn::data
 {
 inline namespace v1
 {
-box::box(cards c)
+training::training(cards c)
     : cs{std::move(c)}
 {
     ::shuffle(cs);
 }
-auto box::has_next() const -> bool
+auto training::has_next() const -> bool
 {
     return !cs.empty();
 }
-auto box::next() const -> const card&
+auto training::next() const -> const card&
 {
     return cs.back();
 }
-auto box::move_card(const card& c, const std::string& back) -> void
+auto training::move_card(const card& c, const std::string& back) -> void
 {
     if (c.back != back)
     {

@@ -16,7 +16,7 @@ using card = ::xzr::learn::data::card;
 using cards = ::xzr::learn::data::cards;
 using chapter = ::xzr::learn::data::chapter;
 using book = ::xzr::learn::data::book;
-using box = ::xzr::learn::data::box;
+using box = ::xzr::learn::data::training;
 namespace
 {
 const auto books_path{fs::path{"xzr_learn_books.txt"}};

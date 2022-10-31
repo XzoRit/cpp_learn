@@ -8,10 +8,10 @@ namespace xzr::learn::data
 {
 inline namespace v1
 {
-class box
+class training
 {
   public:
-    explicit box(cards c);
+    explicit training(cards c);
 
     auto has_next() const -> bool;
     auto next() const -> const card&;

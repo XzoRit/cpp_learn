@@ -14,7 +14,7 @@ BOOST_AUTO_TEST_SUITE(data_tests)
 
 BOOST_AUTO_TEST_SUITE(box_tests)
 
-using box = ::xzr::learn::data::box;
+using box = ::xzr::learn::data::training;
 using card = ::xzr::learn::data::card;
 using cards = ::xzr::learn::data::cards;
 using chapter = ::xzr::learn::data::chapter;
