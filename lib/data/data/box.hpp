@@ -11,7 +11,7 @@ inline namespace v1
 class box
 {
   public:
-    explicit box(chapter c);
+    explicit box(cards c);
 
     auto has_next() const -> bool;
     auto next() const -> const card&;
@@ -21,7 +21,7 @@ class box
   private:
     auto shuffle() -> void;
 
-    chapter cs{};
+    cards cs{};
 };
 }
 }

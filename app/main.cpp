@@ -13,6 +13,7 @@
 namespace fs = std::filesystem;
 namespace po = ::boost::program_options;
 using card = ::xzr::learn::data::card;
+using cards = ::xzr::learn::data::cards;
 using chapter = ::xzr::learn::data::chapter;
 using book = ::xzr::learn::data::book;
 using box = ::xzr::learn::data::box;
@@ -39,6 +40,10 @@ q    quit program
 {
     return the_book().chapters.at(0);
 }
+[[nodiscard]] auto cards_of_the_first_chapter_of_the_book() -> cards&
+{
+    return first_chapter_of_the_book().cards;
+}
 auto list_chapters_of_the_book() -> void
 {
     for (int i{}; const auto& cs : the_book().chapters)
@@ -46,7 +51,7 @@ auto list_chapters_of_the_book() -> void
 }
 auto list_cards_of_the_first_chapter_of_the_book() -> void
 {
-    for (const auto& c : first_chapter_of_the_book().cards)
+    for (const auto& c : cards_of_the_first_chapter_of_the_book())
         std::cout << c.front << "\t\t" << c.back << '\n';
 }
 auto create_chapter_in_the_book() -> void
@@ -67,7 +72,8 @@ auto add_card_to_the_first_chapter_of_the_book() -> void
     std::cin >> front;
     std::cout << "back: ";
     std::cin >> back;
-    first_chapter_of_the_book().cards.push_back({.front = front, .back = back});
+    cards_of_the_first_chapter_of_the_book().push_back(
+        {.front = front, .back = back});
     auto of{std::ofstream{books_path}};
     auto oa{::boost::archive::text_oarchive{of}};
     oa << the_book();
@@ -75,7 +81,7 @@ auto add_card_to_the_first_chapter_of_the_book() -> void
 auto start_training() -> void
 {
     std::cout << "starting training\n";
-    auto b{box{first_chapter_of_the_book()}};
+    auto b{box{cards_of_the_first_chapter_of_the_book()}};
     while (b.has_next())
     {
         const auto& c{b.next()};
