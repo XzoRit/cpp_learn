@@ -83,6 +83,8 @@ struct book
 
     [[nodiscard]] auto operator<=>(const book&) const = default;
 };
+
+using books = container<book>;
 }
 }
 
