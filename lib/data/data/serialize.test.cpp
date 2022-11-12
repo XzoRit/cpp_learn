@@ -1,5 +1,6 @@
 #include <data/data.hpp>
 #include <data/serialize.hpp>
+#include <data/training.hpp>
 
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -14,6 +15,7 @@ BOOST_AUTO_TEST_SUITE(serialize_tests)
 using chapter = ::xzr::learn::data::chapter;
 using card = ::xzr::learn::data::card;
 using book = ::xzr::learn::data::book;
+using training = ::xzr::learn::data::training;
 
 BOOST_AUTO_TEST_CASE(card_serialization)
 {
@@ -61,6 +63,22 @@ BOOST_AUTO_TEST_CASE(book_serialization)
         oa << a;
     }
     auto b{book{}};
+    {
+        auto ia{boost::archive::text_iarchive{ss}};
+        ia >> b;
+    }
+    BOOST_TEST(a == b);
+}
+
+BOOST_AUTO_TEST_CASE(training_serialization)
+{
+    const auto a{training{.cards = {{.front = "Hello", .back = "Hallo"}}}};
+    auto ss{std::stringstream{}};
+    {
+        auto oa{boost::archive::text_oarchive{ss}};
+        oa << a;
+    }
+    auto b{training{}};
     {
         auto ia{boost::archive::text_iarchive{ss}};
         ia >> b;
