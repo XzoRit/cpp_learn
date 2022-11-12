@@ -19,9 +19,11 @@ namespace po = ::boost::program_options;
 
 using app = ::xzr::learn::data::app;
 using book = ::xzr::learn::data::book;
+using books = ::xzr::learn::data::books;
 using card = ::xzr::learn::data::card;
 using cards = ::xzr::learn::data::cards;
 using chapter = ::xzr::learn::data::chapter;
+using chapters = ::xzr::learn::data::chapters;
 
 namespace
 {
@@ -56,69 +58,77 @@ auto println(auto&&... txt)
     static auto a{app{.the_books{book{}}}};
     return a;
 }
-[[nodiscard]] auto the_book() -> book&
+[[nodiscard]] auto the_books() -> books&
 {
-    return the_app().the_books.at(0);
+    return the_app().the_books;
 }
-[[nodiscard]] auto first_chapter_of_the_book() -> chapter&
+[[nodiscard]] auto the_first_book() -> book&
 {
-    return the_book().chapters.at(0);
+    return the_books().at(0);
 }
-[[nodiscard]] auto cards_of_the_first_chapter_of_the_book() -> cards&
+[[nodiscard]] auto the_chapters_of_the_first_book() -> chapters&
 {
-    return first_chapter_of_the_book().cards;
+    return the_first_book().chapters;
 }
-auto list_chapters_of_the_book() -> void
+[[nodiscard]] auto first_chapter_of_the_first_book() -> chapter&
 {
-    for (int i{}; const auto& cs : the_book().chapters)
+    return the_chapters_of_the_first_book().at(0);
+}
+[[nodiscard]] auto cards_of_the_first_chapter_of_the_first_book() -> cards&
+{
+    return first_chapter_of_the_first_book().cards;
+}
+auto list_chapters_of_the_first_book() -> void
+{
+    for (int i{}; const auto& cs : the_chapters_of_the_first_book())
         println(++i, ".\t", cs.name);
 }
-auto list_cards_of_the_first_chapter_of_the_book() -> void
+auto list_cards_of_the_first_chapter_of_the_first_book() -> void
 {
-    for (const auto& c : cards_of_the_first_chapter_of_the_book())
+    for (const auto& c : cards_of_the_first_chapter_of_the_first_book())
         println(c.front, "\t\t\t\t\t", c.back);
 }
 auto save() -> void
 {
     using oarchive = ::boost::archive::text_oarchive;
-    using ::xzr::learn::data::serialize;
+    using ::xzr::learn::data::save;
 
     auto f{std::ofstream{books_path}};
     auto o{oarchive{f}};
 
-    serialize(o, the_app());
+    save(o, the_app());
 }
 auto load() -> void
 {
     using iarchive = ::boost::archive::text_iarchive;
-    using ::xzr::learn::data::serialize;
+    using ::xzr::learn::data::load;
 
     auto f{std::ifstream{books_path}};
     auto i{iarchive{f}};
 
-    serialize(i, the_app());
+    the_app() = load(i);
 }
-auto create_chapter_in_the_book() -> void
+auto create_chapter_in_the_first_book() -> void
 {
     print("name: ");
     const auto name{readln()};
-    the_book().chapters.push_back({.name = name, .cards = {}});
+    the_chapters_of_the_first_book().push_back({.name = name, .cards = {}});
     save();
 }
-auto add_card_to_the_first_chapter_of_the_book() -> void
+auto add_card_to_the_first_chapter_of_the_first_book() -> void
 {
     print("front: ");
     const auto front{readln()};
     print("back: ");
     const auto back{readln()};
-    cards_of_the_first_chapter_of_the_book().push_back(
+    cards_of_the_first_chapter_of_the_first_book().push_back(
         {.front = front, .back = back});
     save();
 }
 auto start_training() -> void
 {
     println("starting training");
-    auto t{start_training(cards_of_the_first_chapter_of_the_book())};
+    auto t{start_training(cards_of_the_first_chapter_of_the_first_book())};
     while (const auto maybe_crd{current_card(t)})
     {
         const auto& crd{maybe_crd.value()};
@@ -159,19 +169,19 @@ auto main(int ac, char* av[]) -> int
             cmd = readln();
             if (cmd == "l")
             {
-                ::list_chapters_of_the_book();
+                ::list_chapters_of_the_first_book();
             }
             if (cmd == "b")
             {
-                ::list_cards_of_the_first_chapter_of_the_book();
+                ::list_cards_of_the_first_chapter_of_the_first_book();
             }
             if (cmd == "c")
             {
-                ::create_chapter_in_the_book();
+                ::create_chapter_in_the_first_book();
             }
             if (cmd == "a")
             {
-                ::add_card_to_the_first_chapter_of_the_book();
+                ::add_card_to_the_first_chapter_of_the_first_book();
             }
             if (cmd == "s")
             {

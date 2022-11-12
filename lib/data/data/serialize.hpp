@@ -46,5 +46,15 @@ inline auto serialize(auto& ar, app& a) -> void
 {
     ar& a;
 }
+inline auto save(auto& ar, const app& a) -> void
+{
+    ar& a;
+}
+inline auto load(auto& ar) -> app
+{
+    app a{};
+    ar& a;
+    return a;
+}
 }
 }
