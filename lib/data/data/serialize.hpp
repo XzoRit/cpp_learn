@@ -36,6 +36,7 @@ XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::app)
 XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::book)
 XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::card)
 XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::chapter)
+XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::training);
 
 namespace xzr::learn::data
 {

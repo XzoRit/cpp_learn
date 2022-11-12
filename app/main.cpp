@@ -1,3 +1,4 @@
+#include <data/app.hpp>
 #include <data/data.hpp>
 #include <data/serialize.hpp>
 #include <data/training.hpp>
@@ -16,13 +17,11 @@ using namespace std::string_literals;
 namespace fs = std::filesystem;
 namespace po = ::boost::program_options;
 
-using iarchive = ::boost::archive::text_iarchive;
-using oarchive = ::boost::archive::text_oarchive;
-
+using app = ::xzr::learn::data::app;
+using book = ::xzr::learn::data::book;
 using card = ::xzr::learn::data::card;
 using cards = ::xzr::learn::data::cards;
 using chapter = ::xzr::learn::data::chapter;
-using book = ::xzr::learn::data::book;
 
 namespace
 {
@@ -52,10 +51,14 @@ auto println(auto&&... txt)
     std::getline(std::cin, str);
     return str;
 }
+[[nodiscard]] auto the_app() -> app&
+{
+    static auto a{app{.the_books{book{}}}};
+    return a;
+}
 [[nodiscard]] auto the_book() -> book&
 {
-    static auto p{book{}};
-    return p;
+    return the_app().the_books.at(0);
 }
 [[nodiscard]] auto first_chapter_of_the_book() -> chapter&
 {
@@ -75,14 +78,32 @@ auto list_cards_of_the_first_chapter_of_the_book() -> void
     for (const auto& c : cards_of_the_first_chapter_of_the_book())
         println(c.front, "\t\t\t\t\t", c.back);
 }
+auto save() -> void
+{
+    using oarchive = ::boost::archive::text_oarchive;
+    using ::xzr::learn::data::serialize;
+
+    auto f{std::ofstream{books_path}};
+    auto o{oarchive{f}};
+
+    serialize(o, the_app());
+}
+auto load() -> void
+{
+    using iarchive = ::boost::archive::text_iarchive;
+    using ::xzr::learn::data::serialize;
+
+    auto f{std::ifstream{books_path}};
+    auto i{iarchive{f}};
+
+    serialize(i, the_app());
+}
 auto create_chapter_in_the_book() -> void
 {
     print("name: ");
     const auto name{readln()};
     the_book().chapters.push_back({.name = name, .cards = {}});
-    auto of{std::ofstream{books_path}};
-    auto oa{oarchive{of}};
-    oa << first_chapter_of_the_book();
+    save();
 }
 auto add_card_to_the_first_chapter_of_the_book() -> void
 {
@@ -92,9 +113,7 @@ auto add_card_to_the_first_chapter_of_the_book() -> void
     const auto back{readln()};
     cards_of_the_first_chapter_of_the_book().push_back(
         {.front = front, .back = back});
-    auto of{std::ofstream{books_path}};
-    auto oa{oarchive{of}};
-    oa << the_book();
+    save();
 }
 auto start_training() -> void
 {
@@ -127,19 +146,12 @@ auto main(int ac, char* av[]) -> int
             println(desc);
             return 0;
         }
-        //
-        if (!fs::exists(books_path))
-        {
-            auto f{std::ofstream{books_path}};
-            auto o{oarchive{f}};
-            o << the_book();
-        }
+
+        if (fs::exists(books_path))
+            load();
         else
-        {
-            auto f{std::ifstream{books_path}};
-            auto i{iarchive{f}};
-            i >> the_book();
-        }
+            save();
+
         auto cmd{""s};
         do
         {
