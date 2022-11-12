@@ -7,6 +7,7 @@ target_sources(
   data PRIVATE "${SOURCE}/data.cpp" "${SOURCE}/data.hpp"
                "${SOURCE}/training.cpp" "${SOURCE}/training.hpp"
                "${SOURCE}/app.cpp" "${SOURCE}/app.hpp"
+               "${SOURCE}/serialize.cpp" "${SOURCE}/serialize.hpp"
 )
 target_include_directories(data PUBLIC ${INCLUDE})
 target_link_libraries(data PUBLIC Boost::serialization)
