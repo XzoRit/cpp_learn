@@ -38,6 +38,20 @@ struct training_tests
 
 BOOST_FIXTURE_TEST_SUITE(suite_name, training_tests);
 
+BOOST_AUTO_TEST_CASE(dafault_constructed_training)
+{
+    {
+        const auto empty{training{}};
+        BOOST_TEST(!current_card(empty).has_value());
+        BOOST_TEST(current_card(eval_answer(t, card{}, "")).has_value());
+    }
+    {
+        const auto empty{training{.cards = cards{}}};
+        BOOST_TEST(!current_card(empty).has_value());
+        BOOST_TEST(current_card(eval_answer(t, card{}, "")).has_value());
+    }
+}
+
 BOOST_AUTO_TEST_CASE(all_cards_always_correct)
 {
     for (std::size_t i{}; i < crds.size(); ++i)
