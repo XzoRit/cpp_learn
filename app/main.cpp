@@ -10,8 +10,13 @@
 #include <iostream>
 #include <string>
 
+using namespace std::string_literals;
+
 namespace fs = std::filesystem;
 namespace po = ::boost::program_options;
+
+using iarchive = ::boost::archive::text_iarchive;
+using oarchive = ::boost::archive::text_oarchive;
 
 using card = ::xzr::learn::data::card;
 using cards = ::xzr::learn::data::cards;
@@ -32,6 +37,20 @@ s    start training with cards of the first chapter of the book
 q    quit program
 )";
 }
+auto print(auto&&... txt)
+{
+    (std::cout << ... << txt);
+}
+auto println(auto&&... txt)
+{
+    print(txt..., '\n');
+}
+[[nodiscard]] auto readln() -> std::string
+{
+    std::string str{};
+    std::getline(std::cin, str);
+    return str;
+}
 [[nodiscard]] auto the_book() -> book&
 {
     static auto p{book{}};
@@ -48,56 +67,53 @@ q    quit program
 auto list_chapters_of_the_book() -> void
 {
     for (int i{}; const auto& cs : the_book().chapters)
-        std::cout << ++i << ".\t" << cs.name << '\n';
+        println(++i, ".\t", cs.name);
 }
 auto list_cards_of_the_first_chapter_of_the_book() -> void
 {
     for (const auto& c : cards_of_the_first_chapter_of_the_book())
-        std::cout << c.front << "\t\t" << c.back << '\n';
+        println(c.front, "\t\t\t\t\t", c.back);
 }
 auto create_chapter_in_the_book() -> void
 {
-    auto name{std::string{}};
-    std::cout << "name: ";
-    std::cin >> name;
+    print("name: ");
+    const auto name{readln()};
     the_book().chapters.push_back({.name = name, .cards = {}});
     auto of{std::ofstream{books_path}};
-    auto oa{::boost::archive::text_oarchive{of}};
+    auto oa{oarchive{of}};
     oa << first_chapter_of_the_book();
 }
 auto add_card_to_the_first_chapter_of_the_book() -> void
 {
-    auto front{std::string{}};
-    auto back{std::string{}};
-    std::cout << "front: ";
-    std::cin >> front;
-    std::cout << "back: ";
-    std::cin >> back;
+    print("front: ");
+    const auto front{readln()};
+    print("back: ");
+    const auto back{readln()};
     cards_of_the_first_chapter_of_the_book().push_back(
         {.front = front, .back = back});
     auto of{std::ofstream{books_path}};
-    auto oa{::boost::archive::text_oarchive{of}};
+    auto oa{oarchive{of}};
     oa << the_book();
 }
 auto start_training() -> void
 {
-    std::cout << "starting training\n";
+    println("starting training");
     auto t{start_training(cards_of_the_first_chapter_of_the_book())};
     while (const auto maybe_crd{current_card(t)})
     {
         const auto& crd{maybe_crd.value()};
-        std::cout << "\nfront: " << crd.front;
-        std::cout << "\ntype back: ";
-        std::string back{};
-        std::cin >> back;
+        println("\nfront: ", crd.front);
+        print("type back: ");
+        const auto back{readln()};
         t = eval_answer(t, crd, back);
+        println("back: ", crd.back);
     }
-    std::cout << "end training\n";
+    println("end training\n");
 }
 }
 auto main(int ac, char* av[]) -> int
 {
-    std::cout << "xzr learn\n";
+    println("xzr learn");
     try
     {
         auto desc{po::options_description{"Allowed options"}};
@@ -107,60 +123,59 @@ auto main(int ac, char* av[]) -> int
         po::notify(vm);
         if (vm.count("help"))
         {
-            std::cout << desc << "\n";
+            println(desc);
             return 0;
         }
         //
         if (!fs::exists(books_path))
         {
             auto f{std::ofstream{books_path}};
-            auto o{::boost::archive::text_oarchive{f}};
+            auto o{oarchive{f}};
             o << the_book();
         }
         else
         {
             auto f{std::ifstream{books_path}};
-            auto i{::boost::archive::text_iarchive{f}};
+            auto i{iarchive{f}};
             i >> the_book();
         }
-        //
-        auto cmd{char{}};
+        auto cmd{""s};
         do
         {
             ::print_menue();
-            std::cin >> cmd;
-            if (cmd == 'l')
+            cmd = readln();
+            if (cmd == "l")
             {
                 ::list_chapters_of_the_book();
             }
-            if (cmd == 'b')
+            if (cmd == "b")
             {
                 ::list_cards_of_the_first_chapter_of_the_book();
             }
-            if (cmd == 'c')
+            if (cmd == "c")
             {
                 ::create_chapter_in_the_book();
             }
-            if (cmd == 'a')
+            if (cmd == "a")
             {
                 ::add_card_to_the_first_chapter_of_the_book();
             }
-            if (cmd == 's')
+            if (cmd == "s")
             {
                 ::start_training();
             }
-        } while (cmd != 'q');
-        std::cout << "bye\n";
+        } while (cmd != "q");
+        println("bye");
         return 0;
     }
     catch (const std::exception& e)
     {
-        std::cerr << "error: " << e.what() << "\n";
+        println("error: ", e.what());
         return 1;
     }
     catch (...)
     {
-        std::cerr << "Exception of unknown type!\n";
+        println("Exception of unknown type!");
     }
 
     return 0;
