@@ -1,4 +1,5 @@
 #include <data/data.hpp>
+#include <data/ostream.hpp>
 
 #include <boost/test/unit_test.hpp>
 

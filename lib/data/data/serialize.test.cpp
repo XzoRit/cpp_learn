@@ -1,4 +1,5 @@
 #include <data/data.hpp>
+#include <data/ostream.hpp>
 #include <data/serialize.hpp>
 #include <data/training.hpp>
 

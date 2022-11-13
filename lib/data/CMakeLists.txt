@@ -13,6 +13,8 @@ target_sources(
           "${SOURCE}/app.hpp"
           "${SOURCE}/serialize.cpp"
           "${SOURCE}/serialize.hpp"
+          "${SOURCE}/ostream.cpp"
+          "${SOURCE}/ostream.hpp"
 )
 target_include_directories(data PUBLIC ${INCLUDE})
 target_link_libraries(data PUBLIC Boost::serialization)

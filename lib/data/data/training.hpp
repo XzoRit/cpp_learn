@@ -16,8 +16,6 @@ struct training
     [[nodiscard]] auto operator<=>(const training&) const = default;
 };
 
-XZR_LEARN_DATA_OSTREAM_FOR(training)
-
 [[nodiscard]] auto start_training(cards cs) -> training;
 [[nodiscard]] auto current_card(const training& t) -> std::optional<card>;
 [[nodiscard]] auto eval_answer(training t, card crd, std::string_view back)
