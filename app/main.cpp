@@ -36,45 +36,6 @@ using training = ::xzr::learn::data::training;
 namespace
 {
 const auto books_path{fs::path{"xzr_learn_books.txt"}};
-auto print_menue() -> void
-{
-    std::cout << R"(
-l    list all chapters of the book
-b    list all cards of the first chapters of the book
-c    create chapter in the book
-a    add card to the first chapter of the book
-s    start training with cards of the first chapter of the book
-q    quit program
-)";
-}
-auto print(auto&&... txt)
-{
-    (std::cout << ... << txt);
-}
-auto println(auto&&... txt)
-{
-    print(txt..., '\n');
-}
-[[nodiscard]] auto readln() -> std::string
-{
-    std::string str{};
-    std::getline(std::cin, str);
-    return str;
-}
-auto list_chapters_of_the_first_book(const chapters& cs) -> void
-{
-    for (int i{}; const auto& c : cs)
-        println(++i, ".\t", c.name);
-}
-auto list_cards_of_the_first_chapter_of_the_first_book(const cards& cs) -> void
-{
-    for (const auto& c : cs)
-    {
-        println("front:\t", c.front);
-        println("back:\t", c.back);
-        println();
-    }
-}
 auto save(const app& app_data) -> void
 {
     using oarchive = ::boost::archive::text_oarchive;
@@ -95,13 +56,65 @@ auto load() -> app
 
     return load(i);
 }
-auto create_chapter_in_the_first_book(chapters& cs) -> void
+auto print(auto&&... txt)
+{
+    (std::cout << ... << txt);
+}
+auto println(auto&&... txt)
+{
+    print(txt..., '\n');
+}
+auto print_menue() -> void
+{
+    std::cout << R"(
+g    list all books
+l    list all chapters of the book
+b    list all cards of the first chapters of the book
+f    add book
+c    add chapter in the book
+a    add card to the first chapter of the book
+s    start training with cards of the first chapter of the book
+q    quit program
+)";
+}
+[[nodiscard]] auto readln() -> std::string
+{
+    std::string str{};
+    std::getline(std::cin, str);
+    return str;
+}
+auto print_books(const books& bs) -> void
+{
+    for (int i{}; const auto& b : bs)
+        println(++i, ".\t", b.name);
+}
+auto print_chapters(const chapters& cs) -> void
+{
+    for (int i{}; const auto& c : cs)
+        println(++i, ".\t", c.name);
+}
+auto print_cards(const cards& cs) -> void
+{
+    for (const auto& c : cs)
+    {
+        println("front:\t", c.front);
+        println("back:\t", c.back);
+        println();
+    }
+}
+auto add_book(books& bs) -> void
+{
+    print("name: ");
+    const auto name{readln()};
+    bs.push_back({.name = name, .chapters = {}});
+}
+auto add_chapter(chapters& cs) -> void
 {
     print("name: ");
     const auto name{readln()};
     cs.push_back({.name = name, .cards = {}});
 }
-auto add_card_to_the_first_chapter_of_the_first_book(cards& cs) -> void
+auto add_card(cards& cs) -> void
 {
     print("front: ");
     const auto front{readln()};
@@ -132,13 +145,19 @@ auto start_training(training t) -> void
 }
 namespace action
 {
-struct list_chapters
+struct print_books
 {
 };
-struct list_cards
+struct print_chapters
 {
 };
-struct create_chapter
+struct print_cards
+{
+};
+struct add_book
+{
+};
+struct add_chapter
 {
 };
 struct add_card
@@ -147,18 +166,22 @@ struct add_card
 struct start_training
 {
 };
-using action = std::variant<list_chapters,
-                            list_cards,
-                            create_chapter,
+using action = std::variant<print_books,
+                            print_chapters,
+                            print_cards,
+                            add_book,
+                            add_chapter,
                             add_card,
                             start_training>;
 }
 [[nodiscard]] auto intent(std::string_view cmd) -> std::optional<action::action>
 {
     static const std::map<std::string_view, action::action> cmd_actions{
-        {{"l", action::list_chapters{}},
-         {"b", action::list_cards{}},
-         {"c", action::create_chapter{}},
+        {{"g", action::print_books{}},
+         {"l", action::print_chapters{}},
+         {"b", action::print_cards{}},
+         {"f", action::add_book{}},
+         {"c", action::add_chapter{}},
          {"a", action::add_card{}},
          {"s", action::start_training{}}}};
 
@@ -170,22 +193,23 @@ auto update(app app_data, action::action act) -> app
 {
     std::visit(
         hof::match(
-            [&](action::list_chapters) {
-                list_chapters_of_the_first_book(
-                    app_data.the_books.at(0).chapters);
+            [&](action::print_books) { print_books(app_data.the_books); },
+            [&](action::print_chapters) {
+                print_chapters(app_data.the_books.at(0).chapters);
             },
-            [&](action::list_cards) {
-                list_cards_of_the_first_chapter_of_the_first_book(
-                    app_data.the_books.at(0).chapters.at(0).cards);
+            [&](action::print_cards) {
+                print_cards(app_data.the_books.at(0).chapters.at(0).cards);
             },
-            [&](action::create_chapter) {
-                create_chapter_in_the_first_book(
-                    app_data.the_books.at(0).chapters);
+            [&](action::add_book) {
+                add_book(app_data.the_books);
+                save(app_data);
+            },
+            [&](action::add_chapter) {
+                add_chapter(app_data.the_books.at(0).chapters);
                 save(app_data);
             },
             [&](action::add_card) {
-                add_card_to_the_first_chapter_of_the_first_book(
-                    app_data.the_books.at(0).chapters.at(0).cards);
+                add_card(app_data.the_books.at(0).chapters.at(0).cards);
                 save(app_data);
             },
             [&](action::start_training) {
