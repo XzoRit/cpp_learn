@@ -15,6 +15,7 @@
 #include <map>
 #include <optional>
 #include <string>
+#include <utility>
 #include <variant>
 
 using namespace std::string_literals;
@@ -30,6 +31,7 @@ using card = ::xzr::learn::data::card;
 using cards = ::xzr::learn::data::cards;
 using chapter = ::xzr::learn::data::chapter;
 using chapters = ::xzr::learn::data::chapters;
+using training = ::xzr::learn::data::training;
 
 namespace
 {
@@ -59,42 +61,21 @@ auto println(auto&&... txt)
     std::getline(std::cin, str);
     return str;
 }
-[[nodiscard]] auto the_app() -> app&
+auto list_chapters_of_the_first_book(const chapters& cs) -> void
 {
-    static auto a{app{.the_books{book{}}}};
-    return a;
+    for (int i{}; const auto& c : cs)
+        println(++i, ".\t", c.name);
 }
-[[nodiscard]] auto the_books() -> books&
+auto list_cards_of_the_first_chapter_of_the_first_book(const cards& cs) -> void
 {
-    return the_app().the_books;
+    for (const auto& c : cs)
+    {
+        println("front:\t", c.front);
+        println("back:\t", c.back);
+        println();
+    }
 }
-[[nodiscard]] auto the_first_book() -> book&
-{
-    return the_books().at(0);
-}
-[[nodiscard]] auto the_chapters_of_the_first_book() -> chapters&
-{
-    return the_first_book().chapters;
-}
-[[nodiscard]] auto first_chapter_of_the_first_book() -> chapter&
-{
-    return the_chapters_of_the_first_book().at(0);
-}
-[[nodiscard]] auto cards_of_the_first_chapter_of_the_first_book() -> cards&
-{
-    return first_chapter_of_the_first_book().cards;
-}
-auto list_chapters_of_the_first_book() -> void
-{
-    for (int i{}; const auto& cs : the_chapters_of_the_first_book())
-        println(++i, ".\t", cs.name);
-}
-auto list_cards_of_the_first_chapter_of_the_first_book() -> void
-{
-    for (const auto& c : cards_of_the_first_chapter_of_the_first_book())
-        println(c.front, "\t\t\t\t\t", c.back);
-}
-auto save() -> void
+auto save(const app& app_data) -> void
 {
     using oarchive = ::boost::archive::text_oarchive;
     using ::xzr::learn::data::save;
@@ -102,9 +83,9 @@ auto save() -> void
     auto f{std::ofstream{books_path}};
     auto o{oarchive{f}};
 
-    save(o, the_app());
+    save(o, app_data);
 }
-auto load() -> void
+auto load() -> app
 {
     using iarchive = ::boost::archive::text_iarchive;
     using ::xzr::learn::data::load;
@@ -112,29 +93,25 @@ auto load() -> void
     auto f{std::ifstream{books_path}};
     auto i{iarchive{f}};
 
-    the_app() = load(i);
+    return load(i);
 }
-auto create_chapter_in_the_first_book() -> void
+auto create_chapter_in_the_first_book(chapters& cs) -> void
 {
     print("name: ");
     const auto name{readln()};
-    the_chapters_of_the_first_book().push_back({.name = name, .cards = {}});
-    save();
+    cs.push_back({.name = name, .cards = {}});
 }
-auto add_card_to_the_first_chapter_of_the_first_book() -> void
+auto add_card_to_the_first_chapter_of_the_first_book(cards& cs) -> void
 {
     print("front: ");
     const auto front{readln()};
     print("back: ");
     const auto back{readln()};
-    cards_of_the_first_chapter_of_the_first_book().push_back(
-        {.front = front, .back = back});
-    save();
+    cs.push_back({.front = front, .back = back});
 }
-auto start_training() -> void
+auto start_training(training t) -> void
 {
     println("starting training");
-    auto t{start_training(cards_of_the_first_chapter_of_the_first_book())};
     while (const auto maybe_crd{current_card(t)})
     {
         const auto& crd{maybe_crd.value()};
@@ -146,12 +123,12 @@ auto start_training() -> void
     }
     println("end training\n");
 }
-auto update_app() -> void
+[[nodiscard]] auto read_or_create_app_data() -> app
 {
-    if (fs::exists(books_path))
-        load();
-    else
-        save();
+    if (!fs::exists(books_path))
+        save(app{});
+
+    return load();
 }
 namespace action
 {
@@ -176,7 +153,7 @@ using action = std::variant<list_chapters,
                             add_card,
                             start_training>;
 }
-auto intent(std::string_view cmd) -> std::optional<action::action>
+[[nodiscard]] auto intent(std::string_view cmd) -> std::optional<action::action>
 {
     static const std::map<std::string_view, action::action> cmd_actions{
         {{"l", action::list_chapters{}},
@@ -189,7 +166,37 @@ auto intent(std::string_view cmd) -> std::optional<action::action>
         return match->second;
     return std::nullopt;
 }
-auto run() -> void
+auto update(app app_data, action::action act) -> app
+{
+    std::visit(
+        hof::match(
+            [&](action::list_chapters) {
+                list_chapters_of_the_first_book(
+                    app_data.the_books.at(0).chapters);
+            },
+            [&](action::list_cards) {
+                list_cards_of_the_first_chapter_of_the_first_book(
+                    app_data.the_books.at(0).chapters.at(0).cards);
+            },
+            [&](action::create_chapter) {
+                create_chapter_in_the_first_book(
+                    app_data.the_books.at(0).chapters);
+                save(app_data);
+            },
+            [&](action::add_card) {
+                add_card_to_the_first_chapter_of_the_first_book(
+                    app_data.the_books.at(0).chapters.at(0).cards);
+                save(app_data);
+            },
+            [&](action::start_training) {
+                start_training(training{
+                    .cards = app_data.the_books.at(0).chapters.at(0).cards});
+            }),
+        act);
+
+    return app_data;
+}
+auto run(app app_data) -> void
 {
     for (;;)
     {
@@ -199,22 +206,7 @@ auto run() -> void
             break;
         if (const auto act{intent(cmd)})
         {
-            std::visit(
-                hof::match(
-                    [](action::list_chapters) {
-                        list_chapters_of_the_first_book();
-                    },
-                    [](action::list_cards) {
-                        list_cards_of_the_first_chapter_of_the_first_book();
-                    },
-                    [](action::create_chapter) {
-                        create_chapter_in_the_first_book();
-                    },
-                    [](action::add_card) {
-                        add_card_to_the_first_chapter_of_the_first_book();
-                    },
-                    [](action::start_training) { start_training(); }),
-                act.value());
+            app_data = update(std::move(app_data), act.value());
         }
     }
 }
@@ -238,8 +230,8 @@ auto main(int ac, char* av[]) -> int
         }
         println("welcome to xzr::learn");
         {
-            ::update_app();
-            ::run();
+
+            ::run(::read_or_create_app_data());
         }
         println("bye from xzr.learn");
         return 0;
