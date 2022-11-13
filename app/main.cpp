@@ -5,6 +5,7 @@
 
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
+#include <boost/hof/match.hpp>
 #include <boost/program_options.hpp>
 
 #include <filesystem>
@@ -12,12 +13,15 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <optional>
 #include <string>
+#include <variant>
 
 using namespace std::string_literals;
 
 namespace fs = std::filesystem;
 namespace po = ::boost::program_options;
+namespace hof = ::boost::hof;
 
 using app = ::xzr::learn::data::app;
 using book = ::xzr::learn::data::book;
@@ -149,24 +153,70 @@ auto update_app() -> void
     else
         save();
 }
+namespace action
+{
+struct list_chapters
+{
+};
+struct list_cards
+{
+};
+struct create_chapter
+{
+};
+struct add_card
+{
+};
+struct start_training
+{
+};
+using action = std::variant<list_chapters,
+                            list_cards,
+                            create_chapter,
+                            add_card,
+                            start_training>;
+}
+auto intent(std::string_view cmd) -> std::optional<action::action>
+{
+    static const std::map<std::string_view, action::action> cmd_actions{
+        {{"l", action::list_chapters{}},
+         {"b", action::list_cards{}},
+         {"c", action::create_chapter{}},
+         {"a", action::add_card{}},
+         {"s", action::start_training{}}}};
+
+    if (const auto match{cmd_actions.find(cmd)}; match != cmd_actions.cend())
+        return match->second;
+    return std::nullopt;
+}
 auto run() -> void
 {
-    static const std::map<std::string, std::function<void()>> cmd_actions{
-        {{"l", ::list_chapters_of_the_first_book},
-         {"b", ::list_cards_of_the_first_chapter_of_the_first_book},
-         {"c", ::create_chapter_in_the_first_book},
-         {"a", ::add_card_to_the_first_chapter_of_the_first_book},
-         {"s", ::start_training}}};
-
-    auto cmd{""s};
-    do
+    for (;;)
     {
         ::print_menue();
-        cmd = readln();
-        if (const auto match{cmd_actions.find(cmd)};
-            match != cmd_actions.cend())
-            match->second();
-    } while (cmd != "q");
+        const auto cmd{readln()};
+        if (cmd == "q")
+            break;
+        if (const auto act{intent(cmd)})
+        {
+            std::visit(
+                hof::match(
+                    [](action::list_chapters) {
+                        list_chapters_of_the_first_book();
+                    },
+                    [](action::list_cards) {
+                        list_cards_of_the_first_chapter_of_the_first_book();
+                    },
+                    [](action::create_chapter) {
+                        create_chapter_in_the_first_book();
+                    },
+                    [](action::add_card) {
+                        add_card_to_the_first_chapter_of_the_first_book();
+                    },
+                    [](action::start_training) { start_training(); }),
+                act.value());
+        }
+    }
 }
 }
 auto main(int ac, char* av[]) -> int
@@ -188,8 +238,8 @@ auto main(int ac, char* av[]) -> int
         }
         println("welcome to xzr::learn");
         {
-            update_app();
-            run();
+            ::update_app();
+            ::run();
         }
         println("bye from xzr.learn");
         return 0;
