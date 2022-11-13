@@ -9,7 +9,9 @@
 
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <iostream>
+#include <map>
 #include <string>
 
 using namespace std::string_literals;
@@ -140,55 +142,56 @@ auto start_training() -> void
     }
     println("end training\n");
 }
+auto update_app() -> void
+{
+    if (fs::exists(books_path))
+        load();
+    else
+        save();
+}
+auto run() -> void
+{
+    static const std::map<std::string, std::function<void()>> cmd_actions{
+        {{"l", ::list_chapters_of_the_first_book},
+         {"b", ::list_cards_of_the_first_chapter_of_the_first_book},
+         {"c", ::create_chapter_in_the_first_book},
+         {"a", ::add_card_to_the_first_chapter_of_the_first_book},
+         {"s", ::start_training}}};
+
+    auto cmd{""s};
+    do
+    {
+        ::print_menue();
+        cmd = readln();
+        if (const auto match{cmd_actions.find(cmd)};
+            match != cmd_actions.cend())
+            match->second();
+    } while (cmd != "q");
+}
 }
 auto main(int ac, char* av[]) -> int
 {
-    println("xzr learn");
     try
     {
-        auto desc{po::options_description{"Allowed options"}};
-        desc.add_options()("help,h", "produce help message");
-        auto vm{po::variables_map{}};
-        po::store(po::parse_command_line(ac, av, desc), vm);
-        po::notify(vm);
-        if (vm.count("help"))
         {
-            println(desc);
-            return 0;
+            auto desc{
+                po::options_description{"xzr.learn command line options"}};
+            desc.add_options()("help,h", "produce help message");
+            auto vm{po::variables_map{}};
+            po::store(po::parse_command_line(ac, av, desc), vm);
+            po::notify(vm);
+            if (vm.count("help"))
+            {
+                println(desc);
+                return 0;
+            }
         }
-
-        if (fs::exists(books_path))
-            load();
-        else
-            save();
-
-        auto cmd{""s};
-        do
+        println("welcome to xzr::learn");
         {
-            ::print_menue();
-            cmd = readln();
-            if (cmd == "l")
-            {
-                ::list_chapters_of_the_first_book();
-            }
-            if (cmd == "b")
-            {
-                ::list_cards_of_the_first_chapter_of_the_first_book();
-            }
-            if (cmd == "c")
-            {
-                ::create_chapter_in_the_first_book();
-            }
-            if (cmd == "a")
-            {
-                ::add_card_to_the_first_chapter_of_the_first_book();
-            }
-            if (cmd == "s")
-            {
-                ::start_training();
-            }
-        } while (cmd != "q");
-        println("bye");
+            update_app();
+            run();
+        }
+        println("bye from xzr.learn");
         return 0;
     }
     catch (const std::exception& e)
