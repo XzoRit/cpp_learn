@@ -1,3 +1,5 @@
+#include "console.hpp"
+
 #include <data/app.hpp>
 #include <data/data.hpp>
 #include <data/serialize.hpp>
@@ -33,6 +35,10 @@ using chapter = ::xzr::learn::data::chapter;
 using chapters = ::xzr::learn::data::chapters;
 using training = ::xzr::learn::data::training;
 
+using ::xzr::learn::console::print;
+using ::xzr::learn::console::println;
+using ::xzr::learn::console::render;
+
 namespace
 {
 const auto books_path{fs::path{"xzr_learn_books.txt"}};
@@ -56,51 +62,11 @@ auto load() -> app
 
     return load(i);
 }
-auto print(auto&&... txt)
-{
-    (std::cout << ... << txt);
-}
-auto println(auto&&... txt)
-{
-    print(txt..., '\n');
-}
-auto print_menue() -> void
-{
-    std::cout << R"(
-g    list all books
-l    list all chapters of the book
-b    list all cards of the first chapters of the book
-f    add book
-c    add chapter in the book
-a    add card to the first chapter of the book
-s    start training with cards of the first chapter of the book
-q    quit program
-)";
-}
 [[nodiscard]] auto readln() -> std::string
 {
     std::string str{};
     std::getline(std::cin, str);
     return str;
-}
-auto print_books(const books& bs) -> void
-{
-    for (int i{}; const auto& b : bs)
-        println(++i, ".\t", b.name);
-}
-auto print_chapters(const chapters& cs) -> void
-{
-    for (int i{}; const auto& c : cs)
-        println(++i, ".\t", c.name);
-}
-auto print_cards(const cards& cs) -> void
-{
-    for (const auto& c : cs)
-    {
-        println("front:\t", c.front);
-        println("back:\t", c.back);
-        println();
-    }
 }
 auto add_book(books& bs) -> void
 {
@@ -145,15 +111,6 @@ auto start_training(training t) -> void
 }
 namespace action
 {
-struct print_books
-{
-};
-struct print_chapters
-{
-};
-struct print_cards
-{
-};
 struct add_book
 {
 };
@@ -166,24 +123,15 @@ struct add_card
 struct start_training
 {
 };
-using action = std::variant<print_books,
-                            print_chapters,
-                            print_cards,
-                            add_book,
-                            add_chapter,
-                            add_card,
-                            start_training>;
+using action = std::variant<add_book, add_chapter, add_card, start_training>;
 }
 [[nodiscard]] auto intent(std::string_view cmd) -> std::optional<action::action>
 {
     static const std::map<std::string_view, action::action> cmd_actions{
-        {{"g", action::print_books{}},
-         {"l", action::print_chapters{}},
-         {"b", action::print_cards{}},
-         {"f", action::add_book{}},
-         {"c", action::add_chapter{}},
-         {"a", action::add_card{}},
-         {"s", action::start_training{}}}};
+        {{"a", action::add_book{}},
+         {"b", action::add_chapter{}},
+         {"c", action::add_card{}},
+         {"z", action::start_training{}}}};
 
     if (const auto match{cmd_actions.find(cmd)}; match != cmd_actions.cend())
         return match->second;
@@ -193,13 +141,6 @@ auto update(app app_data, action::action act) -> app
 {
     std::visit(
         hof::match(
-            [&](action::print_books) { print_books(app_data.the_books); },
-            [&](action::print_chapters) {
-                print_chapters(app_data.the_books.at(0).chapters);
-            },
-            [&](action::print_cards) {
-                print_cards(app_data.the_books.at(0).chapters.at(0).cards);
-            },
             [&](action::add_book) {
                 add_book(app_data.the_books);
                 save(app_data);
@@ -222,15 +163,16 @@ auto update(app app_data, action::action act) -> app
 }
 auto run(app app_data) -> void
 {
+    render(app_data);
     for (;;)
     {
-        ::print_menue();
         const auto cmd{readln()};
         if (cmd == "q")
             break;
         if (const auto act{intent(cmd)})
         {
             app_data = update(std::move(app_data), act.value());
+            render(app_data);
         }
     }
 }
