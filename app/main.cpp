@@ -1,5 +1,6 @@
 #include "console.hpp"
 
+#include <data/action.hpp>
 #include <data/app.hpp>
 #include <data/data.hpp>
 #include <data/serialize.hpp>
@@ -34,6 +35,11 @@ using cards = ::xzr::learn::data::cards;
 using chapter = ::xzr::learn::data::chapter;
 using chapters = ::xzr::learn::data::chapters;
 using training = ::xzr::learn::data::training;
+using action = ::xzr::learn::action::action;
+using add_book = ::xzr::learn::action::add_book;
+using add_chapter = ::xzr::learn::action::add_chapter;
+using add_card = ::xzr::learn::action::add_card;
+using start_training = ::xzr::learn::action::start_training;
 
 using ::xzr::learn::console::print;
 using ::xzr::learn::console::println;
@@ -68,19 +74,19 @@ auto load() -> app
     std::getline(std::cin, str);
     return str;
 }
-auto add_book(books& bs) -> void
+auto act_add_book(books& bs) -> void
 {
     print("name: ");
     const auto name{readln()};
     bs.push_back({.name = name, .chapters = {}});
 }
-auto add_chapter(chapters& cs) -> void
+auto act_add_chapter(chapters& cs) -> void
 {
     print("name: ");
     const auto name{readln()};
     cs.push_back({.name = name, .cards = {}});
 }
-auto add_card(cards& cs) -> void
+auto act_add_card(cards& cs) -> void
 {
     print("front: ");
     const auto front{readln()};
@@ -88,7 +94,7 @@ auto add_card(cards& cs) -> void
     const auto back{readln()};
     cs.push_back({.front = front, .back = back});
 }
-auto start_training(training t) -> void
+auto act_start_training(training t) -> void
 {
     println("starting training");
     while (const auto maybe_crd{current_card(t)})
@@ -109,52 +115,36 @@ auto start_training(training t) -> void
 
     return load();
 }
-namespace action
+[[nodiscard]] auto intent(std::string_view cmd) -> std::optional<action>
 {
-struct add_book
-{
-};
-struct add_chapter
-{
-};
-struct add_card
-{
-};
-struct start_training
-{
-};
-using action = std::variant<add_book, add_chapter, add_card, start_training>;
-}
-[[nodiscard]] auto intent(std::string_view cmd) -> std::optional<action::action>
-{
-    static const std::map<std::string_view, action::action> cmd_actions{
-        {{"a", action::add_book{}},
-         {"b", action::add_chapter{}},
-         {"c", action::add_card{}},
-         {"z", action::start_training{}}}};
+    static const std::map<std::string_view, action> cmd_actions{
+        {{"a", add_book{}},
+         {"b", add_chapter{}},
+         {"c", add_card{}},
+         {"z", start_training{}}}};
 
     if (const auto match{cmd_actions.find(cmd)}; match != cmd_actions.cend())
         return match->second;
     return std::nullopt;
 }
-auto update(app app_data, action::action act) -> app
+auto update(app app_data, action act) -> app
 {
     std::visit(
         hof::match(
-            [&](action::add_book) {
-                add_book(app_data.the_books);
+            [&](add_book) {
+                act_add_book(app_data.the_books);
                 save(app_data);
             },
-            [&](action::add_chapter) {
-                add_chapter(app_data.the_books.at(0).chapters);
+            [&](add_chapter) {
+                act_add_chapter(app_data.the_books.at(0).chapters);
                 save(app_data);
             },
-            [&](action::add_card) {
-                add_card(app_data.the_books.at(0).chapters.at(0).cards);
+            [&](add_card) {
+                act_add_card(app_data.the_books.at(0).chapters.at(0).cards);
                 save(app_data);
             },
-            [&](action::start_training) {
-                start_training(training{
+            [&](start_training) {
+                act_start_training(training{
                     .cards = app_data.the_books.at(0).chapters.at(0).cards});
             }),
         act);
