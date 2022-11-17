@@ -20,6 +20,10 @@ struct add_card
 struct start_training
 {
 };
-using action = std::variant<add_book, add_chapter, add_card, start_training>;
+struct quit
+{
+};
+using action =
+    std::variant<add_book, add_chapter, add_card, start_training, quit>;
 }
 }
