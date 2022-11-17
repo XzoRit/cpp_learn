@@ -12,7 +12,7 @@ BOOST_AUTO_TEST_SUITE(update_tests)
 using ::xzr::learn::update::update;
 
 using app = ::xzr::learn::data::app;
-using add_book = ::xzr::learn::action::add_book;
+using add_book = ::xzr::learn::data::add_book;
 
 BOOST_AUTO_TEST_CASE(update_with_add_book)
 {

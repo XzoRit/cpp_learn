@@ -21,9 +21,9 @@ namespace xzr::learn::update
 {
 inline namespace v1
 {
-auto update(data::app app, action::action act) -> data::app
+auto update(data::app app, data::action act) -> data::app
 {
-    using namespace action;
+    using namespace data;
 
     std::visit(boost::hof::match(
                    [&](add_book a) { add_book_to(app.the_books, a.name); },

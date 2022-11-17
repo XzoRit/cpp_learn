@@ -12,12 +12,9 @@
 #include <string_view>
 #include <variant>
 
-using action = ::xzr::learn::action::action;
-using add_book = xzr::learn::action::add_book;
-using add_chapter = xzr::learn::action::add_chapter;
-using add_card = xzr::learn::action::add_card;
-using start_training = xzr::learn::action::start_training;
-using quit = xzr::learn::action::quit;
+using action = xzr::learn::data::action;
+using add_book = xzr::learn::data::add_book;
+using quit = xzr::learn::data::quit;
 using app = ::xzr::learn::data::app;
 using books = ::xzr::learn::data::books;
 
@@ -34,11 +31,7 @@ auto readln() -> std::string
 auto intent(std::string_view cmd) -> std::optional<action>
 {
     static const std::map<std::string_view, action> cmd_actions{
-        {{"a", add_book{}},
-         {"b", add_chapter{}},
-         {"c", add_card{}},
-         {"d", quit{}},
-         {"z", start_training{}}}};
+        {{"a", add_book{}}, {"d", quit{}}}};
 
     if (const auto match{cmd_actions.find(cmd)}; match != cmd_actions.cend())
         return match->second;
@@ -46,12 +39,7 @@ auto intent(std::string_view cmd) -> std::optional<action>
 }
 auto update(app app_data, action act) -> app
 {
-    std::visit(boost::hof::match([&](add_book) {},
-                                 [&](add_chapter) {},
-                                 [&](add_card) {},
-                                 [&](start_training) {},
-                                 [&](quit) {}),
-               act);
+    std::visit(boost::hof::match([&](add_book) {}, [&](quit) {}), act);
 
     return app_data;
 }

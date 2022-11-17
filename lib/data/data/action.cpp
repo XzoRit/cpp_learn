@@ -1,6 +1,6 @@
 #include <data/action.hpp>
 
-namespace xzr::learn::action
+namespace xzr::learn::data
 {
 inline namespace v1
 {
