@@ -101,7 +101,7 @@ auto intent(std::string_view cmd) -> std::optional<console::action>
         return match->second;
     return std::nullopt;
 }
-auto update(app app_data, console::action act) -> console::update_result
+auto update_console(app app_data, console::action act) -> console::update_result
 {
     return std::visit(
         boost::hof::match(
@@ -114,6 +114,15 @@ auto update(app app_data, console::action act) -> console::update_result
                                               .data_act = std::nullopt};
             }),
         act);
+}
+auto update(app app_data, console::action act) -> app
+{
+    using ::xzr::learn::data::update;
+
+    const auto [data, data_act]{update_console(std::move(app_data), act)};
+    if (data_act)
+        return update(std::move(data), data_act.value());
+    return data;
 }
 auto render_books(const books& bs) -> void
 {
@@ -137,22 +146,15 @@ inline namespace v1
 {
 auto run() -> void
 {
-    auto data_and_action{
-        ::console::update_result{.data = ::persist::read_or_create_app_data(),
-                                 .data_act = std::nullopt}};
+    auto app_data{::persist::read_or_create_app_data()};
     for (;;)
     {
-        ::render(data_and_action.data);
+        ::render(app_data);
         const auto cmd{::readln()};
         if (const auto console_act{::intent(cmd)})
         {
-            data_and_action =
-                ::update(std::move(data_and_action.data), console_act.value());
-            if (const auto data_act{data_and_action.data_act})
-                data_and_action.data = ::xzr::learn::update::update(
-                    std::move(data_and_action.data),
-                    data_act.value());
-            ::persist::save(data_and_action.data);
+            app_data = ::update(std::move(app_data), console_act.value());
+            ::persist::save(app_data);
             if (std::holds_alternative<::console::quit>(console_act.value()))
                 return;
         }

@@ -9,7 +9,7 @@ namespace
 {
 BOOST_AUTO_TEST_SUITE(update_tests)
 
-using ::xzr::learn::update::update;
+using ::xzr::learn::data::update;
 
 using app = ::xzr::learn::data::app;
 using add_book = ::xzr::learn::data::add_book;

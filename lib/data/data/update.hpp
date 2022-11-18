@@ -3,10 +3,10 @@
 #include <data/action.hpp>
 #include <data/app.hpp>
 
-namespace xzr::learn::update
+namespace xzr::learn::data
 {
 inline namespace v1
 {
-auto update(data::app a, data::action act) -> data::app;
+auto update(app a, action act) -> app;
 }
 }
