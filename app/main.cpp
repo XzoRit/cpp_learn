@@ -7,7 +7,6 @@
 namespace po = ::boost::program_options;
 
 using ::xzr::learn::console::println;
-using ::xzr::learn::console::run;
 
 auto main(int ac, char* av[]) -> int
 {
@@ -26,12 +25,11 @@ auto main(int ac, char* av[]) -> int
                 return 0;
             }
         }
-        println("welcome to xzr::learn");
-        {
 
-            ::run();
-        }
+        println("welcome to xzr::learn");
+        ::xzr::learn::console::run();
         println("bye from xzr.learn");
+
         return 0;
     }
     catch (const std::exception& e)

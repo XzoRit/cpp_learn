@@ -9,6 +9,7 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/hof/match.hpp>
+#include <boost/hof/result.hpp>
 
 #include <filesystem>
 #include <fstream>
@@ -18,14 +19,6 @@
 #include <string_view>
 #include <tuple>
 #include <variant>
-
-using data_action = xzr::learn::data::action;
-using data_add_book = xzr::learn::data::add_book;
-using data_quit = xzr::learn::data::quit;
-using app = ::xzr::learn::data::app;
-using books = ::xzr::learn::data::books;
-
-namespace fs = std::filesystem;
 
 using ::xzr::learn::console::println;
 
@@ -40,59 +33,71 @@ struct quit
 {
 };
 using action = std::variant<add_book, quit>;
-
-struct update_result
-{
-    app data;
-    std::optional<data_action> data_act;
-};
 }
 namespace persist
 {
+namespace fs = std::filesystem;
+
 const auto books_path{fs::path{"xzr_learn_books.txt"}};
-auto save(const app& app_data) -> void
+
+auto save(const ::xzr::learn::data::app& app_data)
 {
     using oarchive = ::boost::archive::text_oarchive;
     using ::xzr::learn::data::save;
 
     auto f{std::ofstream{books_path}};
     auto o{oarchive{f}};
-
     save(o, app_data);
 }
-auto load() -> app
+[[nodiscard]] auto load()
 {
     using iarchive = ::boost::archive::text_iarchive;
     using ::xzr::learn::data::load;
 
     auto f{std::ifstream{books_path}};
     auto i{iarchive{f}};
-
     return load(i);
 }
-[[nodiscard]] auto read_or_create_app_data() -> app
+[[nodiscard]] auto read_or_create_app_data()
 {
     if (!fs::exists(books_path))
-        save(app{});
-
+        save(::xzr::learn::data::app{});
     return load();
 }
 }
-auto readln() -> std::string
+[[nodiscard]] auto readln()
 {
     std::string str{};
     std::getline(std::cin, str);
     return str;
 }
-auto show_add_book() -> data_add_book
+[[nodiscard]] auto dialog_add_book()
 {
     println("add book");
-    println();
     println("name: ");
-
-    return data_add_book{.name = readln()};
+    return ::xzr::learn::data::add_book{.name = readln()};
 }
-auto intent(std::string_view cmd) -> std::optional<console::action>
+[[nodiscard]] auto update_console(const ::xzr::learn::data::app&,
+                                  console::action act)
+{
+    using ::boost::hof::match;
+    using ::boost::hof::result;
+
+    return std::visit(result<std::optional<::xzr::learn::data::action>>(match(
+                          [&](console::add_book) { return dialog_add_book(); },
+                          [&](console::quit) { return std::nullopt; })),
+                      act);
+}
+[[nodiscard]] auto update(::xzr::learn::data::app app_data, console::action act)
+{
+    using ::xzr::learn::data::update;
+
+    if (const auto data_act{update_console(app_data, act)})
+        return update(std::move(app_data), data_act.value());
+    return app_data;
+}
+[[nodiscard]] auto intent(std::string_view cmd)
+    -> std::optional<console::action>
 {
     static const std::map<std::string_view, console::action> cmd_actions{
         {{"b", console::add_book{}}, {"d", console::quit{}}}};
@@ -101,30 +106,7 @@ auto intent(std::string_view cmd) -> std::optional<console::action>
         return match->second;
     return std::nullopt;
 }
-auto update_console(app app_data, console::action act) -> console::update_result
-{
-    return std::visit(
-        boost::hof::match(
-            [&](console::add_book) {
-                return console::update_result{.data = app_data,
-                                              .data_act = show_add_book()};
-            },
-            [&](console::quit) {
-                return console::update_result{.data = app_data,
-                                              .data_act = std::nullopt};
-            }),
-        act);
-}
-auto update(app app_data, console::action act) -> app
-{
-    using ::xzr::learn::data::update;
-
-    const auto [data, data_act]{update_console(std::move(app_data), act)};
-    if (data_act)
-        return update(std::move(data), data_act.value());
-    return data;
-}
-auto render_books(const books& bs) -> void
+auto render_books(const ::xzr::learn::data::books& bs)
 {
     for (int i{}; const auto& b : bs)
         println(++i, ".\t", b.name);
@@ -135,7 +117,7 @@ auto render_books(const books& bs) -> void
     println("c<n>:\tremove");
     println("d:\tquit");
 }
-auto render(const app& app_data) -> void
+auto render(const ::xzr::learn::data::app& app_data)
 {
     render_books(app_data.the_books);
 }
@@ -150,8 +132,7 @@ auto run() -> void
     for (;;)
     {
         ::render(app_data);
-        const auto cmd{::readln()};
-        if (const auto console_act{::intent(cmd)})
+        if (const auto console_act{::intent(::readln())})
         {
             app_data = ::update(std::move(app_data), console_act.value());
             ::persist::save(app_data);
