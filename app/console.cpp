@@ -33,6 +33,12 @@ struct quit
 {
 };
 using action = std::variant<add_book, quit>;
+
+struct update_result
+{
+    app data;
+    std::optional<data_action> data_act;
+};
 }
 auto readln() -> std::string
 {
@@ -57,17 +63,17 @@ auto intent(std::string_view cmd) -> std::optional<console::action>
         return match->second;
     return std::nullopt;
 }
-auto update(app app_data, console::action act)
-    -> std::tuple<app, std::optional<data_action>>
+auto update(app app_data, console::action act) -> console::update_result
 {
     return std::visit(
         boost::hof::match(
-            [&](console::add_book)
-                -> std::tuple<app, std::optional<data_action>> {
-                return {app_data, show_add_book()};
+            [&](console::add_book) {
+                return console::update_result{.data = app_data,
+                                              .data_act = show_add_book()};
             },
-            [&](console::quit) -> std::tuple<app, std::optional<data_action>> {
-                return {app_data, std::nullopt};
+            [&](console::quit) {
+                return console::update_result{.data = app_data,
+                                              .data_act = std::nullopt};
             }),
         act);
 }
@@ -93,20 +99,19 @@ inline namespace v1
 {
 auto run(app app_data) -> void
 {
-    auto app_data_and_action{
-        std::make_tuple(app_data, std::optional<data_action>{})};
+    auto data_and_action{::console::update_result{.data = std::move(app_data),
+                                                  .data_act = std::nullopt}};
     for (;;)
     {
-        ::render(std::get<0>(app_data_and_action));
+        ::render(data_and_action.data);
         const auto cmd{::readln()};
         if (const auto console_act{::intent(cmd)})
         {
-            app_data_and_action =
-                ::update(std::move(std::get<0>(app_data_and_action)),
-                         console_act.value());
-            if (const auto data_act{std::get<1>(app_data_and_action)})
-                std::get<0>(app_data_and_action) = ::xzr::learn::update::update(
-                    std::move(std::get<0>(app_data_and_action)),
+            data_and_action =
+                ::update(std::move(data_and_action.data), console_act.value());
+            if (const auto data_act{data_and_action.data_act})
+                data_and_action.data = ::xzr::learn::update::update(
+                    std::move(data_and_action.data),
                     data_act.value());
             if (std::holds_alternative<::console::quit>(console_act.value()))
                 return;
