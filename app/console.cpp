@@ -152,6 +152,7 @@ auto run() -> void
                 data_and_action.data = ::xzr::learn::update::update(
                     std::move(data_and_action.data),
                     data_act.value());
+            ::persist::save(data_and_action.data);
             if (std::holds_alternative<::console::quit>(console_act.value()))
                 return;
         }
