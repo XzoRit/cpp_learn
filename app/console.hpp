@@ -1,5 +1,3 @@
-#include <data/app.hpp>
-
 #include <iostream>
 
 namespace xzr::learn::console
@@ -14,6 +12,6 @@ inline auto println(auto&&... txt)
 {
     print(txt..., '\n');
 }
-auto run(data::app app_data) -> void;
+auto run() -> void;
 }
 }

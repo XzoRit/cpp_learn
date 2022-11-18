@@ -3,10 +3,15 @@
 #include <data/action.hpp>
 #include <data/app.hpp>
 #include <data/data.hpp>
+#include <data/serialize.hpp>
 #include <data/update.hpp>
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <boost/hof/match.hpp>
 
+#include <filesystem>
+#include <fstream>
 #include <map>
 #include <optional>
 #include <string>
@@ -19,6 +24,8 @@ using data_add_book = xzr::learn::data::add_book;
 using data_quit = xzr::learn::data::quit;
 using app = ::xzr::learn::data::app;
 using books = ::xzr::learn::data::books;
+
+namespace fs = std::filesystem;
 
 using ::xzr::learn::console::println;
 
@@ -39,6 +46,37 @@ struct update_result
     app data;
     std::optional<data_action> data_act;
 };
+}
+namespace persist
+{
+const auto books_path{fs::path{"xzr_learn_books.txt"}};
+auto save(const app& app_data) -> void
+{
+    using oarchive = ::boost::archive::text_oarchive;
+    using ::xzr::learn::data::save;
+
+    auto f{std::ofstream{books_path}};
+    auto o{oarchive{f}};
+
+    save(o, app_data);
+}
+auto load() -> app
+{
+    using iarchive = ::boost::archive::text_iarchive;
+    using ::xzr::learn::data::load;
+
+    auto f{std::ifstream{books_path}};
+    auto i{iarchive{f}};
+
+    return load(i);
+}
+[[nodiscard]] auto read_or_create_app_data() -> app
+{
+    if (!fs::exists(books_path))
+        save(app{});
+
+    return load();
+}
 }
 auto readln() -> std::string
 {
@@ -97,10 +135,11 @@ namespace xzr::learn::console
 {
 inline namespace v1
 {
-auto run(app app_data) -> void
+auto run() -> void
 {
-    auto data_and_action{::console::update_result{.data = std::move(app_data),
-                                                  .data_act = std::nullopt}};
+    auto data_and_action{
+        ::console::update_result{.data = ::persist::read_or_create_app_data(),
+                                 .data_act = std::nullopt}};
     for (;;)
     {
         ::render(data_and_action.data);

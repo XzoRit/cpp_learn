@@ -1,55 +1,14 @@
 #include "console.hpp"
 
-#include <data/app.hpp>
-#include <data/serialize.hpp>
-
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
 #include <boost/program_options.hpp>
 
-#include <filesystem>
-#include <fstream>
 #include <stdexcept>
 
-namespace fs = std::filesystem;
 namespace po = ::boost::program_options;
 
 using ::xzr::learn::console::println;
 using ::xzr::learn::console::run;
 
-using app = ::xzr::learn::data::app;
-
-namespace
-{
-const auto books_path{fs::path{"xzr_learn_books.txt"}};
-auto save(const app& app_data) -> void
-{
-    using oarchive = ::boost::archive::text_oarchive;
-    using ::xzr::learn::data::save;
-
-    auto f{std::ofstream{books_path}};
-    auto o{oarchive{f}};
-
-    save(o, app_data);
-}
-auto load() -> app
-{
-    using iarchive = ::boost::archive::text_iarchive;
-    using ::xzr::learn::data::load;
-
-    auto f{std::ifstream{books_path}};
-    auto i{iarchive{f}};
-
-    return load(i);
-}
-[[nodiscard]] auto read_or_create_app_data() -> app
-{
-    if (!fs::exists(books_path))
-        save(app{});
-
-    return load();
-}
-}
 auto main(int ac, char* av[]) -> int
 {
     try
@@ -70,7 +29,7 @@ auto main(int ac, char* av[]) -> int
         println("welcome to xzr::learn");
         {
 
-            ::run(::read_or_create_app_data());
+            ::run();
         }
         println("bye from xzr.learn");
         return 0;
