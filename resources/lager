@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+# -*- mode: Python; -*-
+
+import click
+import requests
+
+class config:
+    SERVER='http://localhost:8080'
+
+    @classmethod
+    def path(cls, *args):
+        return '/'.join([cls.SERVER] + list(args))
+
+@click.group(invoke_without_command=True)
+@click.option('--server', default=config.SERVER)
+@click.pass_context
+def lager(ctx, server):
+    config.SERVER=server
+    if ctx.invoked_subcommand is None:
+        ctx.invoke(status)
+
+@lager.command()
+def status():
+    r = requests.get(config.path('/api'))
+    print(r.text)
+
+@lager.command()
+@click.argument('cursor')
+def step(cursor):
+    r = requests.get(config.path('/api/step', cursor))
+    print(r.text)
+
+@lager.command()
+@click.argument('cursor')
+def goto(cursor):
+    r = requests.post(config.path('/api/goto', cursor))
+    print(r.text)
+
+@lager.command()
+def undo():
+    r = requests.post(config.path('/api/undo'))
+    print(r.text)
+
+@lager.command()
+def redo():
+    r = requests.post(config.path('/api/redo'))
+    print(r.text)
+
+if __name__ == '__main__':
+    lager()
