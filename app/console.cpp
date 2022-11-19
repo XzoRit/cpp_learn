@@ -6,6 +6,11 @@
 #include <data/serialize.hpp>
 #include <data/update.hpp>
 
+#include <lager/event_loop/manual.hpp>
+#include <lager/event_loop/queue.hpp>
+#include <lager/store.hpp>
+#include <lager/watch.hpp>
+
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/hof/match.hpp>
@@ -163,6 +168,9 @@ namespace console::render
                           [](::console::state::quit) { return std::nullopt; })),
                       console_state);
 }
+auto draw(const ::xzr::learn::data::app&)
+{
+}
 }
 }
 
@@ -172,6 +180,22 @@ inline namespace v1
 {
 auto run() -> void
 {
+    auto evt_q{::lager::queue_event_loop{}};
+    auto store{::lager::make_store<::xzr::learn::data::action>(
+        ::xzr::learn::data::app{},
+        ::lager::with_manual_event_loop{})};
+    ::lager::watch(store, ::console::render::draw);
+
+    // auto c = char{};
+    // while (std::cin >> c)
+    // {
+    //     if (c == 'q')
+    //         break;
+    //     if (const auto act = xzr::counter::view::console::menu::intent(c))
+    //         store.dispatch(*act);
+    evt_q.step();
+    // }
+
     auto app_data{::persist::read_or_create_app_data()};
     auto console_state{::console::state::state{::console::state::books{}}};
     static_cast<void>(::console::render::console(app_data, console_state));

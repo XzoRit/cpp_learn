@@ -1,4 +1,4 @@
 add_executable(app_exe)
 target_sources(app_exe PRIVATE "main.cpp" "console.hpp" "console.cpp")
-target_link_libraries(app_exe PRIVATE lib::data Boost::program_options)
+target_link_libraries(app_exe PRIVATE lib::data Boost::program_options lager)
 add_test(NAME app::exe COMMAND app_exe)
