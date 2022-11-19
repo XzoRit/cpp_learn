@@ -26,43 +26,6 @@ namespace
 {
 namespace persist
 {
-auto save(const ::xzr::learn::data::app& app_data);
-[[nodiscard]] auto load();
-[[nodiscard]] auto read_or_create_app_data();
-}
-namespace console
-{
-namespace action
-{
-struct add_book
-{
-};
-struct quit
-{
-};
-using action = std::variant<add_book, quit>;
-}
-namespace dialog
-{
-[[nodiscard]] auto add_book();
-[[nodiscard]] auto update(const ::xzr::learn::data::app&, action::action act);
-}
-[[nodiscard]] auto readln();
-[[nodiscard]] auto intent(std::string_view cmd)
-    -> std::optional<action::action>;
-[[nodiscard]] auto update(::xzr::learn::data::app app_data,
-                          ::xzr::learn::data::action act);
-namespace render
-{
-auto app(const ::xzr::learn::data::app& app_data);
-auto books(const ::xzr::learn::data::books& bs);
-}
-}
-}
-namespace
-{
-namespace persist
-{
 namespace fs = std::filesystem;
 
 const auto books_path{fs::path{"xzr_learn_books.txt"}};
@@ -92,6 +55,41 @@ auto save(const ::xzr::learn::data::app& app_data)
     return load();
 }
 }
+}
+
+namespace
+{
+namespace console::action
+{
+struct add_book
+{
+};
+struct quit
+{
+};
+using action = std::variant<add_book, quit>;
+}
+}
+
+namespace
+{
+namespace console::state
+{
+struct books
+{
+};
+struct add_book
+{
+};
+struct quit
+{
+};
+using state = std::variant<books, add_book, quit>;
+}
+}
+
+namespace
+{
 namespace console
 {
 [[nodiscard]] auto readln()
@@ -100,24 +98,19 @@ namespace console
     std::getline(std::cin, str);
     return str;
 }
-namespace dialog
-{
-[[nodiscard]] auto add_book()
-{
-    println("add book");
-    println("name: ");
-    return ::xzr::learn::data::add_book{.name = readln()};
-}
-[[nodiscard]] auto update(const ::xzr::learn::data::app&, action::action act)
+[[nodiscard]] auto update(::console::state::state,
+                          ::console::action::action act)
 {
     using ::boost::hof::match;
     using ::boost::hof::result;
 
-    return std::visit(result<std::optional<::xzr::learn::data::action>>(
-                          match([&](action::add_book) { return add_book(); },
-                                [&](action::quit) { return std::nullopt; })),
-                      act);
-}
+    return std::visit(
+        result<::console::state::state>(match(
+            [&](::console::action::add_book) {
+                return ::console::state::add_book{};
+            },
+            [&](::console::action::quit) { return ::console::state::quit{}; })),
+        act);
 }
 [[nodiscard]] auto intent(std::string_view cmd) -> std::optional<action::action>
 {
@@ -128,17 +121,14 @@ namespace dialog
         return match->second;
     return std::nullopt;
 }
-[[nodiscard]] auto update(::xzr::learn::data::app app_data, action::action act)
-{
-    using ::xzr::learn::data::update;
-
-    if (const auto data_act{dialog::update(app_data, act)})
-        return update(std::move(app_data), data_act.value());
-    return app_data;
 }
-namespace render
+}
+
+namespace
 {
-auto books(const ::xzr::learn::data::books& bs)
+namespace console::render
+{
+[[nodiscard]] auto books(const ::xzr::learn::data::books& bs)
 {
     for (int i{}; const auto& b : bs)
         println(++i, ".\t", b.name);
@@ -148,14 +138,34 @@ auto books(const ::xzr::learn::data::books& bs)
     println("b:\tadd");
     println("c<n>:\tremove");
     println("d:\tquit");
+    return std::nullopt;
 }
-auto app(const ::xzr::learn::data::app& app_data)
+[[nodiscard]] auto add_book()
 {
-    books(app_data.the_books);
+    println("add book");
+    println("name: ");
+    return ::xzr::learn::data::add_book{.name = readln()};
+}
+[[nodiscard]] auto console(const ::xzr::learn::data::app& app_data,
+                           const ::console::state::state& console_state)
+{
+    using ::boost::hof::match;
+    using ::boost::hof::result;
+
+    return std::visit(result<std::optional<::xzr::learn::data::action>>(match(
+                          [&](::console::state::books) {
+                              return ::console::render::books(
+                                  app_data.the_books);
+                          },
+                          [](::console::state::add_book) {
+                              return ::console::render::add_book();
+                          },
+                          [](::console::state::quit) { return std::nullopt; })),
+                      console_state);
 }
 }
 }
-}
+
 namespace xzr::learn::console
 {
 inline namespace v1
@@ -163,17 +173,27 @@ inline namespace v1
 auto run() -> void
 {
     auto app_data{::persist::read_or_create_app_data()};
+    auto console_state{::console::state::state{::console::state::books{}}};
+    static_cast<void>(::console::render::console(app_data, console_state));
     for (;;)
     {
-        ::console::render::app(app_data);
         if (const auto console_act{::console::intent(::console::readln())})
         {
-            app_data =
-                ::console::update(std::move(app_data), console_act.value());
+            console_state = ::console::update(std::move(console_state),
+                                              console_act.value());
+            if (const auto data_act{
+                    ::console::render::console(app_data, console_state)})
+                app_data = ::xzr::learn::data::update(std::move(app_data),
+                                                      data_act.value());
             ::persist::save(app_data);
             if (std::holds_alternative<::console::action::quit>(
                     console_act.value()))
                 return;
+        }
+        else
+        {
+            println("sorry, unknown command");
+            println();
         }
     }
 }
