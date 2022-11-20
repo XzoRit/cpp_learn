@@ -27,10 +27,10 @@ auto main(int ac, char* av[]) -> int
         }
 
         println("welcome to xzr::learn");
-        ::xzr::learn::console::run();
+        const auto ret{::xzr::learn::console::run()};
         println("bye from xzr.learn");
 
-        return 0;
+        return ret;
     }
     catch (const std::exception& e)
     {

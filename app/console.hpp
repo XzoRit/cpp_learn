@@ -12,6 +12,6 @@ inline auto println(auto&&... txt)
 {
     print(txt..., '\n');
 }
-auto run() -> void;
+auto run() -> int;
 }
 }

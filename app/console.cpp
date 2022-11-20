@@ -205,12 +205,13 @@ namespace xzr::learn::console
 {
 inline namespace v1
 {
-auto run() -> void
+auto run() -> int
 {
     auto prgrm{::console::program::data{
         .app_data = ::persist::read_or_create_app_data(),
         .view_state = ::console::state::books{}}};
-    ::console::render::console(prgrm);
+    if (::console::render::console(prgrm))
+        return 1;
 
     for (;;)
     {
@@ -237,10 +238,11 @@ auto run() -> void
                            prgrm_act.value());
             }
             ::persist::save(prgrm.app_data);
-            ::console::render::console(prgrm);
+            if (::console::render::console(prgrm))
+                return 2;
             if (std::holds_alternative<::console::action::quit>(
                     console_act.value()))
-                return;
+                return 0;
         }
         else
         {
