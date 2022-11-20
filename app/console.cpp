@@ -6,11 +6,6 @@
 #include <data/serialize.hpp>
 #include <data/update.hpp>
 
-#include <lager/event_loop/manual.hpp>
-#include <lager/event_loop/queue.hpp>
-#include <lager/store.hpp>
-#include <lager/watch.hpp>
-
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/hof/match.hpp>
@@ -95,6 +90,21 @@ using state = std::variant<books, add_book, quit>;
 
 namespace
 {
+namespace console::program
+{
+struct data
+{
+    ::xzr::learn::data::app app_data;
+    ::console::state::state view_state;
+};
+
+using action =
+    std::variant<::xzr::learn::data::action, ::console::action::action>;
+}
+}
+
+namespace
+{
 namespace console
 {
 [[nodiscard]] auto readln()
@@ -103,8 +113,8 @@ namespace console
     std::getline(std::cin, str);
     return str;
 }
-[[nodiscard]] auto update(::console::state::state,
-                          ::console::action::action act)
+[[nodiscard]] auto update(::console::state::state view_state,
+                          ::console::action::action console_act)
 {
     using ::boost::hof::match;
     using ::boost::hof::result;
@@ -115,12 +125,28 @@ namespace console
                 return ::console::state::add_book{};
             },
             [&](::console::action::quit) { return ::console::state::quit{}; })),
-        act);
+        console_act);
 }
-[[nodiscard]] auto intent(std::string_view cmd) -> std::optional<action::action>
+[[nodiscard]] auto update(::console::state::state view_state,
+                          ::xzr::learn::data::action act)
 {
-    static const std::map<std::string_view, action::action> cmd_actions{
-        {{"b", action::add_book{}}, {"d", action::quit{}}}};
+    using ::boost::hof::match;
+    using ::boost::hof::result;
+
+    return std::visit(result<::console::state::state>(match(
+                          [&](::console::state::books) { return view_state; },
+                          [&](::console::state::add_book) {
+                              return ::console::state::books{};
+                          },
+                          [&](::console::state::quit) { return view_state; })),
+                      view_state);
+}
+[[nodiscard]] auto intent(std::string_view cmd)
+    -> std::optional<::console::action::action>
+{
+    static const std::map<std::string_view, ::console::action::action>
+        cmd_actions{{{"b", ::console::action::add_book{}},
+                     {"d", ::console::action::quit{}}}};
 
     if (const auto match{cmd_actions.find(cmd)}; match != cmd_actions.cend())
         return match->second;
@@ -157,7 +183,7 @@ namespace console::render
     using ::boost::hof::match;
     using ::boost::hof::result;
 
-    return std::visit(result<std::optional<::xzr::learn::data::action>>(match(
+    return std::visit(result<std::optional<::console::program::action>>(match(
                           [&](::console::state::books) {
                               return ::console::render::books(
                                   app_data.the_books);
@@ -168,8 +194,9 @@ namespace console::render
                           [](::console::state::quit) { return std::nullopt; })),
                       console_state);
 }
-auto draw(const ::xzr::learn::data::app&)
+[[nodiscard]] auto console(const ::console::program::data& data)
 {
+    return console(data.app_data, data.view_state);
 }
 }
 }
@@ -180,36 +207,37 @@ inline namespace v1
 {
 auto run() -> void
 {
-    auto evt_q{::lager::queue_event_loop{}};
-    auto store{::lager::make_store<::xzr::learn::data::action>(
-        ::xzr::learn::data::app{},
-        ::lager::with_manual_event_loop{})};
-    ::lager::watch(store, ::console::render::draw);
+    auto prgrm{::console::program::data{
+        .app_data = ::persist::read_or_create_app_data(),
+        .view_state = ::console::state::books{}}};
+    ::console::render::console(prgrm);
 
-    // auto c = char{};
-    // while (std::cin >> c)
-    // {
-    //     if (c == 'q')
-    //         break;
-    //     if (const auto act = xzr::counter::view::console::menu::intent(c))
-    //         store.dispatch(*act);
-    evt_q.step();
-    // }
-
-    auto app_data{::persist::read_or_create_app_data()};
-    auto console_state{::console::state::state{::console::state::books{}}};
-    static_cast<void>(::console::render::console(app_data, console_state));
     for (;;)
     {
         if (const auto console_act{::console::intent(::console::readln())})
         {
-            console_state = ::console::update(std::move(console_state),
-                                              console_act.value());
-            if (const auto data_act{
-                    ::console::render::console(app_data, console_state)})
-                app_data = ::xzr::learn::data::update(std::move(app_data),
-                                                      data_act.value());
-            ::persist::save(app_data);
+            prgrm.view_state = ::console::update(std::move(prgrm.view_state),
+                                                 console_act.value());
+            if (const auto prgrm_act{::console::render::console(prgrm)})
+            {
+                std::visit(::boost::hof::match(
+                               [&](::xzr::learn::data::action act) {
+                                   prgrm.app_data = ::xzr::learn::data::update(
+                                       std::move(prgrm.app_data),
+                                       act);
+                                   prgrm.view_state = ::console::update(
+                                       std::move(prgrm.view_state),
+                                       act);
+                               },
+                               [&](::console::action::action act) {
+                                   prgrm.view_state = ::console::update(
+                                       std::move(prgrm.view_state),
+                                       act);
+                               }),
+                           prgrm_act.value());
+            }
+            ::persist::save(prgrm.app_data);
+            ::console::render::console(prgrm);
             if (std::holds_alternative<::console::action::quit>(
                     console_act.value()))
                 return;
