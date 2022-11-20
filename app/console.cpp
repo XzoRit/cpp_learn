@@ -64,10 +64,14 @@ namespace console::action
 struct add_book
 {
 };
+struct remove_book
+{
+    int id{};
+};
 struct quit
 {
 };
-using action = std::variant<add_book, quit>;
+using action = std::variant<add_book, remove_book, quit>;
 }
 }
 
@@ -81,10 +85,14 @@ struct books
 struct add_book
 {
 };
+struct remove_book
+{
+    int id{};
+};
 struct quit
 {
 };
-using state = std::variant<books, add_book, quit>;
+using state = std::variant<books, add_book, remove_book, quit>;
 }
 }
 
@@ -120,12 +128,40 @@ namespace console
     using ::boost::hof::result;
 
     return std::visit(
-        result<::console::state::state>(match(
-            [&](::console::action::add_book) {
-                return ::console::state::add_book{};
+        match(
+            [&](::console::state::books) {
+                return std::visit(result<::console::state::state>(match(
+                                      [&](::console::action::add_book) {
+                                          return ::console::state::add_book{};
+                                      },
+                                      [&](::console::action::remove_book act) {
+                                          return ::console::state::remove_book{
+                                              .id = act.id};
+                                      },
+                                      [&](::console::action::quit) {
+                                          return ::console::state::quit{};
+                                      })),
+                                  console_act);
             },
-            [&](::console::action::quit) { return ::console::state::quit{}; })),
-        console_act);
+            [&](::console::state::add_book) {
+                return std::visit(
+                    result<::console::state::state>(match(
+                        [&](auto) { return ::console::state::add_book{}; })),
+                    console_act);
+            },
+            [&](::console::state::remove_book) {
+                return std::visit(
+                    result<::console::state::state>(match(
+                        [&](auto) { return ::console::state::remove_book{}; })),
+                    console_act);
+            },
+            [&](::console::state::quit) {
+                return std::visit(
+                    result<::console::state::state>(
+                        match([&](auto) { return ::console::state::quit{}; })),
+                    console_act);
+            }),
+        view_state);
 }
 [[nodiscard]] auto update(::console::state::state view_state,
                           ::xzr::learn::data::action act)
@@ -134,22 +170,34 @@ namespace console
     using ::boost::hof::result;
 
     return std::visit(result<::console::state::state>(match(
-                          [&](::console::state::books) { return view_state; },
                           [&](::console::state::add_book) {
                               return ::console::state::books{};
                           },
-                          [&](::console::state::quit) { return view_state; })),
+                          [&](::console::state::remove_book) {
+                              return ::console::state::books{};
+                          },
+                          [&](auto) { return view_state; })),
                       view_state);
 }
 [[nodiscard]] auto intent(std::string_view cmd)
     -> std::optional<::console::action::action>
 {
-    static const std::map<std::string_view, ::console::action::action>
-        cmd_actions{{{"b", ::console::action::add_book{}},
-                     {"d", ::console::action::quit{}}}};
+    if (cmd.size() == 1u)
+    {
+        static const std::map<std::string_view, ::console::action::action>
+            cmd_actions{{{"b", ::console::action::add_book{}},
+                         {"d", ::console::action::quit{}}}};
 
-    if (const auto match{cmd_actions.find(cmd)}; match != cmd_actions.cend())
-        return match->second;
+        if (const auto match{cmd_actions.find(cmd)};
+            match != cmd_actions.cend())
+            return match->second;
+    }
+    if (cmd.starts_with('c'))
+    {
+        const auto book_id{
+            std::stoi(std::string(std::next(cmd.cbegin()), cmd.cend()))};
+        return ::console::action::remove_book{.id = book_id};
+    }
     return std::nullopt;
 }
 }
@@ -177,6 +225,10 @@ namespace console::render
     println("name: ");
     return ::xzr::learn::data::add_book{.name = readln()};
 }
+[[nodiscard]] auto remove_book(int id)
+{
+    return ::xzr::learn::data::remove_book{.id = id - 1};
+}
 [[nodiscard]] auto console(const ::xzr::learn::data::app& app_data,
                            const ::console::state::state& console_state)
 {
@@ -191,7 +243,10 @@ namespace console::render
                           [](::console::state::add_book) {
                               return ::console::render::add_book();
                           },
-                          [](::console::state::quit) { return std::nullopt; })),
+                          [](::console::state::remove_book s) {
+                              return ::console::render::remove_book(s.id);
+                          },
+                          [](auto) { return std::nullopt; })),
                       console_state);
 }
 [[nodiscard]] auto console(const ::console::program::data& data)

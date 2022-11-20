@@ -11,9 +11,13 @@ struct add_book
 {
     std::string name{};
 };
+struct remove_book
+{
+    int id{};
+};
 struct quit
 {
 };
-using action = std::variant<add_book, quit>;
+using action = std::variant<add_book, remove_book, quit>;
 }
 }
