@@ -1,5 +1,6 @@
 #include <data/action.hpp>
 #include <data/app.hpp>
+#include <data/ostream.hpp>
 #include <data/update.hpp>
 
 #include <boost/test/unit_test.hpp>
@@ -35,6 +36,30 @@ BOOST_AUTO_TEST_CASE(update_with_remove_book)
     const auto new_app{update(the_app, remove_book{.id = 0})};
 
     BOOST_TEST(new_app.the_books.size() == 0u);
+}
+
+BOOST_AUTO_TEST_CASE(update_with_removal_on_empty_books)
+{
+    const auto the_app{app{.the_books = books{}}};
+
+    const auto new_app{update(the_app, remove_book{.id = 0})};
+
+    BOOST_TEST(new_app == the_app);
+}
+
+BOOST_AUTO_TEST_CASE(update_with_removal_wrong_id)
+{
+    const auto the_app{app{.the_books = books{book{.name = "book 2"}}}};
+    {
+        const auto new_app{update(the_app, remove_book{.id = 1})};
+
+        BOOST_TEST(new_app == the_app);
+    }
+    {
+        const auto new_app{update(the_app, remove_book{.id = -1})};
+
+        BOOST_TEST(new_app == the_app);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

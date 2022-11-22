@@ -1,3 +1,4 @@
+#include <data/app.hpp>
 #include <data/data.hpp>
 #include <data/training.hpp>
 
@@ -15,6 +16,7 @@ namespace xzr::learn::data
 {
 inline namespace v1
 {
+XZR_LEARN_DATA_OSTREAM_FOR(app)
 XZR_LEARN_DATA_OSTREAM_FOR(card)
 XZR_LEARN_DATA_OSTREAM_FOR(chapter)
 XZR_LEARN_DATA_OSTREAM_FOR(book)

@@ -11,6 +11,7 @@ struct app
 {
     books the_books{};
     training the_training{};
+    [[nodiscard]] bool operator==(const app&) const = default;
 };
 }
 }

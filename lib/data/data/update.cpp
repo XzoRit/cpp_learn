@@ -17,6 +17,10 @@ auto add_book_to(books& bs, const std::string& name)
 }
 auto remove_book_from(books& bs, int id)
 {
+    if (bs.empty())
+        return;
+    if (id >= bs.size())
+        return;
     bs.erase(std::next(bs.cbegin(), id));
 }
 }
