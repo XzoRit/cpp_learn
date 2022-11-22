@@ -67,18 +67,21 @@ namespace console
     std::getline(std::cin, str);
     return str;
 }
-}
-}
-
-namespace
+struct state
 {
-namespace console::render
+    std::optional<int> book_id{};
+};
+struct data
 {
-[[nodiscard]] auto console(const ::xzr::learn::data::app& app_data)
-    -> std::optional<::xzr::learn::data::action>
+    std::optional<::xzr::learn::data::action> data_act{};
+    state console_state{};
+};
+auto draw_book(const ::xzr::learn::data::book& book, int book_id, state s)
+    -> ::console::data
 {
-    for (int i{}; const auto& b : app_data.the_books)
-        println(++i, ".\t", b.name);
+    println("name: ", book.name);
+    for (int i{}; const auto& c : book.chapters)
+        println(++i, ".\t", c.name);
 
     println("");
     println("a<n>:\tselect");
@@ -86,49 +89,65 @@ namespace console::render
     println("c<n>:\tremove");
     println("d:\tquit");
 
-    const auto books_cmd{readln()};
-    if (books_cmd.starts_with('a'))
+    const auto& book_cmd{readln()};
+    if (book_cmd == "b")
     {
-        const auto book_id{std::stoi(books_cmd.substr(1)) - 1};
-        const auto& book{app_data.the_books.at(book_id)};
-        println("name: ", book.name);
-        for (int i{}; const auto& c : book.chapters)
-            println(++i, ".\t", c.name);
+        println("add chapter");
+        println("name: ");
+        return {.data_act = ::xzr::learn::data::add_chapter{.book_id = book_id,
+                                                            .name = readln()},
+                .console_state = s};
+    }
+    else if (book_cmd == "d")
+        s.book_id.reset();
+    return {.data_act = std::nullopt, .console_state = s};
+}
+[[nodiscard]] auto draw(const ::xzr::learn::data::app& app_data, state s)
+    -> ::console::data
+{
+
+    if (s.book_id)
+    {
+        return draw_book(app_data.the_books.at(s.book_id.value()),
+                         s.book_id.value(),
+                         s);
+    }
+    else
+    {
+        for (int i{}; const auto& b : app_data.the_books)
+            println(++i, ".\t", b.name);
 
         println("");
         println("a<n>:\tselect");
         println("b:\tadd");
         println("c<n>:\tremove");
+        println("d:\tquit");
 
-        const auto& book_cmd{readln()};
-        if (book_cmd == "b")
+        const auto books_cmd{readln()};
+        if (books_cmd.starts_with('a'))
         {
-            println("add chapter");
-            println("name: ");
-            return ::xzr::learn::data::add_chapter{.book_id = book_id,
-                                                   .name = readln()};
+            s.book_id = std::stoi(books_cmd.substr(1)) - 1;
+            return draw_book(app_data.the_books.at(s.book_id.value()),
+                             s.book_id.value(),
+                             s);
         }
-
-        return std::nullopt;
-    }
-    else if (books_cmd == "b")
-    {
-        println("add book");
-        println("name: ");
-        return ::xzr::learn::data::add_book{.name = readln()};
-    }
-    else if (books_cmd.starts_with('c'))
-    {
-        const auto book_id{std::stoi(books_cmd.substr(1)) - 1};
-        return ::xzr::learn::data::remove_book{.id = book_id};
-    }
-    else if (books_cmd == "d")
-    {
-        return ::xzr::learn::data::quit{};
-    }
-    else
-    {
-        return std::nullopt;
+        else if (books_cmd == "b")
+        {
+            println("add book");
+            println("name: ");
+            return {.data_act = ::xzr::learn::data::add_book{.name = readln()},
+                    .console_state = s};
+        }
+        else if (books_cmd.starts_with('c'))
+        {
+            const auto book_id{std::stoi(books_cmd.substr(1)) - 1};
+            return {.data_act = ::xzr::learn::data::remove_book{.id = book_id},
+                    .console_state = s};
+        }
+        else if (books_cmd == "d")
+            return {.data_act = ::xzr::learn::data::quit{}, .console_state = s};
+        else
+            return {.data_act = std::nullopt, .console_state = s};
     }
 }
 }
@@ -141,10 +160,12 @@ inline namespace v1
 auto run() -> int
 {
     auto app_data{::persist::read_or_create_app_data()};
+    auto console_data{::console::data{}};
 
     for (;;)
     {
-        if (const auto data_act{::console::render::console(app_data)})
+        console_data = ::console::draw(app_data, console_data.console_state);
+        if (const auto data_act{console_data.data_act})
         {
             app_data = ::xzr::learn::data::update(std::move(app_data),
                                                   data_act.value());
