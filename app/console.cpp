@@ -87,7 +87,31 @@ namespace console::render
     println("d:\tquit");
 
     const auto books_cmd{readln()};
-    if (books_cmd == "b")
+    if (books_cmd.starts_with('a'))
+    {
+        const auto book_id{std::stoi(books_cmd.substr(1)) - 1};
+        const auto& book{app_data.the_books.at(book_id)};
+        println("name: ", book.name);
+        for (int i{}; const auto& c : book.chapters)
+            println(++i, ".\t", c.name);
+
+        println("");
+        println("a<n>:\tselect");
+        println("b:\tadd");
+        println("c<n>:\tremove");
+
+        const auto& book_cmd{readln()};
+        if (book_cmd == "b")
+        {
+            println("add chapter");
+            println("name: ");
+            return ::xzr::learn::data::add_chapter{.book_id = book_id,
+                                                   .name = readln()};
+        }
+
+        return std::nullopt;
+    }
+    else if (books_cmd == "b")
     {
         println("add book");
         println("name: ");
@@ -95,9 +119,8 @@ namespace console::render
     }
     else if (books_cmd.starts_with('c'))
     {
-        const auto book_id{std::stoi(
-            std::string(std::next(books_cmd.cbegin()), books_cmd.cend()))};
-        return ::xzr::learn::data::remove_book{.id = book_id - 1};
+        const auto book_id{std::stoi(books_cmd.substr(1)) - 1};
+        return ::xzr::learn::data::remove_book{.id = book_id};
     }
     else if (books_cmd == "d")
     {
@@ -129,11 +152,6 @@ auto run() -> int
             if (std::holds_alternative<::xzr::learn::data::quit>(
                     data_act.value()))
                 return 0;
-        }
-        else
-        {
-            println("sorry, unknown command");
-            println();
         }
     }
 }
