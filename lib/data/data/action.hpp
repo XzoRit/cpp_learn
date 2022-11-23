@@ -22,6 +22,7 @@ struct add_chapter
 };
 struct remove_chapter
 {
+    int book_id{};
     int id{};
 };
 struct quit
