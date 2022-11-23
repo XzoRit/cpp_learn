@@ -102,53 +102,52 @@ auto draw_book(const ::xzr::learn::data::book& book, int book_id, state s)
         s.book_id.reset();
     return {.data_act = std::nullopt, .console_state = s};
 }
+[[nodiscard]] auto draw_books(const ::xzr::learn::data::books& books, state s)
+    -> ::console::data
+{
+    for (int i{}; const auto& b : books)
+        println(++i, ".\t", b.name);
+
+    println("");
+    println("a<n>:\tselect");
+    println("b:\tadd");
+    println("c<n>:\tremove");
+    println("d:\tquit");
+
+    const auto books_cmd{readln()};
+    if (books_cmd.starts_with('a'))
+    {
+        s.book_id = std::stoi(books_cmd.substr(1)) - 1;
+        return draw_book(books.at(s.book_id.value()), s.book_id.value(), s);
+    }
+    else if (books_cmd == "b")
+    {
+        println("add book");
+        println("name: ");
+        return {.data_act = ::xzr::learn::data::add_book{.name = readln()},
+                .console_state = s};
+    }
+    else if (books_cmd.starts_with('c'))
+    {
+        const auto book_id{std::stoi(books_cmd.substr(1)) - 1};
+        return {.data_act = ::xzr::learn::data::remove_book{.id = book_id},
+                .console_state = s};
+    }
+    else if (books_cmd == "d")
+        return {.data_act = ::xzr::learn::data::quit{}, .console_state = s};
+    else
+        return {.data_act = std::nullopt, .console_state = s};
+}
 [[nodiscard]] auto draw(const ::xzr::learn::data::app& app_data, state s)
     -> ::console::data
 {
 
     if (s.book_id)
-    {
         return draw_book(app_data.the_books.at(s.book_id.value()),
                          s.book_id.value(),
                          s);
-    }
     else
-    {
-        for (int i{}; const auto& b : app_data.the_books)
-            println(++i, ".\t", b.name);
-
-        println("");
-        println("a<n>:\tselect");
-        println("b:\tadd");
-        println("c<n>:\tremove");
-        println("d:\tquit");
-
-        const auto books_cmd{readln()};
-        if (books_cmd.starts_with('a'))
-        {
-            s.book_id = std::stoi(books_cmd.substr(1)) - 1;
-            return draw_book(app_data.the_books.at(s.book_id.value()),
-                             s.book_id.value(),
-                             s);
-        }
-        else if (books_cmd == "b")
-        {
-            println("add book");
-            println("name: ");
-            return {.data_act = ::xzr::learn::data::add_book{.name = readln()},
-                    .console_state = s};
-        }
-        else if (books_cmd.starts_with('c'))
-        {
-            const auto book_id{std::stoi(books_cmd.substr(1)) - 1};
-            return {.data_act = ::xzr::learn::data::remove_book{.id = book_id},
-                    .console_state = s};
-        }
-        else if (books_cmd == "d")
-            return {.data_act = ::xzr::learn::data::quit{}, .console_state = s};
-        else
-            return {.data_act = std::nullopt, .console_state = s};
-    }
+        return draw_books(app_data.the_books, s);
 }
 }
 }
