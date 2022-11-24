@@ -241,7 +241,7 @@ namespace xzr::learn::console
 {
 inline namespace v1
 {
-auto run() -> int
+auto run() -> void
 {
     auto app_data{::persist::read_or_create_app_data()};
     auto console_data{::console::data{}};
@@ -256,7 +256,7 @@ auto run() -> int
             ::persist::save(app_data);
             if (std::holds_alternative<::xzr::learn::data::quit>(
                     data_act.value()))
-                return 0;
+                break;
         }
     }
 }

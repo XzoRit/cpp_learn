@@ -27,10 +27,8 @@ auto main(int ac, char* av[]) -> int
         }
 
         println("welcome to xzr::learn");
-        const auto ret{::xzr::learn::console::run()};
+        ::xzr::learn::console::run();
         println("bye from xzr.learn");
-
-        return ret;
     }
     catch (const std::exception& e)
     {
@@ -40,6 +38,7 @@ auto main(int ac, char* av[]) -> int
     catch (...)
     {
         println("Exception of unknown type!");
+        return 2;
     }
 
     return 0;
