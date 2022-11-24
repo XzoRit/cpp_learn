@@ -22,6 +22,7 @@ using add_book = ::xzr::learn::data::add_book;
 using remove_book = ::xzr::learn::data::remove_book;
 using add_chapter = ::xzr::learn::data::add_chapter;
 using remove_chapter = ::xzr::learn::data::remove_chapter;
+using add_card = ::xzr::learn::data::add_card;
 
 auto app_data()
 {
@@ -92,8 +93,7 @@ BOOST_AUTO_TEST_CASE(update_with_add_chapter_to_book)
 
     BOOST_TEST(new_app != the_app);
     BOOST_REQUIRE(new_app.the_books.at(0).chapters.size() == 1u);
-    BOOST_REQUIRE(new_app.the_books.at(0).chapters.at(0).name ==
-                  "chapter name");
+    BOOST_TEST(new_app.the_books.at(0).chapters.at(0).name == "chapter name");
 }
 
 BOOST_AUTO_TEST_CASE(update_with_remove_chapter)
@@ -129,6 +129,24 @@ BOOST_AUTO_TEST_CASE(update_with_removal_wrong_chapter_id)
 
         BOOST_TEST(new_app == the_app);
     }
+}
+
+BOOST_AUTO_TEST_CASE(update_with_add_card_to_chapter)
+{
+    const auto the_app{app_data("book name", "chapter name")};
+
+    const auto new_app{update(the_app,
+                              add_card{.book_id = 0,
+                                       .chapter_id = 0,
+                                       .front = "front",
+                                       .back = "back"})};
+
+    BOOST_TEST(new_app != the_app);
+    BOOST_REQUIRE(new_app.the_books.at(0).chapters.at(0).cards.size() == 1u);
+    BOOST_TEST(new_app.the_books.at(0).chapters.at(0).cards.at(0).front ==
+               "front");
+    BOOST_TEST(new_app.the_books.at(0).chapters.at(0).cards.at(0).back ==
+               "back");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
