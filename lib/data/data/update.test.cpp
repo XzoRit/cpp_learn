@@ -18,11 +18,14 @@ using book = ::xzr::learn::data::book;
 using books = ::xzr::learn::data::books;
 using chapter = ::xzr::learn::data::chapter;
 using chapters = ::xzr::learn::data::chapters;
+using card = ::xzr::learn::data::card;
+using cards = ::xzr::learn::data::cards;
 using add_book = ::xzr::learn::data::add_book;
 using remove_book = ::xzr::learn::data::remove_book;
 using add_chapter = ::xzr::learn::data::add_chapter;
 using remove_chapter = ::xzr::learn::data::remove_chapter;
 using add_card = ::xzr::learn::data::add_card;
+using remove_card = ::xzr::learn::data::remove_card;
 
 auto app_data()
 {
@@ -37,6 +40,17 @@ auto app_data(const std::string& book_name, const std::string& chapter_name)
     return app{.the_books =
                    books{book{.name = book_name,
                               .chapters{chapter{.name = chapter_name}}}}};
+}
+auto app_data(const std::string& book_name,
+              const std::string& chapter_name,
+              const std::string& card_front,
+              const std::string& card_back)
+{
+    return app{.the_books = books{
+                   book{.name = book_name,
+                        .chapters{chapter{.name = chapter_name,
+                                          .cards{card{.front = card_front,
+                                                      .back = card_back}}}}}}};
 }
 BOOST_AUTO_TEST_CASE(update_with_add_book)
 {
@@ -147,6 +161,42 @@ BOOST_AUTO_TEST_CASE(update_with_add_card_to_chapter)
                "front");
     BOOST_TEST(new_app.the_books.at(0).chapters.at(0).cards.at(0).back ==
                "back");
+}
+
+BOOST_AUTO_TEST_CASE(update_with_remove_card)
+{
+    const auto the_app{app_data("book name", "chapter name", "front", "back")};
+
+    const auto new_app{
+        update(the_app, remove_card{.book_id = 0, .chapter_id = 0, .id = 0})};
+
+    BOOST_TEST(new_app != the_app);
+    BOOST_TEST(new_app.the_books.at(0).chapters.at(0).cards.empty());
+}
+
+BOOST_AUTO_TEST_CASE(update_with_removal_on_empty_cards)
+{
+    const auto the_app{app_data("book name")};
+    BOOST_REQUIRE(the_app.the_books.at(0).chapters.empty());
+
+    const auto new_app{update(the_app, remove_chapter{.book_id = 0, .id = 0})};
+
+    BOOST_TEST(new_app == the_app);
+}
+
+BOOST_AUTO_TEST_CASE(update_with_removal_wrong_card_id)
+{
+    const auto the_app{app_data("book name", "chapter name")};
+    {
+        const auto new_app{update(the_app, remove_chapter{.id = 1})};
+
+        BOOST_TEST(new_app == the_app);
+    }
+    {
+        const auto new_app{update(the_app, remove_chapter{.id = -1})};
+
+        BOOST_TEST(new_app == the_app);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

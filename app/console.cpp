@@ -126,13 +126,22 @@ auto draw_chapter(const ::xzr::learn::data::chapter& chapter, state s)
                                              .back = back},
             .console_state = s};
     }
+    else if (card_cmd.starts_with('c'))
+    {
+        if (const auto card_id{::extract_id(card_cmd)})
+            return {.data_act =
+                        ::xzr::learn::data::remove_card{
+                            .book_id = s.book_id.value(),
+                            .chapter_id = s.chapter_id.value(),
+                            .id = card_id.value()},
+                    .console_state = s};
+    }
     else if (card_cmd == "d")
         s.chapter_id.reset();
 
     return {.data_act = std::nullopt, .console_state = s};
 }
-auto draw_book(const ::xzr::learn::data::book& book, int book_id, state s)
-    -> ::console::data
+auto draw_book(const ::xzr::learn::data::book& book, state s) -> ::console::data
 {
     if (s.chapter_id)
         return draw_chapter(book.chapters.at(s.chapter_id.value()), s);
@@ -159,7 +168,8 @@ auto draw_book(const ::xzr::learn::data::book& book, int book_id, state s)
             println("add chapter");
             println("name: ");
             return {.data_act =
-                        ::xzr::learn::data::add_chapter{.book_id = book_id,
+                        ::xzr::learn::data::add_chapter{.book_id =
+                                                            s.book_id.value(),
                                                         .name = readln()},
                     .console_state = s};
         }
@@ -168,7 +178,7 @@ auto draw_book(const ::xzr::learn::data::book& book, int book_id, state s)
             if (const auto chapter_id{::extract_id(book_cmd)})
                 return {.data_act =
                             ::xzr::learn::data::remove_chapter{
-                                .book_id = book_id,
+                                .book_id = s.book_id.value(),
                                 .id = chapter_id.value()},
                         .console_state = s};
         }
@@ -194,7 +204,7 @@ auto draw_book(const ::xzr::learn::data::book& book, int book_id, state s)
     if (books_cmd.starts_with('a'))
     {
         if ((s.book_id = ::extract_id(books_cmd)))
-            return draw_book(books.at(s.book_id.value()), s.book_id.value(), s);
+            return draw_book(books.at(s.book_id.value()), s);
     }
     else if (books_cmd == "b")
     {
@@ -220,9 +230,7 @@ auto draw_book(const ::xzr::learn::data::book& book, int book_id, state s)
 {
 
     if (s.book_id)
-        return draw_book(app_data.the_books.at(s.book_id.value()),
-                         s.book_id.value(),
-                         s);
+        return draw_book(app_data.the_books.at(s.book_id.value()), s);
     else
         return draw_books(app_data.the_books, s);
 }

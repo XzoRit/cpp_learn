@@ -46,6 +46,10 @@ auto add_card_to(cards& cs, const std::string& front, const std::string& back)
 {
     cs.push_back(card{.front = front, .back = back});
 }
+auto remove_card_from(cards& cs, int id)
+{
+    ::erase_id(cs, id);
+}
 }
 namespace xzr::learn::data
 {
@@ -72,7 +76,12 @@ auto update(app app, action act) -> data::app
                     a.front,
                     a.back);
             },
-            [](auto a) {}),
+            [&](remove_card a) {
+                ::remove_card_from(
+                    app.the_books.at(a.book_id).chapters.at(a.chapter_id).cards,
+                    a.id);
+            },
+            [&](quit) {}),
         act);
 
     return app;
