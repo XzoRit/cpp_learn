@@ -21,6 +21,7 @@
 #include <tuple>
 #include <variant>
 
+using ::xzr::learn::console::print;
 using ::xzr::learn::console::println;
 
 namespace
@@ -78,14 +79,29 @@ auto save(const ::xzr::learn::data::app& app_data)
 
 namespace
 {
+namespace console::command
+{
+struct command
+{
+    std::string cmd{};
+    std::string desc{};
+};
+const auto select{command{.cmd = "a<n>", .desc = "select"}};
+const auto add{command{.cmd = "b", .desc = "add"}};
+const auto remove{command{.cmd = "c<n>", .desc = "remove"}};
+const auto start_training{command{.cmd = "s", .desc = "start training"}};
+const auto quit{command{.cmd = "d", .desc = "quit"}};
+auto is(const std::string& str_cmd, const command& c)
+{
+    return str_cmd.starts_with(c.cmd.at(0));
+}
+}
+}
+
+namespace
+{
 namespace console
 {
-[[nodiscard]] auto readln()
-{
-    std::string str{};
-    std::getline(std::cin, str);
-    return str;
-}
 struct state
 {
     std::optional<int> book_id{};
@@ -96,24 +112,97 @@ struct data
     std::optional<::xzr::learn::data::action> data_act{};
     state console_state{};
 };
+[[nodiscard]] auto readln()
+{
+    std::string str{};
+    std::getline(std::cin, str);
+    return str;
+}
+struct menue
+{
+    menue(const std::string& name)
+    {
+        println("");
+        println("=== " + name);
+    }
+    ~menue()
+    {
+        println("===");
+        print("-> ");
+    }
+    auto cmd_to_str(const ::console::command::command& c)
+    {
+        return c.cmd + ":\t" + c.desc;
+    }
+    auto select() -> menue&
+    {
+        println(cmd_to_str(::console::command::select));
+        return *this;
+    }
+    auto add() -> menue&
+    {
+        println(cmd_to_str(::console::command::add));
+        return *this;
+    }
+    auto remove() -> menue&
+    {
+        println(cmd_to_str(::console::command::remove));
+        return *this;
+    }
+    auto start_training() -> menue&
+    {
+        println(cmd_to_str(::console::command::start_training));
+        return *this;
+    }
+    auto quit() -> menue&
+    {
+        println(cmd_to_str(::console::command::quit));
+        return *this;
+    }
+};
+struct content
+{
+    content()
+    {
+        println();
+    }
+    ~content()
+    {
+        println("===");
+        println();
+    }
+    auto chapter(const ::xzr::learn::data::chapter& ch)
+    {
+        println("=== chapter: ", ch.name);
+        println("cards:");
+        for (int i{}; const auto& c : ch.cards)
+        {
+            println(++i, ".\t", c.front);
+            println(i, ".\t", c.back);
+        }
+    }
+    auto book(const ::xzr::learn::data::book& b)
+    {
+        println("=== book: ", b.name);
+        println("chapters:");
+        for (int i{}; const auto& c : b.chapters)
+            println(++i, ".\t", c.name);
+    }
+    auto books(const ::xzr::learn::data::books& bs)
+    {
+        println("=== books:");
+        for (int i{}; const auto& b : bs)
+            println(++i, ".\t", b.name);
+    }
+};
 auto draw_chapter(const ::xzr::learn::data::chapter& chapter, state s)
     -> ::console::data
 {
-    println("name: ", chapter.name);
-    for (int i{}; const auto& c : chapter.cards)
-    {
-        println(++i, ".\t", c.front);
-        println(i, ".\t", c.back);
-    }
-
-    println("");
-    println("b:\tadd");
-    println("c<n>:\tremove");
-    println("s:\tstart training");
-    println("d:\tquit");
+    ::console::content{}.chapter(chapter);
+    ::console::menue{"card"}.add().remove().start_training().quit();
 
     const auto& card_cmd{readln()};
-    if (card_cmd == "b")
+    if (::console::command::is(card_cmd, ::console::command::add))
     {
         println("add chard");
         println("front: ");
@@ -128,7 +217,7 @@ auto draw_chapter(const ::xzr::learn::data::chapter& chapter, state s)
                                              .back = back},
             .console_state = s};
     }
-    else if (card_cmd.starts_with('c'))
+    else if (::console::command::is(card_cmd, ::console::command::remove))
     {
         if (const auto card_id{::extract_id(card_cmd)})
             return {.data_act =
@@ -138,7 +227,8 @@ auto draw_chapter(const ::xzr::learn::data::chapter& chapter, state s)
                             .id = card_id.value()},
                     .console_state = s};
     }
-    else if (card_cmd == "s")
+    else if (::console::command::is(card_cmd,
+                                    ::console::command::start_training))
     {
         auto t{::xzr::learn::data::start_training(chapter.cards)};
         while (const auto c{::xzr::learn::data::current_card(t)})
@@ -147,7 +237,7 @@ auto draw_chapter(const ::xzr::learn::data::chapter& chapter, state s)
             t = ::xzr::learn::data::eval_answer(t, c.value(), readln());
         }
     }
-    else if (card_cmd == "d")
+    else if (::console::command::is(card_cmd, ::console::command::quit))
         s.chapter_id.reset();
 
     return {.data_act = std::nullopt, .console_state = s};
@@ -158,23 +248,16 @@ auto draw_book(const ::xzr::learn::data::book& book, state s) -> ::console::data
         return draw_chapter(book.chapters.at(s.chapter_id.value()), s);
     else
     {
-        println("name: ", book.name);
-        for (int i{}; const auto& c : book.chapters)
-            println(++i, ".\t", c.name);
-
-        println("");
-        println("a<n>:\tselect");
-        println("b:\tadd");
-        println("c<n>:\tremove");
-        println("d:\tquit");
+        ::console::content{}.book(book);
+        ::console::menue{"chapter"}.select().add().remove().quit();
 
         const auto& book_cmd{readln()};
-        if (book_cmd.starts_with('a'))
+        if (::console::command::is(book_cmd, ::console::command::select))
         {
             if ((s.chapter_id = ::extract_id(book_cmd)))
                 return draw_chapter(book.chapters.at(s.chapter_id.value()), s);
         }
-        else if (book_cmd == "b")
+        else if (::console::command::is(book_cmd, ::console::command::add))
         {
             println("add chapter");
             println("name: ");
@@ -184,7 +267,7 @@ auto draw_book(const ::xzr::learn::data::book& book, state s) -> ::console::data
                                                         .name = readln()},
                     .console_state = s};
         }
-        else if (book_cmd.starts_with('c'))
+        else if (::console::command::is(book_cmd, ::console::command::remove))
         {
             if (const auto chapter_id{::extract_id(book_cmd)})
                 return {.data_act =
@@ -193,7 +276,7 @@ auto draw_book(const ::xzr::learn::data::book& book, state s) -> ::console::data
                                 .id = chapter_id.value()},
                         .console_state = s};
         }
-        else if (book_cmd == "d")
+        else if (console::command::is(book_cmd, ::console::command::quit))
             s.book_id.reset();
 
         return {.data_act = std::nullopt, .console_state = s};
@@ -202,36 +285,30 @@ auto draw_book(const ::xzr::learn::data::book& book, state s) -> ::console::data
 [[nodiscard]] auto draw_books(const ::xzr::learn::data::books& books, state s)
     -> ::console::data
 {
-    for (int i{}; const auto& b : books)
-        println(++i, ".\t", b.name);
-
-    println("");
-    println("a<n>:\tselect");
-    println("b:\tadd");
-    println("c<n>:\tremove");
-    println("d:\tquit");
+    ::console::content{}.books(books);
+    ::console::menue{"book"}.select().add().remove().quit();
 
     const auto books_cmd{readln()};
-    if (books_cmd.starts_with('a'))
+    if (::console::command::is(books_cmd, ::console::command::select))
     {
         if ((s.book_id = ::extract_id(books_cmd)))
             return draw_book(books.at(s.book_id.value()), s);
     }
-    else if (books_cmd == "b")
+    else if (::console::command::is(books_cmd, ::console::command::add))
     {
         println("add book");
         println("name: ");
         return {.data_act = ::xzr::learn::data::add_book{.name = readln()},
                 .console_state = s};
     }
-    else if (books_cmd.starts_with('c'))
+    else if (::console::command::is(books_cmd, ::console::command::remove))
     {
         if (const auto book_id{::extract_id(books_cmd)})
             return {.data_act =
                         ::xzr::learn::data::remove_book{.id = book_id.value()},
                     .console_state = s};
     }
-    else if (books_cmd == "d")
+    else if (::console::command::is(books_cmd, ::console::command::quit))
         return {.data_act = ::xzr::learn::data::quit{}, .console_state = s};
 
     return {.data_act = std::nullopt, .console_state = s};
