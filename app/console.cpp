@@ -25,25 +25,6 @@ using ::xzr::learn::console::println;
 
 namespace
 {
-auto str_to_id(const std::string& s) -> std::optional<int>
-{
-    try
-    {
-        return std::stoi(s) - 1;
-    }
-    catch (...)
-    {
-        return std::nullopt;
-    }
-}
-auto extract_id(const std::string& s)
-{
-    return str_to_id(s.substr(1));
-}
-}
-
-namespace
-{
 namespace persist
 {
 namespace fs = std::filesystem;
@@ -79,7 +60,7 @@ auto save(const ::xzr::learn::data::app& app_data)
 
 namespace
 {
-namespace console::command
+namespace console::command::str
 {
 struct command
 {
@@ -95,7 +76,15 @@ auto is(const std::string& str_cmd, const command& c)
 {
     return str_cmd.starts_with(c.cmd.at(0));
 }
-namespace type
+auto as_str(const command& c)
+{
+    return c.cmd + ":\t" + c.desc;
+}
+}
+}
+namespace
+{
+namespace console::command
 {
 struct select
 {
@@ -115,20 +104,35 @@ struct quit
 {
 };
 using cmd = std::variant<select, add, remove, start_training, quit>;
+auto str_to_id(const std::string& s) -> std::optional<int>
+{
+    try
+    {
+        return std::stoi(s) - 1;
+    }
+    catch (...)
+    {
+        return std::nullopt;
+    }
+}
+auto extract_id(const std::string& s)
+{
+    return str_to_id(s.substr(1));
+}
 auto create(const std::string& cmd_str) -> std::optional<cmd>
 {
-    if (::console::command::is(cmd_str, ::console::command::select))
-        return select{.id = ::extract_id(cmd_str)};
-    if (::console::command::is(cmd_str, ::console::command::add))
+    if (::console::command::str::is(cmd_str, ::console::command::str::select))
+        return select{.id = extract_id(cmd_str)};
+    if (::console::command::str::is(cmd_str, ::console::command::str::add))
         return add{};
-    if (::console::command::is(cmd_str, ::console::command::remove))
-        return remove{.id = ::extract_id(cmd_str)};
-    if (::console::command::is(cmd_str, ::console::command::start_training))
+    if (::console::command::str::is(cmd_str, ::console::command::str::remove))
+        return remove{.id = extract_id(cmd_str)};
+    if (::console::command::str::is(cmd_str,
+                                    ::console::command::str::start_training))
         return start_training{};
-    if (::console::command::is(cmd_str, ::console::command::quit))
+    if (::console::command::str::is(cmd_str, ::console::command::str::quit))
         return quit{};
     return std::nullopt;
-}
 }
 }
 }
@@ -165,33 +169,32 @@ struct menu
         println("===");
         print("-> ");
     }
-    auto cmd_to_str(const ::console::command::command& c)
-    {
-        return c.cmd + ":\t" + c.desc;
-    }
     auto select() -> menu&
     {
-        println(cmd_to_str(::console::command::select));
+        println(
+            ::console::command::str::as_str(::console::command::str::select));
         return *this;
     }
     auto add() -> menu&
     {
-        println(cmd_to_str(::console::command::add));
+        println(::console::command::str::as_str(::console::command::str::add));
         return *this;
     }
     auto remove() -> menu&
     {
-        println(cmd_to_str(::console::command::remove));
+        println(
+            ::console::command::str::as_str(::console::command::str::remove));
         return *this;
     }
     auto start_training() -> menu&
     {
-        println(cmd_to_str(::console::command::start_training));
+        println(::console::command::str::as_str(
+            ::console::command::str::start_training));
         return *this;
     }
     auto quit() -> menu&
     {
-        println(cmd_to_str(::console::command::quit));
+        println(::console::command::str::as_str(::console::command::str::quit));
         return *this;
     }
 };
@@ -238,10 +241,10 @@ auto draw_chapter(const ::xzr::learn::data::chapter& chapter, state s)
     ::console::content{}.chapter(chapter);
     ::console::menu{"card"}.add().remove().start_training().quit();
 
-    if (const auto cmd{::console::command::type::create(readln())})
+    if (const auto cmd{::console::command::create(readln())})
         return std::visit(
             match(
-                [&](::console::command::type::add) -> ::console::data {
+                [&](::console::command::add) -> ::console::data {
                     println("add chard");
                     println("front: ");
                     const auto& front{readln()};
@@ -255,7 +258,7 @@ auto draw_chapter(const ::xzr::learn::data::chapter& chapter, state s)
                                     .back = back},
                             .console_state = s};
                 },
-                [&](::console::command::type::remove a) -> ::console::data {
+                [&](::console::command::remove a) -> ::console::data {
                     if (a.id)
                         return ::console::data{
                             .data_act =
@@ -266,8 +269,7 @@ auto draw_chapter(const ::xzr::learn::data::chapter& chapter, state s)
                             .console_state = s};
                     return {.data_act = std::nullopt, .console_state = s};
                 },
-                [&](::console::command::type::start_training)
-                    -> ::console::data {
+                [&](::console::command::start_training) -> ::console::data {
                     auto t{::xzr::learn::data::start_training(chapter.cards)};
                     while (const auto c{::xzr::learn::data::current_card(t)})
                     {
@@ -278,7 +280,7 @@ auto draw_chapter(const ::xzr::learn::data::chapter& chapter, state s)
                     }
                     return {.data_act = std::nullopt, .console_state = s};
                 },
-                [&](::console::command::type::quit) -> ::console::data {
+                [&](::console::command::quit) -> ::console::data {
                     s.chapter_id.reset();
                     return {.data_act = std::nullopt, .console_state = s};
                 },
@@ -300,10 +302,10 @@ auto draw_book(const ::xzr::learn::data::book& book, state s) -> ::console::data
         ::console::content{}.book(book);
         ::console::menu{"chapter"}.select().add().remove().quit();
 
-        if (const auto cmd{::console::command::type::create(readln())})
+        if (const auto cmd{::console::command::create(readln())})
             return std::visit(
                 match(
-                    [&](::console::command::type::select a) -> ::console::data {
+                    [&](::console::command::select a) -> ::console::data {
                         if (a.id)
                         {
                             s.chapter_id = a.id.value();
@@ -312,7 +314,7 @@ auto draw_book(const ::xzr::learn::data::book& book, state s) -> ::console::data
                         }
                         return {.data_act = std::nullopt, .console_state = s};
                     },
-                    [&](::console::command::type::add) -> ::console::data {
+                    [&](::console::command::add) -> ::console::data {
                         println("add chapter");
                         println("name: ");
                         return {.data_act =
@@ -321,7 +323,7 @@ auto draw_book(const ::xzr::learn::data::book& book, state s) -> ::console::data
                                         .name = readln()},
                                 .console_state = s};
                     },
-                    [&](::console::command::type::remove a) -> ::console::data {
+                    [&](::console::command::remove a) -> ::console::data {
                         if (a.id)
                             return {.data_act =
                                         ::xzr::learn::data::remove_chapter{
@@ -332,7 +334,7 @@ auto draw_book(const ::xzr::learn::data::book& book, state s) -> ::console::data
                             return {.data_act = std::nullopt,
                                     .console_state = s};
                     },
-                    [&](::console::command::type::quit) -> ::console::data {
+                    [&](::console::command::quit) -> ::console::data {
                         s.book_id.reset();
 
                         return {.data_act = std::nullopt, .console_state = s};
@@ -353,10 +355,10 @@ auto draw_book(const ::xzr::learn::data::book& book, state s) -> ::console::data
     ::console::content{}.books(books);
     ::console::menu{"book"}.select().add().remove().quit();
 
-    if (const auto cmd{::console::command::type::create(readln())})
+    if (const auto cmd{::console::command::create(readln())})
         return std::visit(
             match(
-                [&](::console::command::type::select a) -> ::console::data {
+                [&](::console::command::select a) -> ::console::data {
                     if (a.id)
                     {
                         s.book_id = a.id.value();
@@ -364,14 +366,14 @@ auto draw_book(const ::xzr::learn::data::book& book, state s) -> ::console::data
                     }
                     return {.data_act = std::nullopt, .console_state = s};
                 },
-                [&](::console::command::type::add) -> ::console::data {
+                [&](::console::command::add) -> ::console::data {
                     println("add book");
                     println("name: ");
                     return {.data_act =
                                 ::xzr::learn::data::add_book{.name = readln()},
                             .console_state = s};
                 },
-                [&](::console::command::type::remove a) -> ::console::data {
+                [&](::console::command::remove a) -> ::console::data {
                     if (a.id)
                         return {.data_act =
                                     ::xzr::learn::data::remove_book{
@@ -380,7 +382,7 @@ auto draw_book(const ::xzr::learn::data::book& book, state s) -> ::console::data
                     else
                         return {.data_act = std::nullopt, .console_state = s};
                 },
-                [&](::console::command::type::quit) -> ::console::data {
+                [&](::console::command::quit) -> ::console::data {
                     return {.data_act = ::xzr::learn::data::quit{},
                             .console_state = s};
                 },
