@@ -13,7 +13,7 @@ struct training
 {
     cards cards{};
 
-    [[nodiscard]] auto operator<=>(const training&) const = default;
+    [[nodiscard]] bool operator==(const training&) const = default;
 };
 
 [[nodiscard]] auto start_training(cards cs) -> training;

@@ -4,6 +4,7 @@
 #include <data/app.hpp>
 #include <data/data.hpp>
 #include <data/serialize.hpp>
+#include <data/training.hpp>
 #include <data/update.hpp>
 
 #include <boost/archive/text_iarchive.hpp>
@@ -108,6 +109,7 @@ auto draw_chapter(const ::xzr::learn::data::chapter& chapter, state s)
     println("");
     println("b:\tadd");
     println("c<n>:\tremove");
+    println("s:\tstart training");
     println("d:\tquit");
 
     const auto& card_cmd{readln()};
@@ -135,6 +137,15 @@ auto draw_chapter(const ::xzr::learn::data::chapter& chapter, state s)
                             .chapter_id = s.chapter_id.value(),
                             .id = card_id.value()},
                     .console_state = s};
+    }
+    else if (card_cmd == "s")
+    {
+        auto t{::xzr::learn::data::start_training(chapter.cards)};
+        while (const auto c{::xzr::learn::data::current_card(t)})
+        {
+            println(c.value().front);
+            t = ::xzr::learn::data::eval_answer(t, c.value(), readln());
+        }
     }
     else if (card_cmd == "d")
         s.chapter_id.reset();
