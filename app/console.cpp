@@ -101,13 +101,18 @@ struct remove
 {
     std::optional<int> id{};
 };
+struct text_input
+{
+    std::string txt{};
+};
 struct start_training
 {
 };
 struct quit
 {
 };
-using action = std::variant<draw, select, add, remove, start_training, quit>;
+using action =
+    std::variant<draw, select, add, remove, text_input, start_training, quit>;
 }
 }
 
@@ -118,16 +123,40 @@ namespace console::states
 struct books
 {
 };
+struct add_book
+{
+};
 struct book
 {
-    int id{};
+    int book_id{};
+};
+struct add_chapter
+{
+    int book_id{};
 };
 struct chapter
 {
     int book_id{};
-    int id{};
+    int chapter_id{};
 };
-using state = std::variant<books, book, chapter>;
+struct add_card_front
+{
+    int book_id{};
+    int chapter_id{};
+};
+struct add_card_back
+{
+    std::string front_txt{};
+    int book_id{};
+    int chapter_id{};
+};
+using state = std::variant<books,
+                           add_book,
+                           book,
+                           add_chapter,
+                           chapter,
+                           add_card_front,
+                           add_card_back>;
 struct data
 {
     std::optional<::xzr::learn::data::action> data_act{};
@@ -250,22 +279,7 @@ auto intent(const std::string& cmd_str) -> std::optional<action::action>
         return action::start_training{};
     if (::console::command::str::is(cmd_str, ::console::command::str::quit))
         return action::quit{};
-    return std::nullopt;
-}
-auto draw_chapter(const ::xzr::learn::data::chapter& chapter)
-{
-    ::console::content{}.chapter(chapter);
-    ::console::menu{"card"}.add().remove().start_training().quit();
-}
-auto draw_book(const ::xzr::learn::data::book& book)
-{
-    ::console::content{}.book(book);
-    ::console::menu{"chapter"}.select().add().remove().quit();
-}
-[[nodiscard]] auto draw_books(const ::xzr::learn::data::books& books)
-{
-    ::console::content{}.books(books);
-    ::console::menu{"book"}.select().add().remove().quit();
+    return action::text_input{cmd_str};
 }
 [[nodiscard]] auto draw(const ::xzr::learn::data::app& app_data,
                         states::state s,
@@ -274,16 +288,34 @@ auto draw_book(const ::xzr::learn::data::book& book)
     using boost::hof::match;
 
     std::visit(
-        match([&](states::books,
-                  action::draw) { draw_books(app_data.the_books); },
-              [&](states::book s, action::draw) {
-                  draw_book(app_data.the_books.at(s.id));
-              },
-              [&](states::chapter s, action::draw) {
-                  draw_chapter(
-                      app_data.the_books.at(s.book_id).chapters.at(s.id));
-              },
-              [](auto, auto) {}),
+        match(
+            [&](states::books, action::draw) {
+                ::console::content{}.books(app_data.the_books);
+                ::console::menu{"book"}.select().add().remove().quit();
+            },
+            [](states::add_book, action::draw) {
+                println("add book");
+                println("name: ");
+            },
+            [&](states::book s, action::draw) {
+                ::console::content{}.book(app_data.the_books.at(s.book_id));
+                ::console::menu{"chapter"}.select().add().remove().quit();
+            },
+            [](states::add_chapter, action::draw) {
+                println("add chapter");
+                println("name: ");
+            },
+            [&](states::chapter s, action::draw) {
+                ::console::content{}.chapter(
+                    app_data.the_books.at(s.book_id).chapters.at(s.chapter_id));
+                ::console::menu{"card"}.add().remove().start_training().quit();
+            },
+            [](states::add_card_front, action::draw) {
+                println("add chard");
+                println("front: ");
+            },
+            [](states::add_card_back, action::draw) { println("back: "); },
+            [](auto, auto) {}),
         s,
         act);
 
@@ -299,15 +331,11 @@ auto draw_book(const ::xzr::learn::data::book& book)
                     return states::data{.data_act = std::nullopt,
                                         .console_state = s};
                 },
-                [&](states::books s, action::add) {
-                    println("add book");
-                    println("name: ");
-                    return states::data{
-                        .data_act =
-                            ::xzr::learn::data::add_book{.name = readln()},
-                        .console_state = s};
+                [](states::books s, action::add) {
+                    return states::data{.data_act = std::nullopt,
+                                        .console_state = states::add_book{}};
                 },
-                [&](states::books s, action::remove a) {
+                [](states::books s, action::remove a) {
                     if (a.id)
                         return states::data{.data_act =
                                                 ::xzr::learn::data::remove_book{
@@ -317,64 +345,65 @@ auto draw_book(const ::xzr::learn::data::book& book)
                         return states::data{.data_act = std::nullopt,
                                             .console_state = s};
                 },
-                [&](states::books s, action::quit) {
+                [](states::books s, action::quit) {
                     return states::data{.data_act = ::xzr::learn::data::quit{},
                                         .console_state = s};
                 },
-                [&](states::book s, action::select a) {
+                [](states::add_book s, action::text_input a) {
+                    return states::data{
+                        .data_act = ::xzr::learn::data::add_book{.name = a.txt},
+                        .console_state = states::books{}};
+                },
+                [](states::book s, action::select a) {
                     if (a.id)
                         return states::data{.data_act = std::nullopt,
                                             .console_state = states::chapter{
-                                                .book_id = s.id,
-                                                .id = a.id.value()}};
+                                                .book_id = s.book_id,
+                                                .chapter_id = a.id.value()}};
                     return states::data{.data_act = std::nullopt,
                                         .console_state = s};
                 },
-                [&](states::book s, action::add) {
-                    println("add chapter");
-                    println("name: ");
-                    return states::data{
-                        .data_act =
-                            ::xzr::learn::data::add_chapter{.book_id = s.id,
-                                                            .name = readln()},
-                        .console_state = s};
+                [](states::book s, action::add) {
+                    return states::data{.data_act = std::nullopt,
+                                        .console_state = states::add_chapter{
+                                            .book_id = s.book_id}};
                 },
-                [&](states::book s, action::remove a) {
+                [](states::book s, action::remove a) {
                     if (a.id)
                         return states::data{
                             .data_act =
                                 ::xzr::learn::data::remove_chapter{
-                                    .book_id = s.id,
+                                    .book_id = s.book_id,
                                     .id = a.id.value()},
                             .console_state = s};
                     else
                         return states::data{.data_act = std::nullopt,
                                             .console_state = s};
                 },
-                [&](states::book, action::quit) {
+                [](states::book, action::quit) {
                     return states::data{.data_act = std::nullopt,
                                         .console_state = states::books{}};
                 },
+                [](states::add_chapter s, action::text_input a) {
+                    return states::data{.data_act =
+                                            ::xzr::learn::data::add_chapter{
+                                                .book_id = s.book_id,
+                                                .name = a.txt},
+                                        .console_state =
+                                            states::book{s.book_id}};
+                },
                 [](states::chapter s, action::add) {
-                    println("add chard");
-                    println("front: ");
-                    const auto& front{readln()};
-                    println("back: ");
-                    const auto& back{readln()};
-                    return states::data{
-                        .data_act =
-                            ::xzr::learn::data::add_card{.book_id = s.book_id,
-                                                         .chapter_id = s.id,
-                                                         .front = front,
-                                                         .back = back},
-                        .console_state = s};
+                    return states::data{.data_act = std::nullopt,
+                                        .console_state = states::add_card_front{
+                                            .book_id = s.book_id,
+                                            .chapter_id = s.chapter_id}};
                 },
                 [](states::chapter s, action::remove a) {
                     if (a.id)
                         return states::data{.data_act =
                                                 ::xzr::learn::data::remove_card{
                                                     .book_id = s.book_id,
-                                                    .chapter_id = s.id,
+                                                    .chapter_id = s.chapter_id,
                                                     .id = a.id.value()},
                                             .console_state = s};
                     return states::data{.data_act = std::nullopt,
@@ -383,7 +412,7 @@ auto draw_book(const ::xzr::learn::data::book& book)
                 [&](states::chapter s, action::start_training) {
                     auto t{::xzr::learn::data::start_training(
                         app_data.the_books.at(s.book_id)
-                            .chapters.at(s.id)
+                            .chapters.at(s.chapter_id)
                             .cards)};
                     while (const auto c{::xzr::learn::data::current_card(t)})
                     {
@@ -399,6 +428,24 @@ auto draw_book(const ::xzr::learn::data::book& book)
                     return states::data{.data_act = std::nullopt,
                                         .console_state =
                                             states::book{s.book_id}};
+                },
+                [](states::add_card_front s, action::text_input a) {
+                    return states::data{.data_act = std::nullopt,
+                                        .console_state = states::add_card_back{
+                                            .front_txt = a.txt,
+                                            .book_id = s.book_id,
+                                            .chapter_id = s.chapter_id}};
+                },
+                [](states::add_card_back s, action::text_input a) {
+                    return states::data{.data_act =
+                                            ::xzr::learn::data::add_card{
+                                                .book_id = s.book_id,
+                                                .chapter_id = s.chapter_id,
+                                                .front = s.front_txt,
+                                                .back = a.txt},
+                                        .console_state = states::chapter{
+                                            .book_id = s.book_id,
+                                            .chapter_id = s.chapter_id}};
                 },
                 [](auto s, auto) {
                     return states::data{.data_act = std::nullopt,
