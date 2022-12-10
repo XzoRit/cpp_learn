@@ -1,5 +1,6 @@
 #include "console.hpp"
 
+#include <algorithm>
 #include <data/action.hpp>
 #include <data/app.hpp>
 #include <data/data.hpp>
@@ -13,6 +14,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 #include <map>
 #include <optional>
 #include <string>
@@ -74,7 +76,15 @@ const auto start_training{command{.cmd = "s", .desc = "start training"}};
 const auto quit{command{.cmd = "d", .desc = "quit"}};
 auto is(const std::string& str_cmd, const command& c)
 {
-    return str_cmd.starts_with(c.cmd.at(0));
+    if (str_cmd == c.cmd)
+        return true;
+    const auto num_start_idx{c.cmd.find_first_of('<')};
+    return (num_start_idx != std::string::npos) &&
+           (str_cmd.substr(0, num_start_idx) ==
+            c.cmd.substr(0, num_start_idx)) &&
+           std::all_of(std::next(str_cmd.cbegin(), num_start_idx),
+                       str_cmd.cend(),
+                       [](auto a) { return !!std::isdigit(a); });
 }
 auto as_str(const command& c)
 {
