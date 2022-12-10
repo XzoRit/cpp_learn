@@ -347,8 +347,7 @@ auto intent(states::state s, const std::string& cmd_str) -> action::action
             }),
         s);
 }
-[[nodiscard]] auto draw(const ::xzr::learn::data::app& app_data,
-                        states::state s)
+auto draw(const ::xzr::learn::data::app& app_data, states::state s)
 {
     using ::boost::hof::match;
 
@@ -382,8 +381,12 @@ auto intent(states::state s, const std::string& cmd_str) -> action::action
             [](states::add_card_back) { println("back: "); },
             [](auto, auto) {}),
         s);
-
-    const auto cmd{intent(s, readln())};
+}
+auto dispatch(action::action act,
+              states::state state,
+              const ::xzr::learn::data::app& app_data)
+{
+    using ::boost::hof::match;
 
     return std::visit(
         match(
@@ -510,8 +513,8 @@ auto intent(states::state s, const std::string& cmd_str) -> action::action
                 return states::data{.data_act = std::nullopt,
                                     .console_state = s};
             }),
-        s,
-        cmd);
+        state,
+        act);
 }
 }
 }
@@ -528,7 +531,11 @@ auto run() -> void
                                 .console_state = ::console::states::books{}}};
     for (;;)
     {
-        console_data = ::console::draw(app_data, console_data.console_state);
+        ::console::draw(app_data, console_data.console_state);
+        const auto act{
+            ::console::intent(console_data.console_state, ::console::readln())};
+        console_data =
+            ::console::dispatch(act, console_data.console_state, app_data);
         if (const auto data_act{console_data.data_act})
         {
             app_data = data::update(std::move(app_data), data_act.value());
