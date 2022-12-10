@@ -266,7 +266,7 @@ auto extract_id(const std::string& s)
 {
     return str_to_id(s.substr(1));
 }
-auto intent(const std::string& cmd_str) -> std::optional<action::action>
+auto intent(const std::string& cmd_str) -> action::action
 {
     if (::console::command::str::is(cmd_str, ::console::command::str::select))
         return action::select{.id = extract_id(cmd_str)};
@@ -319,142 +319,135 @@ auto intent(const std::string& cmd_str) -> std::optional<action::action>
         s,
         act);
 
-    if (const auto cmd{intent(readln())})
-    {
-        return std::visit(
-            match(
-                [](states::books s, action::select a) {
-                    if (a.id)
-                        return states::data{.data_act = std::nullopt,
-                                            .console_state =
-                                                states::book{a.id.value()}};
+    const auto cmd{intent(readln())};
+
+    return std::visit(
+        match(
+            [](states::books s, action::select a) {
+                if (a.id)
                     return states::data{.data_act = std::nullopt,
-                                        .console_state = s};
-                },
-                [](states::books s, action::add) {
-                    return states::data{.data_act = std::nullopt,
-                                        .console_state = states::add_book{}};
-                },
-                [](states::books s, action::remove a) {
-                    if (a.id)
-                        return states::data{.data_act =
-                                                ::xzr::learn::data::remove_book{
-                                                    .id = a.id.value()},
-                                            .console_state = s};
-                    else
-                        return states::data{.data_act = std::nullopt,
-                                            .console_state = s};
-                },
-                [](states::books s, action::quit) {
-                    return states::data{.data_act = ::xzr::learn::data::quit{},
-                                        .console_state = s};
-                },
-                [](states::add_book s, action::text_input a) {
+                                        .console_state =
+                                            states::book{a.id.value()}};
+                return states::data{.data_act = std::nullopt,
+                                    .console_state = s};
+            },
+            [](states::books s, action::add) {
+                return states::data{.data_act = std::nullopt,
+                                    .console_state = states::add_book{}};
+            },
+            [](states::books s, action::remove a) {
+                if (a.id)
                     return states::data{
-                        .data_act = ::xzr::learn::data::add_book{.name = a.txt},
-                        .console_state = states::books{}};
-                },
-                [](states::book s, action::select a) {
-                    if (a.id)
-                        return states::data{.data_act = std::nullopt,
-                                            .console_state = states::chapter{
-                                                .book_id = s.book_id,
-                                                .chapter_id = a.id.value()}};
+                        .data_act =
+                            ::xzr::learn::data::remove_book{.id = a.id.value()},
+                        .console_state = s};
+                else
                     return states::data{.data_act = std::nullopt,
                                         .console_state = s};
-                },
-                [](states::book s, action::add) {
+            },
+            [](states::books s, action::quit) {
+                return states::data{.data_act = ::xzr::learn::data::quit{},
+                                    .console_state = s};
+            },
+            [](states::add_book s, action::text_input a) {
+                return states::data{
+                    .data_act = ::xzr::learn::data::add_book{.name = a.txt},
+                    .console_state = states::books{}};
+            },
+            [](states::book s, action::select a) {
+                if (a.id)
                     return states::data{.data_act = std::nullopt,
-                                        .console_state = states::add_chapter{
-                                            .book_id = s.book_id}};
-                },
-                [](states::book s, action::remove a) {
-                    if (a.id)
-                        return states::data{
-                            .data_act =
-                                ::xzr::learn::data::remove_chapter{
-                                    .book_id = s.book_id,
-                                    .id = a.id.value()},
-                            .console_state = s};
-                    else
-                        return states::data{.data_act = std::nullopt,
-                                            .console_state = s};
-                },
-                [](states::book, action::quit) {
-                    return states::data{.data_act = std::nullopt,
-                                        .console_state = states::books{}};
-                },
-                [](states::add_chapter s, action::text_input a) {
-                    return states::data{.data_act =
-                                            ::xzr::learn::data::add_chapter{
-                                                .book_id = s.book_id,
-                                                .name = a.txt},
-                                        .console_state =
-                                            states::book{s.book_id}};
-                },
-                [](states::chapter s, action::add) {
-                    return states::data{.data_act = std::nullopt,
-                                        .console_state = states::add_card_front{
-                                            .book_id = s.book_id,
-                                            .chapter_id = s.chapter_id}};
-                },
-                [](states::chapter s, action::remove a) {
-                    if (a.id)
-                        return states::data{.data_act =
-                                                ::xzr::learn::data::remove_card{
-                                                    .book_id = s.book_id,
-                                                    .chapter_id = s.chapter_id,
-                                                    .id = a.id.value()},
-                                            .console_state = s};
-                    return states::data{.data_act = std::nullopt,
-                                        .console_state = s};
-                },
-                [&](states::chapter s, action::start_training) {
-                    auto t{::xzr::learn::data::start_training(
-                        app_data.the_books.at(s.book_id)
-                            .chapters.at(s.chapter_id)
-                            .cards)};
-                    while (const auto c{::xzr::learn::data::current_card(t)})
-                    {
-                        println(c.value().front);
-                        t = ::xzr::learn::data::eval_answer(t,
-                                                            c.value(),
-                                                            readln());
-                    }
-                    return states::data{.data_act = std::nullopt,
-                                        .console_state = s};
-                },
-                [](states::chapter s, action::quit) {
-                    return states::data{.data_act = std::nullopt,
-                                        .console_state =
-                                            states::book{s.book_id}};
-                },
-                [](states::add_card_front s, action::text_input a) {
-                    return states::data{.data_act = std::nullopt,
-                                        .console_state = states::add_card_back{
-                                            .front_txt = a.txt,
-                                            .book_id = s.book_id,
-                                            .chapter_id = s.chapter_id}};
-                },
-                [](states::add_card_back s, action::text_input a) {
-                    return states::data{.data_act =
-                                            ::xzr::learn::data::add_card{
-                                                .book_id = s.book_id,
-                                                .chapter_id = s.chapter_id,
-                                                .front = s.front_txt,
-                                                .back = a.txt},
                                         .console_state = states::chapter{
                                             .book_id = s.book_id,
-                                            .chapter_id = s.chapter_id}};
-                },
-                [](auto s, auto) {
+                                            .chapter_id = a.id.value()}};
+                return states::data{.data_act = std::nullopt,
+                                    .console_state = s};
+            },
+            [](states::book s, action::add) {
+                return states::data{
+                    .data_act = std::nullopt,
+                    .console_state = states::add_chapter{.book_id = s.book_id}};
+            },
+            [](states::book s, action::remove a) {
+                if (a.id)
+                    return states::data{.data_act =
+                                            ::xzr::learn::data::remove_chapter{
+                                                .book_id = s.book_id,
+                                                .id = a.id.value()},
+                                        .console_state = s};
+                else
                     return states::data{.data_act = std::nullopt,
                                         .console_state = s};
-                }),
-            s,
-            cmd.value());
-    }
-    return states::data{.data_act = std::nullopt, .console_state = s};
+            },
+            [](states::book, action::quit) {
+                return states::data{.data_act = std::nullopt,
+                                    .console_state = states::books{}};
+            },
+            [](states::add_chapter s, action::text_input a) {
+                return states::data{
+                    .data_act =
+                        ::xzr::learn::data::add_chapter{.book_id = s.book_id,
+                                                        .name = a.txt},
+                    .console_state = states::book{s.book_id}};
+            },
+            [](states::chapter s, action::add) {
+                return states::data{.data_act = std::nullopt,
+                                    .console_state = states::add_card_front{
+                                        .book_id = s.book_id,
+                                        .chapter_id = s.chapter_id}};
+            },
+            [](states::chapter s, action::remove a) {
+                if (a.id)
+                    return states::data{.data_act =
+                                            ::xzr::learn::data::remove_card{
+                                                .book_id = s.book_id,
+                                                .chapter_id = s.chapter_id,
+                                                .id = a.id.value()},
+                                        .console_state = s};
+                return states::data{.data_act = std::nullopt,
+                                    .console_state = s};
+            },
+            [&](states::chapter s, action::start_training) {
+                auto t{::xzr::learn::data::start_training(
+                    app_data.the_books.at(s.book_id)
+                        .chapters.at(s.chapter_id)
+                        .cards)};
+                while (const auto c{::xzr::learn::data::current_card(t)})
+                {
+                    println(c.value().front);
+                    t = ::xzr::learn::data::eval_answer(t, c.value(), readln());
+                }
+                return states::data{.data_act = std::nullopt,
+                                    .console_state = s};
+            },
+            [](states::chapter s, action::quit) {
+                return states::data{.data_act = std::nullopt,
+                                    .console_state = states::book{s.book_id}};
+            },
+            [](states::add_card_front s, action::text_input a) {
+                return states::data{.data_act = std::nullopt,
+                                    .console_state = states::add_card_back{
+                                        .front_txt = a.txt,
+                                        .book_id = s.book_id,
+                                        .chapter_id = s.chapter_id}};
+            },
+            [](states::add_card_back s, action::text_input a) {
+                return states::data{
+                    .data_act =
+                        ::xzr::learn::data::add_card{.book_id = s.book_id,
+                                                     .chapter_id = s.chapter_id,
+                                                     .front = s.front_txt,
+                                                     .back = a.txt},
+                    .console_state =
+                        states::chapter{.book_id = s.book_id,
+                                        .chapter_id = s.chapter_id}};
+            },
+            [](auto s, auto) {
+                return states::data{.data_act = std::nullopt,
+                                    .console_state = s};
+            }),
+        s,
+        cmd);
 }
 }
 }
