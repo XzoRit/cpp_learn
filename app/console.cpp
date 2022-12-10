@@ -266,26 +266,85 @@ auto extract_id(const std::string& s)
 {
     return str_to_id(s.substr(1));
 }
-auto intent(const std::string& cmd_str) -> action::action
+auto intent(states::state s, const std::string& cmd_str) -> action::action
 {
-    if (::console::command::str::is(cmd_str, ::console::command::str::select))
-        return action::select{.id = extract_id(cmd_str)};
-    if (::console::command::str::is(cmd_str, ::console::command::str::add))
-        return action::add{};
-    if (::console::command::str::is(cmd_str, ::console::command::str::remove))
-        return action::remove{.id = extract_id(cmd_str)};
-    if (::console::command::str::is(cmd_str,
-                                    ::console::command::str::start_training))
-        return action::start_training{};
-    if (::console::command::str::is(cmd_str, ::console::command::str::quit))
-        return action::quit{};
-    return action::text_input{cmd_str};
+    using ::boost::hof::match;
+
+    return std::visit(
+        match(
+            [&](states::books) -> action::action {
+                if (::console::command::str::is(
+                        cmd_str,
+                        ::console::command::str::select))
+                    return action::select{.id = extract_id(cmd_str)};
+                if (::console::command::str::is(cmd_str,
+                                                ::console::command::str::add))
+                    return action::add{};
+                if (::console::command::str::is(
+                        cmd_str,
+                        ::console::command::str::remove))
+                    return action::remove{.id = extract_id(cmd_str)};
+                if (::console::command::str::is(cmd_str,
+                                                ::console::command::str::quit))
+                    return action::quit{};
+                return action::text_input{cmd_str};
+            },
+            [&](states::add_book) -> action::action {
+                return action::text_input{cmd_str};
+            },
+            [&](states::book) -> action::action {
+                if (::console::command::str::is(
+                        cmd_str,
+                        ::console::command::str::select))
+                    return action::select{.id = extract_id(cmd_str)};
+                if (::console::command::str::is(cmd_str,
+                                                ::console::command::str::add))
+                    return action::add{};
+                if (::console::command::str::is(
+                        cmd_str,
+                        ::console::command::str::remove))
+                    return action::remove{.id = extract_id(cmd_str)};
+                if (::console::command::str::is(cmd_str,
+                                                ::console::command::str::quit))
+                    return action::quit{};
+                return action::text_input{cmd_str};
+            },
+            [&](states::add_chapter) -> action::action {
+                return action::text_input{cmd_str};
+            },
+            [&](states::chapter) -> action::action {
+                if (::console::command::str::is(cmd_str,
+                                                ::console::command::str::add))
+                    return action::add{};
+                if (::console::command::str::is(
+                        cmd_str,
+                        ::console::command::str::remove))
+                    return action::remove{.id = extract_id(cmd_str)};
+                if (::console::command::str::is(
+                        cmd_str,
+                        ::console::command::str::start_training))
+                    return action::start_training{};
+                if (::console::command::str::is(cmd_str,
+                                                ::console::command::str::quit))
+                    return action::quit{};
+                return action::text_input{cmd_str};
+            },
+            [&](states::add_card_front) -> action::action {
+                return action::text_input{cmd_str};
+            },
+            [&](states::add_card_back) -> action::action {
+                return action::text_input{cmd_str};
+            },
+            [&](auto) -> action::action {
+                return action::text_input{cmd_str};
+            }),
+        s);
 }
 [[nodiscard]] auto draw(const ::xzr::learn::data::app& app_data,
                         states::state s,
                         action::action act)
 {
-    using boost::hof::match;
+    using ::boost::hof::match;
 
     std::visit(
         match(
@@ -319,7 +378,7 @@ auto intent(const std::string& cmd_str) -> action::action
         s,
         act);
 
-    const auto cmd{intent(readln())};
+    const auto cmd{intent(s, readln())};
 
     return std::visit(
         match(
