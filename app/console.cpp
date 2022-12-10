@@ -87,9 +87,6 @@ namespace
 {
 namespace console::action
 {
-struct draw
-{
-};
 struct select
 {
     std::optional<int> id{};
@@ -112,7 +109,7 @@ struct quit
 {
 };
 using action =
-    std::variant<draw, select, add, remove, text_input, start_training, quit>;
+    std::variant<select, add, remove, text_input, start_training, quit>;
 }
 }
 
@@ -341,42 +338,40 @@ auto intent(states::state s, const std::string& cmd_str) -> action::action
         s);
 }
 [[nodiscard]] auto draw(const ::xzr::learn::data::app& app_data,
-                        states::state s,
-                        action::action act)
+                        states::state s)
 {
     using ::boost::hof::match;
 
     std::visit(
         match(
-            [&](states::books, action::draw) {
+            [&](states::books) {
                 ::console::content{}.books(app_data.the_books);
                 ::console::menu{"book"}.select().add().remove().quit();
             },
-            [](states::add_book, action::draw) {
+            [](states::add_book) {
                 println("add book");
                 println("name: ");
             },
-            [&](states::book s, action::draw) {
+            [&](states::book s) {
                 ::console::content{}.book(app_data.the_books.at(s.book_id));
                 ::console::menu{"chapter"}.select().add().remove().quit();
             },
-            [](states::add_chapter, action::draw) {
+            [](states::add_chapter) {
                 println("add chapter");
                 println("name: ");
             },
-            [&](states::chapter s, action::draw) {
+            [&](states::chapter s) {
                 ::console::content{}.chapter(
                     app_data.the_books.at(s.book_id).chapters.at(s.chapter_id));
                 ::console::menu{"card"}.add().remove().start_training().quit();
             },
-            [](states::add_card_front, action::draw) {
+            [](states::add_card_front) {
                 println("add chard");
                 println("front: ");
             },
-            [](states::add_card_back, action::draw) { println("back: "); },
+            [](states::add_card_back) { println("back: "); },
             [](auto, auto) {}),
-        s,
-        act);
+        s);
 
     const auto cmd{intent(s, readln())};
 
@@ -523,9 +518,7 @@ auto run() -> void
                                 .console_state = ::console::states::books{}}};
     for (;;)
     {
-        console_data = ::console::draw(app_data,
-                                       console_data.console_state,
-                                       ::console::action::draw{});
+        console_data = ::console::draw(app_data, console_data.console_state);
         if (const auto data_act{console_data.data_act})
         {
             app_data = data::update(std::move(app_data), data_act.value());
