@@ -40,3 +40,55 @@ auto eval_answer(training t, card crd, std::string_view back) -> training
 }
 }
 }
+
+#include <boost/hof/match.hpp>
+
+#include <algorithm>
+#include <iterator>
+
+namespace xzr::learn::data
+{
+namespace v2::training
+{
+namespace
+{
+auto eval_answer(cards cs, card c, std::string_view answer) -> cards
+{
+    if (c.back != answer)
+        std::rotate(cs.begin(), cs.begin() + 1, cs.end());
+    else
+        cs.erase(cs.begin());
+
+    return cs;
+}
+}
+auto update(training t, action::action a) -> training
+{
+    using ::boost::hof::match;
+
+    return std::visit(
+        match(
+            [t](states::done, action::start a) {
+                if (a.cards.empty())
+                    return t;
+                ::shuffle(a.cards);
+                return training{.state =
+                                    states::show_card{.card = a.cards.front()},
+                                .cards = a.cards};
+            },
+            [&](states::done, auto) { return t; },
+            [&](states::show_card s, action::answer a) {
+                const auto new_cards{eval_answer(t.cards, s.card, a.txt)};
+                if (new_cards.empty())
+                    return training{.state = states::done{},
+                                    .cards = new_cards};
+                return training{
+                    .state = states::show_card{.card = new_cards.front()},
+                    .cards = new_cards};
+            },
+            [&](states::show_card, auto) { return t; }),
+        t.state,
+        a);
+}
+}
+}
