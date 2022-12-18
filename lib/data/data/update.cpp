@@ -56,28 +56,32 @@ namespace xzr::learn::data
 {
 inline namespace v1
 {
-auto update(app app, action act) -> data::app
+auto update(app app, books::actions::action act) -> data::app
 {
     using boost::hof::match;
 
     std::visit(
         match(
-            [&](add_book a) { ::add_book_to(app.the_books, a.name); },
-            [&](remove_book a) { ::remove_book_from(app.the_books, a.id); },
-            [&](add_chapter a) {
+            [&](books::actions::add_book a) {
+                ::add_book_to(app.the_books, a.name);
+            },
+            [&](books::actions::remove_book a) {
+                ::remove_book_from(app.the_books, a.id);
+            },
+            [&](books::actions::add_chapter a) {
                 ::add_chapter_to(app.the_books.at(a.book_id).chapters, a.name);
             },
-            [&](remove_chapter a) {
+            [&](books::actions::remove_chapter a) {
                 ::remove_chapter_from(app.the_books.at(a.book_id).chapters,
                                       a.id);
             },
-            [&](add_card a) {
+            [&](books::actions::add_card a) {
                 ::add_card_to(
                     app.the_books.at(a.book_id).chapters.at(a.chapter_id).cards,
                     a.front,
                     a.back);
             },
-            [&](remove_card a) {
+            [&](books::actions::remove_card a) {
                 ::remove_card_from(
                     app.the_books.at(a.book_id).chapters.at(a.chapter_id).cards,
                     a.id);

@@ -21,12 +21,12 @@ using chapter = ::xzr::learn::data::books::chapter;
 using chapters = ::xzr::learn::data::books::chapters;
 using card = ::xzr::learn::data::books::card;
 using cards = ::xzr::learn::data::books::cards;
-using add_book = ::xzr::learn::data::add_book;
-using remove_book = ::xzr::learn::data::remove_book;
-using add_chapter = ::xzr::learn::data::add_chapter;
-using remove_chapter = ::xzr::learn::data::remove_chapter;
-using add_card = ::xzr::learn::data::add_card;
-using remove_card = ::xzr::learn::data::remove_card;
+using add_book = ::xzr::learn::data::books::actions::add_book;
+using remove_book = ::xzr::learn::data::books::actions::remove_book;
+using add_chapter = ::xzr::learn::data::books::actions::add_chapter;
+using remove_chapter = ::xzr::learn::data::books::actions::remove_chapter;
+using add_card = ::xzr::learn::data::books::actions::add_card;
+using remove_card = ::xzr::learn::data::books::actions::remove_card;
 
 auto app_data()
 {

@@ -1,12 +1,11 @@
 #pragma once
 
 #include <data/books.hpp>
-#include <data/training.hpp>
 
 #include <string>
 #include <variant>
 
-namespace xzr::learn::data
+namespace xzr::learn::data::books::actions
 {
 inline namespace v1
 {
