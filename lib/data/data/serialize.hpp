@@ -27,7 +27,7 @@ inline auto serialize(Ar& ar,
     }                                                                          \
     }
 
-#include <data/app.hpp>
+#include <data/data.hpp>
 #include <data/training.hpp>
 
 #include <boost/serialization/string.hpp>

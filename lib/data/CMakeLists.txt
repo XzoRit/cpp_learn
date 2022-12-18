@@ -9,12 +9,8 @@ target_sources(
           "${SOURCE}/books.hpp"
           "${SOURCE}/training.cpp"
           "${SOURCE}/training.hpp"
-          "${SOURCE}/action.cpp"
-          "${SOURCE}/action.hpp"
-          "${SOURCE}/update.cpp"
-          "${SOURCE}/update.hpp"
-          "${SOURCE}/app.cpp"
-          "${SOURCE}/app.hpp"
+          "${SOURCE}/data.cpp"
+          "${SOURCE}/data.hpp"
           "${SOURCE}/serialize.cpp"
           "${SOURCE}/serialize.hpp"
           "${SOURCE}/ostream.cpp"
@@ -26,7 +22,7 @@ add_library(lib::data ALIAS data)
 
 add_executable(data_test)
 target_sources(
-  data_test PRIVATE "${SOURCE}/books.test.cpp" "${SOURCE}/training.test.cpp" "${SOURCE}/update.test.cpp"
+  data_test PRIVATE "${SOURCE}/books.test.cpp" "${SOURCE}/training.test.cpp"
                     "${SOURCE}/serialize.test.cpp" "${SOURCE}/main.test.cpp"
 )
 target_link_libraries(
