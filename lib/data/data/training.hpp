@@ -34,7 +34,7 @@ namespace v2
 {
 namespace training
 {
-namespace action
+namespace actions
 {
 struct start
 {
@@ -62,7 +62,7 @@ struct training
     states::state state{};
     books::cards cards{};
 };
-[[nodiscard]] auto update(training, action::action) -> training;
+[[nodiscard]] auto update(training, actions::action) -> training;
 }
 }
 }

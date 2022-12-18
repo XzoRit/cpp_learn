@@ -99,8 +99,8 @@ using ::xzr::learn::data::books::card;
 using ::xzr::learn::data::books::cards;
 using ::xzr::learn::data::v2::training::training;
 using ::xzr::learn::data::v2::training::update;
-using ::xzr::learn::data::v2::training::action::answer;
-using ::xzr::learn::data::v2::training::action::start;
+using ::xzr::learn::data::v2::training::actions::answer;
+using ::xzr::learn::data::v2::training::actions::start;
 using ::xzr::learn::data::v2::training::states::done;
 using ::xzr::learn::data::v2::training::states::show_card;
 

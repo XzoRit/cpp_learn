@@ -62,13 +62,13 @@ auto eval_answer(books::cards cs, books::card c, std::string_view answer)
     return cs;
 }
 }
-auto update(training t, action::action a) -> training
+auto update(training t, actions::action a) -> training
 {
     using ::boost::hof::match;
 
     return std::visit(
         match(
-            [t](states::done, action::start a) {
+            [t](states::done, actions::start a) {
                 if (a.cards.empty())
                     return t;
                 ::shuffle(a.cards);
@@ -77,7 +77,7 @@ auto update(training t, action::action a) -> training
                                 .cards = a.cards};
             },
             [&](states::done, auto) { return t; },
-            [&](states::show_card s, action::answer a) {
+            [&](states::show_card s, actions::answer a) {
                 const auto new_cards{eval_answer(t.cards, s.card, a.txt)};
                 if (new_cards.empty())
                     return training{.state = states::done{},
