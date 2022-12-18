@@ -12,7 +12,6 @@ namespace
 {
 BOOST_AUTO_TEST_SUITE(update_tests)
 
-using ::xzr::learn::data::current_card;
 using ::xzr::learn::data::update;
 
 using app = ::xzr::learn::data::app;
