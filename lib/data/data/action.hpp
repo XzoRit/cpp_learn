@@ -1,5 +1,8 @@
 #pragma once
 
+#include <data/books.hpp>
+#include <data/training.hpp>
+
 #include <string>
 #include <variant>
 

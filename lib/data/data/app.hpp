@@ -1,6 +1,6 @@
 #pragma once
 
-#include <data/data.hpp>
+#include <data/books.hpp>
 #include <data/training.hpp>
 
 namespace xzr::learn::data
