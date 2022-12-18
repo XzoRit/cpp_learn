@@ -1,6 +1,5 @@
 #pragma once
 
-#include <data/action.hpp>
 #include <data/app.hpp>
 
 namespace xzr::learn::data

@@ -2,11 +2,9 @@
 #include <data/app.hpp>
 #include <data/books.hpp>
 #include <data/ostream.hpp>
-#include <data/training.hpp>
 #include <data/update.hpp>
 
 #include <boost/test/unit_test.hpp>
-#include <libs/test/include/boost/test/tools/old/interface.hpp>
 
 namespace
 {

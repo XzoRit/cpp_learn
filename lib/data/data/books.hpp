@@ -99,3 +99,10 @@ struct book
 using books = container<book>;
 }
 }
+namespace xzr::learn::data::books
+{
+inline namespace v1
+{
+auto update(books bs, actions::action act) -> books;
+}
+}
