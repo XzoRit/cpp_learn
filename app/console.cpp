@@ -1,6 +1,5 @@
 #include "console.hpp"
 
-#include <algorithm>
 #include <data/books.hpp>
 #include <data/data.hpp>
 #include <data/serialize.hpp>
@@ -10,6 +9,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/hof/match.hpp>
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
@@ -159,16 +159,20 @@ struct add_card_back
     int book_id{};
     int chapter_id{};
 };
+struct training
+{
+};
 using state = std::variant<books,
                            add_book,
                            book,
                            add_chapter,
                            chapter,
                            add_card_front,
-                           add_card_back>;
+                           add_card_back,
+                           training>;
 struct data
 {
-    std::optional<::xzr::learn::data::books::actions::action> data_act{};
+    std::optional<::xzr::learn::data::v2::actions::action> data_act{};
     state console_state{};
 };
 }
@@ -331,12 +335,17 @@ auto intent(states::state s, const std::string& cmd_str) -> actions::action
             [&](states::add_card_back) -> actions::action {
                 return actions::text_input{cmd_str};
             },
+            [&](states::training) -> actions::action {
+                if (command::str::is(cmd_str, command::str::quit))
+                    return actions::quit{};
+                return actions::text_input{cmd_str};
+            },
             [&](auto) -> actions::action {
                 return actions::text_input{cmd_str};
             }),
         s);
 }
-auto draw(const ::xzr::learn::data::app& app_data, states::state s)
+auto draw(const ::xzr::learn::data::v2::app& app_data, states::state s)
 {
     using ::boost::hof::match;
 
@@ -368,12 +377,21 @@ auto draw(const ::xzr::learn::data::app& app_data, states::state s)
                 println("front: ");
             },
             [](states::add_card_back) { println("back: "); },
-            [](auto, auto) {}),
+            [&](states::training) {
+                std::visit(
+                    match([](xzr::learn::data::v2::training::states::show_card
+                                 s) { println(s.card.front); },
+                          [](xzr::learn::data::v2::training::states::done) {
+                              menu{"training"}.quit();
+                          }),
+                    app_data.the_training.state);
+            },
+            [](auto) {}),
         s);
 }
 auto dispatch(actions::action act,
               states::state state,
-              const ::xzr::learn::data::app& app_data)
+              const ::xzr::learn::data::v2::app& app_data)
 {
     using ::boost::hof::match;
 
@@ -457,16 +475,22 @@ auto dispatch(actions::action act,
                 return {.data_act = std::nullopt, .console_state = s};
             },
             [&](states::chapter s, actions::start_training) -> states::data {
-                auto t{::xzr::learn::data::start_training(
-                    app_data.the_books.at(s.book_id)
-                        .chapters.at(s.chapter_id)
-                        .cards)};
-                while (const auto c{::xzr::learn::data::current_card(t)})
-                {
-                    println(c.value().front);
-                    t = ::xzr::learn::data::eval_answer(t, c.value(), readln());
-                }
-                return {.data_act = std::nullopt, .console_state = s};
+                return {.data_act =
+                            ::xzr::learn::data::v2::training::actions::start{
+                                .cards = app_data.the_books.at(s.book_id)
+                                             .chapters.at(s.chapter_id)
+                                             .cards},
+                        .console_state = states::training{}};
+            },
+            [](states::training s, actions::text_input a) -> states::data {
+                return {.data_act =
+                            ::xzr::learn::data::v2::training::actions::answer{
+                                a.txt},
+                        .console_state = s};
+            },
+            [](states::training, actions::quit a) -> states::data {
+                return {.data_act = std::nullopt,
+                        .console_state = states::books{}};
             },
             [](states::chapter s, actions::quit) -> states::data {
                 return states::data{.data_act = std::nullopt,
@@ -506,7 +530,10 @@ inline namespace v1
 {
 auto run() -> void
 {
-    auto app_data{::persist::read_or_create_app_data()};
+    auto v1_app_data{::persist::read_or_create_app_data()};
+    auto app_data{
+        ::xzr::learn::data::v2::app{.the_books = v1_app_data.the_books,
+                                    .the_training = {}}};
     auto console_data{
         ::console::states::data{.data_act = std::nullopt,
                                 .console_state = ::console::states::books{}}};
@@ -519,8 +546,10 @@ auto run() -> void
             ::console::dispatch(act, console_data.console_state, app_data);
         if (const auto data_act{console_data.data_act})
         {
-            app_data = data::update(std::move(app_data), data_act.value());
-            ::persist::save(app_data);
+            app_data = data::v2::update(std::move(app_data), data_act.value());
+            ::persist::save(
+                ::xzr::learn::data::v1::app{.the_books = app_data.the_books,
+                                            .the_training = {}});
         }
         if (std::holds_alternative<::console::actions::exit>(act))
             break;

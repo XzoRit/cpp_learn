@@ -10,6 +10,13 @@ using ::xzr::learn::console::println;
 
 auto main(int ac, char* av[]) -> int
 {
+    std::cout << R"(
+TODO:
+1. commands shall have ! in front to be distinguished from text input
+2. make v2 namespace inline
+3. persis v2 version of the data::app type
+4. rename data type app to data
+)";
     try
     {
         {
