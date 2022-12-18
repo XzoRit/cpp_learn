@@ -17,10 +17,16 @@ namespace xzr::learn::data
 inline namespace v1
 {
 XZR_LEARN_DATA_OSTREAM_FOR(app)
+XZR_LEARN_DATA_OSTREAM_FOR(training)
+}
+}
+namespace xzr::learn::data::books
+{
+inline namespace v1
+{
 XZR_LEARN_DATA_OSTREAM_FOR(card)
 XZR_LEARN_DATA_OSTREAM_FOR(chapter)
 XZR_LEARN_DATA_OSTREAM_FOR(book)
-XZR_LEARN_DATA_OSTREAM_FOR(training)
 
 template <class A>
 inline auto operator<<(std::ostream& o, const container<A>& v) -> std::ostream&

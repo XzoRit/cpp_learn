@@ -18,10 +18,12 @@ BOOST_AUTO_TEST_SUITE(data_tests)
 
 BOOST_AUTO_TEST_SUITE(training_v1)
 
+using ::xzr::learn::data::start_training;
+
 using training = ::xzr::learn::data::training;
-using card = ::xzr::learn::data::card;
-using cards = ::xzr::learn::data::cards;
-using chapter = ::xzr::learn::data::chapter;
+using card = ::xzr::learn::data::books::card;
+using cards = ::xzr::learn::data::books::cards;
+using chapter = ::xzr::learn::data::books::chapter;
 
 struct training_tests
 {
@@ -93,8 +95,8 @@ BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(training_v2)
 
-using ::xzr::learn::data::card;
-using ::xzr::learn::data::cards;
+using ::xzr::learn::data::books::card;
+using ::xzr::learn::data::books::cards;
 using ::xzr::learn::data::v2::training::training;
 using ::xzr::learn::data::v2::training::update;
 using ::xzr::learn::data::v2::training::action::answer;

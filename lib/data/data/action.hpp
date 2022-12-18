@@ -41,8 +41,10 @@ struct remove_card
     int chapter_id{};
     int id{};
 };
-struct quit
+struct training_start
 {
+    int book_id{};
+    int chapter_id{};
 };
 using action = std::variant<add_book,
                             remove_book,
@@ -50,6 +52,6 @@ using action = std::variant<add_book,
                             remove_chapter,
                             add_card,
                             remove_card,
-                            quit>;
+                            training_start>;
 }
 }

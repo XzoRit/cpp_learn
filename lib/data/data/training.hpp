@@ -12,15 +12,17 @@ inline namespace v1
 {
 struct training
 {
-    cards cards{};
+    books::cards cards{};
 
     [[nodiscard]] bool operator==(const training&) const = default;
 };
 
-[[nodiscard]] auto start_training(cards cs) -> training;
-[[nodiscard]] auto current_card(const training& t) -> std::optional<card>;
-[[nodiscard]] auto eval_answer(training t, card crd, std::string_view back)
-    -> training;
+[[nodiscard]] auto start_training(books::cards cs) -> training;
+[[nodiscard]] auto current_card(const training& t)
+    -> std::optional<books::card>;
+[[nodiscard]] auto eval_answer(training t,
+                               books::card crd,
+                               std::string_view back) -> training;
 }
 }
 
@@ -36,7 +38,7 @@ namespace action
 {
 struct start
 {
-    cards cards{};
+    books::cards cards{};
 };
 struct answer
 {
@@ -51,14 +53,14 @@ struct done
 };
 struct show_card
 {
-    card card{};
+    books::card card{};
 };
 using state = std::variant<done, show_card>;
 }
 struct training
 {
     states::state state{};
-    cards cards{};
+    books::cards cards{};
 };
 [[nodiscard]] auto update(training, action::action) -> training;
 }

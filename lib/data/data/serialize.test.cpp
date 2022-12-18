@@ -13,9 +13,9 @@ BOOST_AUTO_TEST_SUITE(data_tests)
 
 BOOST_AUTO_TEST_SUITE(serialize_tests)
 
-using chapter = ::xzr::learn::data::chapter;
-using card = ::xzr::learn::data::card;
-using book = ::xzr::learn::data::book;
+using chapter = ::xzr::learn::data::books::chapter;
+using card = ::xzr::learn::data::books::card;
+using book = ::xzr::learn::data::books::book;
 using training = ::xzr::learn::data::training;
 
 BOOST_AUTO_TEST_CASE(card_serialization)

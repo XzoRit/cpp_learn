@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace xzr::learn::data
+namespace xzr::learn::data::books
 {
 inline namespace v1
 {

@@ -8,7 +8,7 @@ namespace boost::serialization
 {
 template <class Ar, class A>
 inline auto serialize(Ar& ar,
-                      ::xzr::learn::data::v1::container<A>& a,
+                      ::xzr::learn::data::books::v1::container<A>& a,
                       const unsigned int) -> void
 {
     ar& a.base();
@@ -33,9 +33,9 @@ inline auto serialize(Ar& ar,
 #include <boost/serialization/string.hpp>
 
 XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::app)
-XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::book)
-XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::card)
-XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::chapter)
+XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::books::book)
+XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::books::card)
+XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::books::chapter)
 XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::training);
 
 namespace xzr::learn::data

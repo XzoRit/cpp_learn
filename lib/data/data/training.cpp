@@ -19,18 +19,18 @@ namespace xzr::learn::data
 {
 inline namespace v1
 {
-auto start_training(cards cs) -> training
+auto start_training(books::cards cs) -> training
 {
     ::shuffle(cs);
     return training{.cards = std::move(cs)};
 }
-auto current_card(const training& t) -> std::optional<card>
+auto current_card(const training& t) -> std::optional<books::card>
 {
     if (t.cards.empty())
         return std::nullopt;
     return t.cards.back();
 }
-auto eval_answer(training t, card crd, std::string_view back) -> training
+auto eval_answer(training t, books::card crd, std::string_view back) -> training
 {
     if (crd.back != back)
         t.cards.insert(t.cards.begin(), crd);
@@ -52,7 +52,7 @@ namespace v2::training
 {
 namespace
 {
-auto eval_answer(cards cs, card c, std::string_view answer) -> cards
+auto eval_answer(books::cards cs, books::card c, std::string_view answer)
 {
     if (c.back != answer)
         std::rotate(cs.begin(), cs.begin() + 1, cs.end());

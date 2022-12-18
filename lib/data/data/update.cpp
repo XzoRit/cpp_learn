@@ -10,12 +10,12 @@
 
 namespace
 {
-using books = ::xzr::learn::data::books;
-using book = ::xzr::learn::data::book;
-using chapter = ::xzr::learn::data::chapter;
-using chapters = ::xzr::learn::data::chapters;
-using card = ::xzr::learn::data::card;
-using cards = ::xzr::learn::data::cards;
+using books = ::xzr::learn::data::books::books;
+using book = ::xzr::learn::data::books::book;
+using chapter = ::xzr::learn::data::books::chapter;
+using chapters = ::xzr::learn::data::books::chapters;
+using card = ::xzr::learn::data::books::card;
+using cards = ::xzr::learn::data::books::cards;
 
 auto erase_id(auto& container, int id)
 {
@@ -82,7 +82,12 @@ auto update(app app, action act) -> data::app
                     app.the_books.at(a.book_id).chapters.at(a.chapter_id).cards,
                     a.id);
             },
-            [&](quit) {}),
+            [&](training_start a) {
+                app.the_training = start_training(app.the_books.at(a.book_id)
+                                                      .chapters.at(a.chapter_id)
+                                                      .cards);
+            },
+            [](auto) {}),
         act);
 
     return app;

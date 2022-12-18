@@ -243,7 +243,7 @@ struct content
         println("===");
         println();
     }
-    auto chapter(const ::xzr::learn::data::chapter& ch)
+    auto chapter(const ::xzr::learn::data::books::chapter& ch)
     {
         println("=== chapter: ", ch.name);
         println("cards:");
@@ -253,14 +253,14 @@ struct content
             println(i, ".\t", c.back);
         }
     }
-    auto book(const ::xzr::learn::data::book& b)
+    auto book(const ::xzr::learn::data::books::book& b)
     {
         println("=== book: ", b.name);
         println("chapters:");
         for (int i{}; const auto& c : b.chapters)
             println(++i, ".\t", c.name);
     }
-    auto books(const ::xzr::learn::data::books& bs)
+    auto books(const ::xzr::learn::data::books::books& bs)
     {
         println("=== books:");
         for (int i{}; const auto& b : bs)
