@@ -74,6 +74,7 @@ const auto add{command{.cmd = "b", .desc = "add"}};
 const auto remove{command{.cmd = "c<n>", .desc = "remove"}};
 const auto start_training{command{.cmd = "s", .desc = "start training"}};
 const auto quit{command{.cmd = "d", .desc = "quit"}};
+const auto exit{command{.cmd = "e", .desc = "exit"}};
 auto is(const std::string& str_cmd, const command& c)
 {
     if (str_cmd == c.cmd)
@@ -118,8 +119,11 @@ struct start_training
 struct quit
 {
 };
+struct exit
+{
+};
 using action =
-    std::variant<select, add, remove, text_input, start_training, quit>;
+    std::variant<select, add, remove, text_input, start_training, quit, exit>;
 }
 }
 
@@ -222,6 +226,11 @@ struct menu
         println(::console::command::str::as_str(::console::command::str::quit));
         return *this;
     }
+    auto exit() -> menu&
+    {
+        println(::console::command::str::as_str(::console::command::str::exit));
+        return *this;
+    }
 };
 struct content
 {
@@ -286,8 +295,8 @@ auto intent(states::state s, const std::string& cmd_str) -> action::action
                     return action::add{};
                 if (command::str::is(cmd_str, command::str::remove))
                     return action::remove{.id = extract_id(cmd_str)};
-                if (command::str::is(cmd_str, command::str::quit))
-                    return action::quit{};
+                if (command::str::is(cmd_str, command::str::exit))
+                    return action::exit{};
                 return action::text_input{cmd_str};
             },
             [&](states::add_book) -> action::action {
@@ -337,7 +346,7 @@ auto draw(const ::xzr::learn::data::app& app_data, states::state s)
         match(
             [&](states::books) {
                 content{}.books(app_data.the_books);
-                menu{"book"}.select().add().remove().quit();
+                menu{"book"}.select().add().remove().exit();
             },
             [](states::add_book) {
                 println("add book");
@@ -390,9 +399,8 @@ auto dispatch(action::action act,
                         .console_state = s};
                 return {.data_act = std::nullopt, .console_state = s};
             },
-            [](states::books s, action::quit) -> states::data {
-                return {.data_act = ::xzr::learn::data::quit{},
-                        .console_state = s};
+            [](states::books s, action::exit) -> states::data {
+                return {.data_act = std::nullopt, .console_state = s};
             },
             [](states::add_book s, action::text_input a) -> states::data {
                 return {.data_act = ::xzr::learn::data::add_book{.name = a.txt},
@@ -511,9 +519,9 @@ auto run() -> void
         {
             app_data = data::update(std::move(app_data), data_act.value());
             ::persist::save(app_data);
-            if (std::holds_alternative<data::quit>(data_act.value()))
-                break;
         }
+        if (std::holds_alternative<::console::action::exit>(act))
+            break;
     }
 }
 }
