@@ -41,17 +41,11 @@ struct remove_card
     int chapter_id{};
     int id{};
 };
-struct training_start
-{
-    int book_id{};
-    int chapter_id{};
-};
 using action = std::variant<add_book,
                             remove_book,
                             add_chapter,
                             remove_chapter,
                             add_card,
-                            remove_card,
-                            training_start>;
+                            remove_card>;
 }
 }

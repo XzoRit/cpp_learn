@@ -28,7 +28,6 @@ using add_chapter = ::xzr::learn::data::add_chapter;
 using remove_chapter = ::xzr::learn::data::remove_chapter;
 using add_card = ::xzr::learn::data::add_card;
 using remove_card = ::xzr::learn::data::remove_card;
-using training_start = ::xzr::learn::data::training_start;
 
 auto app_data()
 {
@@ -200,18 +199,6 @@ BOOST_AUTO_TEST_CASE(update_with_removal_wrong_card_id)
 
         BOOST_TEST(new_app == the_app);
     }
-}
-
-BOOST_AUTO_TEST_CASE(update_with_training_start)
-{
-    const auto the_app{app_data("book name", "chapter name", "front", "back")};
-    const auto new_app{
-        update(the_app, training_start{.book_id = 0, .chapter_id = 0})};
-
-    BOOST_TEST(new_app != the_app);
-    const auto c{current_card(new_app.the_training)};
-    BOOST_REQUIRE(c.has_value());
-    BOOST_TEST(c.value() == the_app.the_books.at(0).chapters.at(0).cards.at(0));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

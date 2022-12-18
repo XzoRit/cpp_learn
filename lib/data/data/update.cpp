@@ -82,11 +82,6 @@ auto update(app app, action act) -> data::app
                     app.the_books.at(a.book_id).chapters.at(a.chapter_id).cards,
                     a.id);
             },
-            [&](training_start a) {
-                app.the_training = start_training(app.the_books.at(a.book_id)
-                                                      .chapters.at(a.chapter_id)
-                                                      .cards);
-            },
             [](auto) {}),
         act);
 
