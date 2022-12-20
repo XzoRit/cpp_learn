@@ -11,10 +11,10 @@ using action = std::variant<books::actions::action, training::actions::action>;
 }
 namespace xzr::learn::data
 {
-struct app
+struct data
 {
     books::books the_books{};
     training::training the_training{};
 };
-auto update(app, actions::action) -> app;
+auto update(data, actions::action) -> data;
 }

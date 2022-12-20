@@ -29,13 +29,13 @@ namespace persist
 namespace fs = std::filesystem;
 const auto books_path{fs::path{"xzr_learn_books.txt"}};
 
-auto save(const ::xzr::learn::data::app& app_data)
+auto save(const ::xzr::learn::data::data& data)
 {
     using oarchive = ::boost::archive::text_oarchive;
     using ::xzr::learn::data::save;
     auto f{std::ofstream{books_path}};
     auto o{oarchive{f}};
-    save(o, app_data);
+    save(o, data);
 }
 [[nodiscard]] auto load()
 {
@@ -45,10 +45,10 @@ auto save(const ::xzr::learn::data::app& app_data)
     auto i{iarchive{f}};
     return load(i);
 }
-[[nodiscard]] auto read_or_create_app_data()
+[[nodiscard]] auto read_or_create_data()
 {
     if (!fs::exists(books_path))
-        save(::xzr::learn::data::app{});
+        save(::xzr::learn::data::data{});
     return load();
 }
 }
@@ -336,13 +336,13 @@ auto intent(states::state s, const std::string& cmd_str) -> actions::action
             }),
         s);
 }
-auto draw(const ::xzr::learn::data::app& app_data, states::state s)
+auto draw(const ::xzr::learn::data::data& data, states::state s)
 {
     using ::boost::hof::match;
     std::visit(
         match(
             [&](states::books) {
-                content{}.books(app_data.the_books);
+                content{}.books(data.the_books);
                 menu{"book"}.select().add().remove().exit();
             },
             [](states::add_book) {
@@ -350,7 +350,7 @@ auto draw(const ::xzr::learn::data::app& app_data, states::state s)
                 println("name: ");
             },
             [&](states::book s) {
-                content{}.book(app_data.the_books.at(s.book_id));
+                content{}.book(data.the_books.at(s.book_id));
                 menu{"chapter"}.select().add().remove().quit();
             },
             [](states::add_chapter) {
@@ -359,7 +359,7 @@ auto draw(const ::xzr::learn::data::app& app_data, states::state s)
             },
             [&](states::chapter s) {
                 content{}.chapter(
-                    app_data.the_books.at(s.book_id).chapters.at(s.chapter_id));
+                    data.the_books.at(s.book_id).chapters.at(s.chapter_id));
                 menu{"card"}.add().remove().start_training().quit();
             },
             [](states::add_card_front) {
@@ -376,14 +376,14 @@ auto draw(const ::xzr::learn::data::app& app_data, states::state s)
                         [](xzr::learn::data::training::states::done) {
                             menu{"training"}.quit();
                         }),
-                    app_data.the_training.state);
+                    data.the_training.state);
             },
             [](auto) {}),
         s);
 }
 auto dispatch(actions::action act,
               states::state state,
-              const ::xzr::learn::data::app& app_data)
+              const ::xzr::learn::data::data& data)
 {
     using ::boost::hof::match;
     return std::visit(
@@ -468,7 +468,7 @@ auto dispatch(actions::action act,
             [&](states::chapter s, actions::start_training) -> states::data {
                 return {.data_act =
                             ::xzr::learn::data::training::actions::start{
-                                .cards = app_data.the_books.at(s.book_id)
+                                .cards = data.the_books.at(s.book_id)
                                              .chapters.at(s.chapter_id)
                                              .cards},
                         .console_state = states::training{}};
@@ -518,21 +518,21 @@ namespace xzr::learn::console
 {
 auto run() -> void
 {
-    auto app_data{::persist::read_or_create_app_data()};
+    auto data{::persist::read_or_create_data()};
     auto console_data{
         ::console::states::data{.data_act = std::nullopt,
                                 .console_state = ::console::states::books{}}};
     for (;;)
     {
-        ::console::draw(app_data, console_data.console_state);
+        ::console::draw(data, console_data.console_state);
         const auto act{
             ::console::intent(console_data.console_state, ::console::readln())};
         console_data =
-            ::console::dispatch(act, console_data.console_state, app_data);
+            ::console::dispatch(act, console_data.console_state, data);
         if (const auto data_act{console_data.data_act})
         {
-            app_data = data::update(std::move(app_data), data_act.value());
-            ::persist::save(app_data);
+            data = data::update(std::move(data), data_act.value());
+            ::persist::save(data);
         }
         if (std::holds_alternative<::console::actions::exit>(act))
             break;

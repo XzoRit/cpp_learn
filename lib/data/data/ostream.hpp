@@ -37,5 +37,5 @@ inline auto operator<<(std::ostream& o, const training& t) -> std::ostream&
 }
 namespace xzr::learn::data
 {
-XZR_LEARN_DATA_OSTREAM_FOR(app)
+XZR_LEARN_DATA_OSTREAM_FOR(data)
 }

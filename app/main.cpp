@@ -11,7 +11,6 @@ auto main(int ac, char* av[]) -> int
     std::cout << R"(
 TODO:
 - commands shall have ! in front to be distinguished from text input
-- rename data type app to data
 )";
     try
     {

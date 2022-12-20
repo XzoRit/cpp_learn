@@ -31,24 +31,24 @@ XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::books::card)
 XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::books::chapter)
 namespace boost::serialization
 {
-inline auto serialize(auto& ar, ::xzr::learn::data::app& a, const unsigned int)
+inline auto serialize(auto& ar, ::xzr::learn::data::data& a, const unsigned int)
 {
     ar& a.the_books;
 }
 }
 namespace xzr::learn::data
 {
-inline auto serialize(auto& ar, app& a)
+inline auto serialize(auto& ar, data& a)
 {
     ar& a;
 }
-inline auto save(auto& ar, const app& a)
+inline auto save(auto& ar, const data& a)
 {
     ar& a;
 }
 inline auto load(auto& ar)
 {
-    app a{};
+    data a{};
     ar& a;
     return a;
 }
