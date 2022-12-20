@@ -4,17 +4,15 @@
 
 namespace
 {
-using books = ::xzr::learn::data::books::books;
-using book = ::xzr::learn::data::books::book;
-using chapter = ::xzr::learn::data::books::chapter;
-using chapters = ::xzr::learn::data::books::chapters;
-using card = ::xzr::learn::data::books::card;
-using cards = ::xzr::learn::data::books::cards;
-
+using ::xzr::learn::data::books::book;
+using ::xzr::learn::data::books::books;
+using ::xzr::learn::data::books::card;
+using ::xzr::learn::data::books::cards;
+using ::xzr::learn::data::books::chapter;
+using ::xzr::learn::data::books::chapters;
 auto erase_id(auto& container, int id)
 {
     using std::cbegin;
-
     if (container.empty())
         return;
     if (id >= container.size())
@@ -48,12 +46,9 @@ auto remove_card_from(cards& cs, int id)
 }
 namespace xzr::learn::data::books
 {
-inline namespace v1
-{
 auto update(books bs, actions::action act) -> books
 {
     using boost::hof::match;
-
     std::visit(
         match([&](actions::add_book a) { ::add_book_to(bs, a.name); },
               [&](actions::remove_book a) { ::remove_book_from(bs, a.id); },
@@ -76,8 +71,6 @@ auto update(books bs, actions::action act) -> books
               },
               [](auto) {}),
         act);
-
     return bs;
-}
 }
 }

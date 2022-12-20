@@ -11,7 +11,7 @@ namespace boost::serialization
 {
 template <class A>
 inline auto serialize(auto& ar,
-                      ::xzr::learn::data::books::v1::container<A>& a,
+                      ::xzr::learn::data::books::container<A>& a,
                       const unsigned int) -> void
 {
     ar& a.base();

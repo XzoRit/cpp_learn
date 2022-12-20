@@ -9,14 +9,11 @@
 namespace
 {
 BOOST_AUTO_TEST_SUITE(data_tests)
-
 BOOST_AUTO_TEST_SUITE(serialize_tests)
-
-using chapter = ::xzr::learn::data::books::chapter;
-using card = ::xzr::learn::data::books::card;
-using book = ::xzr::learn::data::books::book;
-using training = ::xzr::learn::data::training::training;
-
+using ::xzr::learn::data::books::book;
+using ::xzr::learn::data::books::card;
+using ::xzr::learn::data::books::chapter;
+using ::xzr::learn::data::training::training;
 BOOST_AUTO_TEST_CASE(card_serialization)
 {
     const auto a{card{.front = "Hello", .back = "Hallo"}};
@@ -32,7 +29,6 @@ BOOST_AUTO_TEST_CASE(card_serialization)
     }
     BOOST_TEST(a == b);
 }
-
 BOOST_AUTO_TEST_CASE(chapter_serialization)
 {
     const auto a{chapter{.name = "ch_01",
@@ -47,10 +43,8 @@ BOOST_AUTO_TEST_CASE(chapter_serialization)
         auto ia{boost::archive::text_iarchive{ss}};
         ia >> b;
     }
-
     BOOST_TEST(a == b);
 }
-
 BOOST_AUTO_TEST_CASE(book_serialization)
 {
     const auto a{
@@ -69,8 +63,6 @@ BOOST_AUTO_TEST_CASE(book_serialization)
     }
     BOOST_TEST(a == b);
 }
-
 BOOST_AUTO_TEST_SUITE_END()
-
 BOOST_AUTO_TEST_SUITE_END()
 }

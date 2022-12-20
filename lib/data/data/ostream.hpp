@@ -14,8 +14,6 @@
 
 namespace xzr::learn::data::books
 {
-inline namespace v1
-{
 XZR_LEARN_DATA_OSTREAM_FOR(card)
 XZR_LEARN_DATA_OSTREAM_FOR(chapter)
 XZR_LEARN_DATA_OSTREAM_FOR(book)
@@ -26,9 +24,7 @@ inline auto operator<<(std::ostream& o, const container<A>& v) -> std::ostream&
     for (auto&& it : v)
         o << it << ' ';
     o << ']';
-
     return o;
-}
 }
 }
 namespace xzr::learn::data::training
@@ -36,7 +32,6 @@ namespace xzr::learn::data::training
 inline auto operator<<(std::ostream& o, const training& t) -> std::ostream&
 {
     o << "{.cards = " << t.cards << '}';
-
     return o;
 }
 }

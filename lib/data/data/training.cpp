@@ -13,7 +13,6 @@ auto shuffle(Range& r) -> void
 {
     static auto rd{std::random_device{}};
     static auto g{std::mt19937{rd()}};
-
     std::ranges::shuffle(r.begin(), r.end(), g);
 }
 auto eval_answer(::xzr::learn::data::books::cards cs,
@@ -24,7 +23,6 @@ auto eval_answer(::xzr::learn::data::books::cards cs,
         std::rotate(cs.begin(), cs.begin() + 1, cs.end());
     else
         cs.erase(cs.begin());
-
     return cs;
 }
 }
@@ -33,7 +31,6 @@ namespace xzr::learn::data::training
 auto update(training t, actions::action a) -> training
 {
     using ::boost::hof::match;
-
     return std::visit(
         match(
             [t](states::done, actions::start a) {

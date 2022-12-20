@@ -6,8 +6,6 @@
 
 namespace xzr::learn::data::books::actions
 {
-inline namespace v1
-{
 struct add_book
 {
     std::string name{};
@@ -46,10 +44,7 @@ using action = std::variant<add_book,
                             add_card,
                             remove_card>;
 }
-}
 namespace xzr::learn::data::books
-{
-inline namespace v1
 {
 template <class A>
 struct container : public std::vector<A>
@@ -67,7 +62,6 @@ struct container : public std::vector<A>
         return *this;
     }
 };
-
 struct card
 {
     std::string front{};
@@ -75,9 +69,7 @@ struct card
 
     [[nodiscard]] auto operator<=>(const card&) const = default;
 };
-
 using cards = container<card>;
-
 struct chapter
 {
     std::string name{};
@@ -85,9 +77,7 @@ struct chapter
 
     [[nodiscard]] auto operator<=>(const chapter&) const = default;
 };
-
 using chapters = container<chapter>;
-
 struct book
 {
     std::string name{};
@@ -95,14 +85,9 @@ struct book
 
     [[nodiscard]] auto operator<=>(const book&) const = default;
 };
-
 using books = container<book>;
-}
 }
 namespace xzr::learn::data::books
 {
-inline namespace v1
-{
 auto update(books bs, actions::action act) -> books;
-}
 }

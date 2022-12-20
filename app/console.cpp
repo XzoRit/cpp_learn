@@ -22,20 +22,17 @@
 
 using ::xzr::learn::console::print;
 using ::xzr::learn::console::println;
-
 namespace
 {
 namespace persist
 {
 namespace fs = std::filesystem;
-
 const auto books_path{fs::path{"xzr_learn_books.txt"}};
 
 auto save(const ::xzr::learn::data::app& app_data)
 {
     using oarchive = ::boost::archive::text_oarchive;
     using ::xzr::learn::data::save;
-
     auto f{std::ofstream{books_path}};
     auto o{oarchive{f}};
     save(o, app_data);
@@ -44,7 +41,6 @@ auto save(const ::xzr::learn::data::app& app_data)
 {
     using iarchive = ::boost::archive::text_iarchive;
     using ::xzr::learn::data::load;
-
     auto f{std::ifstream{books_path}};
     auto i{iarchive{f}};
     return load(i);
@@ -57,7 +53,6 @@ auto save(const ::xzr::learn::data::app& app_data)
 }
 }
 }
-
 namespace
 {
 namespace console::command::str
@@ -91,7 +86,6 @@ auto as_str(const command& c)
 }
 }
 }
-
 namespace
 {
 namespace console::actions
@@ -124,7 +118,6 @@ using action =
     std::variant<select, add, remove, text_input, start_training, quit, exit>;
 }
 }
-
 namespace
 {
 namespace console::states
@@ -177,7 +170,6 @@ struct data
 };
 }
 }
-
 namespace
 {
 namespace console
@@ -287,7 +279,6 @@ auto extract_id(const std::string& s)
 auto intent(states::state s, const std::string& cmd_str) -> actions::action
 {
     using ::boost::hof::match;
-
     return std::visit(
         match(
             [&](states::books) -> actions::action {
@@ -348,7 +339,6 @@ auto intent(states::state s, const std::string& cmd_str) -> actions::action
 auto draw(const ::xzr::learn::data::app& app_data, states::state s)
 {
     using ::boost::hof::match;
-
     std::visit(
         match(
             [&](states::books) {
@@ -396,7 +386,6 @@ auto dispatch(actions::action act,
               const ::xzr::learn::data::app& app_data)
 {
     using ::boost::hof::match;
-
     return std::visit(
         match(
             [](states::books s, actions::select a) -> states::data {
@@ -525,10 +514,7 @@ auto dispatch(actions::action act,
 }
 }
 }
-
 namespace xzr::learn::console
-{
-inline namespace v1
 {
 auto run() -> void
 {
@@ -551,6 +537,5 @@ auto run() -> void
         if (std::holds_alternative<::console::actions::exit>(act))
             break;
     }
-}
 }
 }

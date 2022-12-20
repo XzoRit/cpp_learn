@@ -5,16 +5,13 @@
 #include <stdexcept>
 
 namespace po = ::boost::program_options;
-
 using ::xzr::learn::console::println;
-
 auto main(int ac, char* av[]) -> int
 {
     std::cout << R"(
 TODO:
 - commands shall have ! in front to be distinguished from text input
 - rename data type app to data
-- remove inline namespaces
 )";
     try
     {
@@ -31,7 +28,6 @@ TODO:
                 return 0;
             }
         }
-
         println("welcome to xzr::learn");
         ::xzr::learn::console::run();
         println("bye from xzr.learn");
@@ -46,6 +42,5 @@ TODO:
         println("Exception of unknown type!");
         return 2;
     }
-
     return 0;
 }

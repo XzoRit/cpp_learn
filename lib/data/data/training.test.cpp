@@ -15,9 +15,8 @@
 namespace
 {
 BOOST_AUTO_TEST_SUITE(data_tests)
-
 BOOST_AUTO_TEST_SUITE(training_tests)
-
+using ::boost::hof::match;
 using ::xzr::learn::data::books::card;
 using ::xzr::learn::data::books::cards;
 using ::xzr::learn::data::training::training;
@@ -26,9 +25,6 @@ using ::xzr::learn::data::training::actions::answer;
 using ::xzr::learn::data::training::actions::start;
 using ::xzr::learn::data::training::states::done;
 using ::xzr::learn::data::training::states::show_card;
-
-using ::boost::hof::match;
-
 const auto contains{[](auto cs, auto c) {
     return std::ranges::any_of(cs, std::bind_front(std::equal_to{}, c));
 }};
@@ -37,34 +33,28 @@ const auto contains{[](auto cs, auto c) {
 const auto cs{cards{card{.front = "1", .back = "2"},
                     card{.front = "3", .back = "4"},
                     card{.front = "5", .back = "6"}}};
-
 BOOST_AUTO_TEST_CASE(start_with_empty_cards)
 {
     const auto empty_cards{cards{}};
     auto t{training{}};
-
     t = update(t, start{empty_cards});
     std::visit(
         match([](done) { BOOST_TEST(true); }, [](auto) { BOOST_TEST(false); }),
         t.state);
     BOOST_TEST(t.cards.empty());
 }
-
 BOOST_AUTO_TEST_CASE(cards_are_shuffled_on_start)
 {
     auto t{training{}};
-
     t = update(t, start{cs});
     BOOST_TEST(t.cards.size() == cs.size());
     for (auto c : cs)
         BOOST_TEST(contains(t.cards, c));
 }
-
 BOOST_AUTO_TEST_CASE(all_cards_right_first_time)
 {
     auto t{training{}};
     t = update(t, start{cs});
-
     for (int i{1}; i < cs.size(); ++i)
     {
         std::visit(
@@ -74,14 +64,12 @@ BOOST_AUTO_TEST_CASE(all_cards_right_first_time)
         t = update(t, answer{.txt = t.cards.front().back});
         BOOST_TEST(t.cards.size() == cs.size() - i);
     }
-
     t = update(t, answer{.txt = t.cards.front().back});
     std::visit(
         match([](done) { BOOST_TEST(true); }, [](auto) { BOOST_TEST(false); }),
         t.state);
     BOOST_TEST(t.cards.empty());
 }
-
 BOOST_AUTO_TEST_CASE(all_wrong_cards_are_represented)
 {
     auto t{training{}};
@@ -90,7 +78,6 @@ BOOST_AUTO_TEST_CASE(all_wrong_cards_are_represented)
         c.back = "";
         return c;
     }()};
-
     t = update(t, start{cs});
     for (int _{}; _ < cs.size() * 2; ++_)
     {
@@ -103,8 +90,6 @@ BOOST_AUTO_TEST_CASE(all_wrong_cards_are_represented)
             BOOST_TEST(contains(t.cards, c));
     }
 }
-
 BOOST_AUTO_TEST_SUITE_END()
-
 BOOST_AUTO_TEST_SUITE_END()
 }
