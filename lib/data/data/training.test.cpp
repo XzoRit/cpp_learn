@@ -16,93 +16,16 @@ namespace
 {
 BOOST_AUTO_TEST_SUITE(data_tests)
 
-BOOST_AUTO_TEST_SUITE(training_v1)
-
-using ::xzr::learn::data::start_training;
-
-using training = ::xzr::learn::data::training;
-using card = ::xzr::learn::data::books::card;
-using cards = ::xzr::learn::data::books::cards;
-using chapter = ::xzr::learn::data::books::chapter;
-
-struct training_tests
-{
-    static auto create_cards() -> cards
-    {
-        auto cs{cards{}};
-
-        for (int i{}; i < 10; ++i)
-        {
-            cs.push_back(
-                {.front = std::to_string(i), .back = std::to_string(i + 1)});
-        }
-
-        return cs;
-    }
-
-    cards crds{create_cards()};
-    training t{start_training(crds)};
-};
-
-BOOST_FIXTURE_TEST_SUITE(suite_name, training_tests);
-
-BOOST_AUTO_TEST_CASE(dafault_constructed_training)
-{
-    {
-        const auto empty{training{}};
-        BOOST_TEST(!current_card(empty).has_value());
-        BOOST_TEST(current_card(eval_answer(t, card{}, "")).has_value());
-    }
-    {
-        const auto empty{training{.cards = cards{}}};
-        BOOST_TEST(!current_card(empty).has_value());
-        BOOST_TEST(current_card(eval_answer(t, card{}, "")).has_value());
-    }
-}
-
-BOOST_AUTO_TEST_CASE(all_cards_always_correct)
-{
-    for (std::size_t i{}; i < crds.size(); ++i)
-    {
-        BOOST_REQUIRE(current_card(t).has_value());
-        const auto crd{current_card(t).value()};
-        const auto it{std::ranges::find(crds, crd)};
-        // correct answer
-        t = eval_answer(t, crd, it->back);
-    }
-
-    BOOST_TEST(!current_card(t).has_value());
-}
-
-BOOST_AUTO_TEST_CASE(incorrect_cards_are_represented)
-{
-
-    for (std::size_t i{}; i < crds.size(); ++i)
-    {
-        BOOST_REQUIRE(current_card(t).has_value());
-        const auto crd{current_card(t).value()};
-        const auto it{std::ranges::find(crds, crd)};
-        // incorrect answer
-        t = eval_answer(t, crd, it->front);
-    }
-
-    BOOST_TEST(current_card(t).has_value());
-}
-
-BOOST_AUTO_TEST_SUITE_END()
-
-BOOST_AUTO_TEST_SUITE_END()
-
-BOOST_AUTO_TEST_SUITE(training_v2)
+BOOST_AUTO_TEST_SUITE(training_tests)
 
 using ::xzr::learn::data::books::card;
 using ::xzr::learn::data::books::cards;
-using ::xzr::learn::data::v2::training::training;
-using ::xzr::learn::data::v2::training::update;
-using ::xzr::learn::data::v2::training::actions::answer;
-using ::xzr::learn::data::v2::training::actions::start;
-using ::xzr::learn::data::v2::training::states::done;
-using ::xzr::learn::data::v2::training::states::show_card;
+using ::xzr::learn::data::training::training;
+using ::xzr::learn::data::training::update;
+using ::xzr::learn::data::training::actions::answer;
+using ::xzr::learn::data::training::actions::start;
+using ::xzr::learn::data::training::states::done;
+using ::xzr::learn::data::training::states::show_card;
 
 using ::boost::hof::match;
 

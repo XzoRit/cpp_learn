@@ -1,8 +1,10 @@
 #include <data/training.hpp>
 
+#include <boost/hof/match.hpp>
+
 #include <algorithm>
 #include <random>
-#include <utility>
+#include <string_view>
 
 namespace
 {
@@ -14,45 +16,9 @@ auto shuffle(Range& r) -> void
 
     std::ranges::shuffle(r.begin(), r.end(), g);
 }
-}
-namespace xzr::learn::data
-{
-inline namespace v1
-{
-auto start_training(books::cards cs) -> training
-{
-    ::shuffle(cs);
-    return training{.cards = std::move(cs)};
-}
-auto current_card(const training& t) -> std::optional<books::card>
-{
-    if (t.cards.empty())
-        return std::nullopt;
-    return t.cards.back();
-}
-auto eval_answer(training t, books::card crd, std::string_view back) -> training
-{
-    if (crd.back != back)
-        t.cards.insert(t.cards.begin(), crd);
-    t.cards.pop_back();
-
-    return t;
-}
-}
-}
-
-#include <boost/hof/match.hpp>
-
-#include <algorithm>
-#include <iterator>
-
-namespace xzr::learn::data
-{
-namespace v2::training
-{
-namespace
-{
-auto eval_answer(books::cards cs, books::card c, std::string_view answer)
+auto eval_answer(::xzr::learn::data::books::cards cs,
+                 ::xzr::learn::data::books::card c,
+                 std::string_view answer)
 {
     if (c.back != answer)
         std::rotate(cs.begin(), cs.begin() + 1, cs.end());
@@ -62,6 +28,8 @@ auto eval_answer(books::cards cs, books::card c, std::string_view answer)
     return cs;
 }
 }
+namespace xzr::learn::data::training
+{
 auto update(training t, actions::action a) -> training
 {
     using ::boost::hof::match;
@@ -89,6 +57,5 @@ auto update(training t, actions::action a) -> training
             [&](states::show_card, auto) { return t; }),
         t.state,
         a);
-}
 }
 }

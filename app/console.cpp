@@ -172,7 +172,7 @@ using state = std::variant<books,
                            training>;
 struct data
 {
-    std::optional<::xzr::learn::data::v2::actions::action> data_act{};
+    std::optional<::xzr::learn::data::actions::action> data_act{};
     state console_state{};
 };
 }
@@ -345,7 +345,7 @@ auto intent(states::state s, const std::string& cmd_str) -> actions::action
             }),
         s);
 }
-auto draw(const ::xzr::learn::data::v2::app& app_data, states::state s)
+auto draw(const ::xzr::learn::data::app& app_data, states::state s)
 {
     using ::boost::hof::match;
 
@@ -379,11 +379,13 @@ auto draw(const ::xzr::learn::data::v2::app& app_data, states::state s)
             [](states::add_card_back) { println("back: "); },
             [&](states::training) {
                 std::visit(
-                    match([](xzr::learn::data::v2::training::states::show_card
-                                 s) { println(s.card.front); },
-                          [](xzr::learn::data::v2::training::states::done) {
-                              menu{"training"}.quit();
-                          }),
+                    match(
+                        [](xzr::learn::data::training::states::show_card s) {
+                            println(s.card.front);
+                        },
+                        [](xzr::learn::data::training::states::done) {
+                            menu{"training"}.quit();
+                        }),
                     app_data.the_training.state);
             },
             [](auto) {}),
@@ -391,7 +393,7 @@ auto draw(const ::xzr::learn::data::v2::app& app_data, states::state s)
 }
 auto dispatch(actions::action act,
               states::state state,
-              const ::xzr::learn::data::v2::app& app_data)
+              const ::xzr::learn::data::app& app_data)
 {
     using ::boost::hof::match;
 
@@ -476,17 +478,17 @@ auto dispatch(actions::action act,
             },
             [&](states::chapter s, actions::start_training) -> states::data {
                 return {.data_act =
-                            ::xzr::learn::data::v2::training::actions::start{
+                            ::xzr::learn::data::training::actions::start{
                                 .cards = app_data.the_books.at(s.book_id)
                                              .chapters.at(s.chapter_id)
                                              .cards},
                         .console_state = states::training{}};
             },
             [](states::training s, actions::text_input a) -> states::data {
-                return {.data_act =
-                            ::xzr::learn::data::v2::training::actions::answer{
-                                a.txt},
-                        .console_state = s};
+                return {
+                    .data_act =
+                        ::xzr::learn::data::training::actions::answer{a.txt},
+                    .console_state = s};
             },
             [](states::training, actions::quit a) -> states::data {
                 return {.data_act = std::nullopt,
@@ -530,10 +532,7 @@ inline namespace v1
 {
 auto run() -> void
 {
-    auto v1_app_data{::persist::read_or_create_app_data()};
-    auto app_data{
-        ::xzr::learn::data::v2::app{.the_books = v1_app_data.the_books,
-                                    .the_training = {}}};
+    auto app_data{::persist::read_or_create_app_data()};
     auto console_data{
         ::console::states::data{.data_act = std::nullopt,
                                 .console_state = ::console::states::books{}}};
@@ -546,10 +545,8 @@ auto run() -> void
             ::console::dispatch(act, console_data.console_state, app_data);
         if (const auto data_act{console_data.data_act})
         {
-            app_data = data::v2::update(std::move(app_data), data_act.value());
-            ::persist::save(
-                ::xzr::learn::data::v1::app{.the_books = app_data.the_books,
-                                            .the_training = {}});
+            app_data = data::update(std::move(app_data), data_act.value());
+            ::persist::save(app_data);
         }
         if (std::holds_alternative<::console::actions::exit>(act))
             break;
