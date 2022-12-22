@@ -1,4 +1,4 @@
-#include <iostream>
+#pragma once
 
 namespace xzr::learn::console
 {

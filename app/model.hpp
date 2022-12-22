@@ -6,7 +6,7 @@
 #include <string>
 #include <variant>
 
-namespace xzr::learn::console::model
+namespace xzr::learn::console::view::model
 {
 namespace actions
 {
@@ -83,11 +83,10 @@ using state = std::variant<books,
 }
 struct data
 {
-    std::optional<::xzr::learn::data::actions::action> data_act{};
-    ::xzr::learn::console::model::states::state console_state{};
+    std::optional<learn::data::actions::action> data_act{};
+    states::state view_state{};
 };
-[[nodiscard]] auto update(::xzr::learn::console::model::actions::action act,
-                          ::xzr::learn::console::model::states::state state,
-                          const ::xzr::learn::data::data& data)
-    -> ::xzr::learn::console::model::data;
+[[nodiscard]] auto update(actions::action act,
+                          states::state state,
+                          const learn::data::data& model_data) -> data;
 }

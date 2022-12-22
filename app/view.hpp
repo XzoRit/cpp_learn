@@ -38,38 +38,32 @@ struct menu
     }
     auto select() -> menu&
     {
-        println(::xzr::learn::console::commands::as_str(
-            ::xzr::learn::console::commands::select));
+        println(commands::as_str(commands::select));
         return *this;
     }
     auto add() -> menu&
     {
-        println(::xzr::learn::console::commands::as_str(
-            ::xzr::learn::console::commands::add));
+        println(commands::as_str(commands::add));
         return *this;
     }
     auto remove() -> menu&
     {
-        println(::xzr::learn::console::commands::as_str(
-            ::xzr::learn::console::commands::remove));
+        println(commands::as_str(commands::remove));
         return *this;
     }
     auto start_training() -> menu&
     {
-        println(::xzr::learn::console::commands::as_str(
-            ::xzr::learn::console::commands::start_training));
+        println(commands::as_str(commands::start_training));
         return *this;
     }
     auto quit() -> menu&
     {
-        println(::xzr::learn::console::commands::as_str(
-            ::xzr::learn::console::commands::quit));
+        println(commands::as_str(commands::quit));
         return *this;
     }
     auto exit() -> menu&
     {
-        println(::xzr::learn::console::commands::as_str(
-            ::xzr::learn::console::commands::exit));
+        println(commands::as_str(commands::exit));
         return *this;
     }
 };
@@ -84,7 +78,7 @@ struct content
         println("===");
         println();
     }
-    auto chapter(const ::xzr::learn::data::books::chapter& ch)
+    auto chapter(const data::books::chapter& ch)
     {
         println("=== chapter: ", ch.name);
         println("cards:");
@@ -94,23 +88,21 @@ struct content
             println(i, ".\t", c.back);
         }
     }
-    auto book(const ::xzr::learn::data::books::book& b)
+    auto book(const data::books::book& b)
     {
         println("=== book: ", b.name);
         println("chapters:");
         for (int i{}; const auto& c : b.chapters)
             println(++i, ".\t", c.name);
     }
-    auto books(const ::xzr::learn::data::books::books& bs)
+    auto books(const data::books::books& bs)
     {
         println("=== books:");
         for (int i{}; const auto& b : bs)
             println(++i, ".\t", b.name);
     }
 };
-auto intent(::xzr::learn::console::model::states::state s,
-            const std::string& cmd_str)
-    -> ::xzr::learn::console::model::actions::action;
-auto draw(const ::xzr::learn::data::data& data,
-          ::xzr::learn::console::model::states::state s) -> void;
+auto intent(model::states::state s, const std::string& cmd_str)
+    -> model::actions::action;
+auto draw(const data::data& data, model::states::state s) -> void;
 }
