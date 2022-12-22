@@ -1,5 +1,6 @@
 #include "console.hpp"
 
+#include "commands.hpp"
 #include "persist.hpp"
 
 #include <data/books.hpp>
@@ -21,39 +22,6 @@
 using ::xzr::learn::console::print;
 using ::xzr::learn::console::println;
 
-namespace
-{
-namespace console::command::str
-{
-struct command
-{
-    std::string cmd{};
-    std::string desc{};
-};
-const auto select{command{.cmd = "a<n>", .desc = "select"}};
-const auto add{command{.cmd = "b", .desc = "add"}};
-const auto remove{command{.cmd = "c<n>", .desc = "remove"}};
-const auto start_training{command{.cmd = "s", .desc = "start training"}};
-const auto quit{command{.cmd = "d", .desc = "quit"}};
-const auto exit{command{.cmd = "e", .desc = "exit"}};
-auto is(const std::string& str_cmd, const command& c)
-{
-    if (str_cmd == c.cmd)
-        return true;
-    const auto num_start_idx{c.cmd.find_first_of('<')};
-    return (num_start_idx != std::string::npos) &&
-           (str_cmd.substr(0, num_start_idx) ==
-            c.cmd.substr(0, num_start_idx)) &&
-           std::all_of(std::next(str_cmd.cbegin(), num_start_idx),
-                       str_cmd.cend(),
-                       [](auto a) { return !!std::isdigit(a); });
-}
-auto as_str(const command& c)
-{
-    return c.cmd + ":\t" + c.desc;
-}
-}
-}
 namespace
 {
 namespace console::actions
@@ -162,35 +130,38 @@ struct menu
     }
     auto select() -> menu&
     {
-        println(
-            ::console::command::str::as_str(::console::command::str::select));
+        println(::xzr::learn::console::commands::as_str(
+            ::xzr::learn::console::commands::select));
         return *this;
     }
     auto add() -> menu&
     {
-        println(::console::command::str::as_str(::console::command::str::add));
+        println(::xzr::learn::console::commands::as_str(
+            ::xzr::learn::console::commands::add));
         return *this;
     }
     auto remove() -> menu&
     {
-        println(
-            ::console::command::str::as_str(::console::command::str::remove));
+        println(::xzr::learn::console::commands::as_str(
+            ::xzr::learn::console::commands::remove));
         return *this;
     }
     auto start_training() -> menu&
     {
-        println(::console::command::str::as_str(
-            ::console::command::str::start_training));
+        println(::xzr::learn::console::commands::as_str(
+            ::xzr::learn::console::commands::start_training));
         return *this;
     }
     auto quit() -> menu&
     {
-        println(::console::command::str::as_str(::console::command::str::quit));
+        println(::xzr::learn::console::commands::as_str(
+            ::xzr::learn::console::commands::quit));
         return *this;
     }
     auto exit() -> menu&
     {
-        println(::console::command::str::as_str(::console::command::str::exit));
+        println(::xzr::learn::console::commands::as_str(
+            ::xzr::learn::console::commands::exit));
         return *this;
     }
 };
@@ -250,13 +221,21 @@ auto intent(states::state s, const std::string& cmd_str) -> actions::action
     return std::visit(
         match(
             [&](states::books) -> actions::action {
-                if (command::str::is(cmd_str, command::str::select))
+                if (::xzr::learn::console::commands::is(
+                        cmd_str,
+                        ::xzr::learn::console::commands::select))
                     return actions::select{.id = extract_id(cmd_str)};
-                if (command::str::is(cmd_str, command::str::add))
+                if (::xzr::learn::console::commands::is(
+                        cmd_str,
+                        ::xzr::learn::console::commands::add))
                     return actions::add{};
-                if (command::str::is(cmd_str, command::str::remove))
+                if (::xzr::learn::console::commands::is(
+                        cmd_str,
+                        ::xzr::learn::console::commands::remove))
                     return actions::remove{.id = extract_id(cmd_str)};
-                if (command::str::is(cmd_str, command::str::exit))
+                if (::xzr::learn::console::commands::is(
+                        cmd_str,
+                        ::xzr::learn::console::commands::exit))
                     return actions::exit{};
                 return actions::text_input{cmd_str};
             },
@@ -264,13 +243,21 @@ auto intent(states::state s, const std::string& cmd_str) -> actions::action
                 return actions::text_input{cmd_str};
             },
             [&](states::book) -> actions::action {
-                if (command::str::is(cmd_str, command::str::select))
+                if (::xzr::learn::console::commands::is(
+                        cmd_str,
+                        ::xzr::learn::console::commands::select))
                     return actions::select{.id = extract_id(cmd_str)};
-                if (command::str::is(cmd_str, command::str::add))
+                if (::xzr::learn::console::commands::is(
+                        cmd_str,
+                        ::xzr::learn::console::commands::add))
                     return actions::add{};
-                if (command::str::is(cmd_str, command::str::remove))
+                if (::xzr::learn::console::commands::is(
+                        cmd_str,
+                        ::xzr::learn::console::commands::remove))
                     return actions::remove{.id = extract_id(cmd_str)};
-                if (command::str::is(cmd_str, command::str::quit))
+                if (::xzr::learn::console::commands::is(
+                        cmd_str,
+                        ::xzr::learn::console::commands::quit))
                     return actions::quit{};
                 return actions::text_input{cmd_str};
             },
@@ -278,13 +265,21 @@ auto intent(states::state s, const std::string& cmd_str) -> actions::action
                 return actions::text_input{cmd_str};
             },
             [&](states::chapter) -> actions::action {
-                if (command::str::is(cmd_str, command::str::add))
+                if (::xzr::learn::console::commands::is(
+                        cmd_str,
+                        ::xzr::learn::console::commands::add))
                     return actions::add{};
-                if (command::str::is(cmd_str, command::str::remove))
+                if (::xzr::learn::console::commands::is(
+                        cmd_str,
+                        ::xzr::learn::console::commands::remove))
                     return actions::remove{.id = extract_id(cmd_str)};
-                if (command::str::is(cmd_str, command::str::start_training))
+                if (::xzr::learn::console::commands::is(
+                        cmd_str,
+                        ::xzr::learn::console::commands::start_training))
                     return actions::start_training{};
-                if (command::str::is(cmd_str, command::str::quit))
+                if (::xzr::learn::console::commands::is(
+                        cmd_str,
+                        ::xzr::learn::console::commands::quit))
                     return actions::quit{};
                 return actions::text_input{cmd_str};
             },
@@ -295,7 +290,9 @@ auto intent(states::state s, const std::string& cmd_str) -> actions::action
                 return actions::text_input{cmd_str};
             },
             [&](states::training) -> actions::action {
-                if (command::str::is(cmd_str, command::str::quit))
+                if (::xzr::learn::console::commands::is(
+                        cmd_str,
+                        ::xzr::learn::console::commands::quit))
                     return actions::quit{};
                 return actions::text_input{cmd_str};
             },
