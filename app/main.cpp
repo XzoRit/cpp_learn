@@ -1,10 +1,11 @@
 #include "console.hpp"
+#include "view.hpp"
 
 #include <boost/program_options.hpp>
 
 #include <stdexcept>
 
-using ::xzr::learn::console::println;
+using ::xzr::learn::console::view::println;
 auto main(int ac, char* av[]) -> int
 {
     std::cout << R"(

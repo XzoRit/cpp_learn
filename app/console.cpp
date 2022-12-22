@@ -2,10 +2,10 @@
 
 #include "commands.hpp"
 #include "persist.hpp"
+#include "view.hpp"
 
 #include <data/books.hpp>
 #include <data/data.hpp>
-#include <data/serialize.hpp>
 #include <data/training.hpp>
 
 #include <boost/hof/match.hpp>
@@ -19,9 +19,11 @@
 #include <tuple>
 #include <variant>
 
-using ::xzr::learn::console::print;
-using ::xzr::learn::console::println;
-
+using ::xzr::learn::console::view::content;
+using ::xzr::learn::console::view::menu;
+using ::xzr::learn::console::view::print;
+using ::xzr::learn::console::view::println;
+using ::xzr::learn::console::view::readln;
 namespace
 {
 namespace console::actions
@@ -110,96 +112,6 @@ namespace
 {
 namespace console
 {
-[[nodiscard]] auto readln()
-{
-    std::string str{};
-    std::getline(std::cin, str);
-    return str;
-}
-struct menu
-{
-    menu(const std::string& name)
-    {
-        println("");
-        println("=== " + name);
-    }
-    ~menu()
-    {
-        println("===");
-        print("-> ");
-    }
-    auto select() -> menu&
-    {
-        println(::xzr::learn::console::commands::as_str(
-            ::xzr::learn::console::commands::select));
-        return *this;
-    }
-    auto add() -> menu&
-    {
-        println(::xzr::learn::console::commands::as_str(
-            ::xzr::learn::console::commands::add));
-        return *this;
-    }
-    auto remove() -> menu&
-    {
-        println(::xzr::learn::console::commands::as_str(
-            ::xzr::learn::console::commands::remove));
-        return *this;
-    }
-    auto start_training() -> menu&
-    {
-        println(::xzr::learn::console::commands::as_str(
-            ::xzr::learn::console::commands::start_training));
-        return *this;
-    }
-    auto quit() -> menu&
-    {
-        println(::xzr::learn::console::commands::as_str(
-            ::xzr::learn::console::commands::quit));
-        return *this;
-    }
-    auto exit() -> menu&
-    {
-        println(::xzr::learn::console::commands::as_str(
-            ::xzr::learn::console::commands::exit));
-        return *this;
-    }
-};
-struct content
-{
-    content()
-    {
-        println();
-    }
-    ~content()
-    {
-        println("===");
-        println();
-    }
-    auto chapter(const ::xzr::learn::data::books::chapter& ch)
-    {
-        println("=== chapter: ", ch.name);
-        println("cards:");
-        for (int i{}; const auto& c : ch.cards)
-        {
-            println(++i, ".\t", c.front);
-            println(i, ".\t", c.back);
-        }
-    }
-    auto book(const ::xzr::learn::data::books::book& b)
-    {
-        println("=== book: ", b.name);
-        println("chapters:");
-        for (int i{}; const auto& c : b.chapters)
-            println(++i, ".\t", c.name);
-    }
-    auto books(const ::xzr::learn::data::books::books& bs)
-    {
-        println("=== books:");
-        for (int i{}; const auto& b : bs)
-            println(++i, ".\t", b.name);
-    }
-};
 auto str_to_id(const std::string& s) -> std::optional<int>
 {
     try
@@ -490,8 +402,7 @@ auto run() -> void
     for (;;)
     {
         ::console::draw(data, console_data.console_state);
-        const auto act{
-            ::console::intent(console_data.console_state, ::console::readln())};
+        const auto act{::console::intent(console_data.console_state, readln())};
         console_data =
             ::console::dispatch(act, console_data.console_state, data);
         if (const auto data_act{console_data.data_act})
