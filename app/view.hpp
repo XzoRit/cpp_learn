@@ -1,6 +1,7 @@
 #pragma once
 
 #include "commands.hpp"
+#include "model.hpp"
 
 #include <data/books.hpp>
 
@@ -107,4 +108,9 @@ struct content
             println(++i, ".\t", b.name);
     }
 };
+auto intent(::xzr::learn::console::model::states::state s,
+            const std::string& cmd_str)
+    -> ::xzr::learn::console::model::actions::action;
+auto draw(const ::xzr::learn::data::data& data,
+          ::xzr::learn::console::model::states::state s) -> void;
 }

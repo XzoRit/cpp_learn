@@ -1,7 +1,5 @@
 #pragma once
 
-#include "model.hpp"
-
 #include <data/data.hpp>
 
 #include <optional>
@@ -88,4 +86,8 @@ struct data
     std::optional<::xzr::learn::data::actions::action> data_act{};
     ::xzr::learn::console::model::states::state console_state{};
 };
+[[nodiscard]] auto update(::xzr::learn::console::model::actions::action act,
+                          ::xzr::learn::console::model::states::state state,
+                          const ::xzr::learn::data::data& data)
+    -> ::xzr::learn::console::model::data;
 }
