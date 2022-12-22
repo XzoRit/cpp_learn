@@ -4,17 +4,19 @@
 
 #include <stdexcept>
 
-namespace po = ::boost::program_options;
 using ::xzr::learn::console::println;
 auto main(int ac, char* av[]) -> int
 {
     std::cout << R"(
 TODO:
 - commands shall have ! in front to be distinguished from text input
+- test view state machine
+- test intent function
 )";
     try
     {
         {
+            namespace po = ::boost::program_options;
             auto desc{
                 po::options_description{"xzr.learn command line options"}};
             desc.add_options()("help,h", "produce help message");

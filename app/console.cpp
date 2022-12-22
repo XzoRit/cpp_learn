@@ -1,17 +1,15 @@
 #include "console.hpp"
 
+#include "persist.hpp"
+
 #include <data/books.hpp>
 #include <data/data.hpp>
 #include <data/serialize.hpp>
 #include <data/training.hpp>
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
 #include <boost/hof/match.hpp>
 
 #include <algorithm>
-#include <filesystem>
-#include <fstream>
 #include <iterator>
 #include <map>
 #include <optional>
@@ -22,37 +20,7 @@
 
 using ::xzr::learn::console::print;
 using ::xzr::learn::console::println;
-namespace
-{
-namespace persist
-{
-namespace fs = std::filesystem;
-const auto books_path{fs::path{"xzr_learn_books.txt"}};
 
-auto save(const ::xzr::learn::data::data& data)
-{
-    using oarchive = ::boost::archive::text_oarchive;
-    using ::xzr::learn::data::save;
-    auto f{std::ofstream{books_path}};
-    auto o{oarchive{f}};
-    save(o, data);
-}
-[[nodiscard]] auto load()
-{
-    using iarchive = ::boost::archive::text_iarchive;
-    using ::xzr::learn::data::load;
-    auto f{std::ifstream{books_path}};
-    auto i{iarchive{f}};
-    return load(i);
-}
-[[nodiscard]] auto read_or_create_data()
-{
-    if (!fs::exists(books_path))
-        save(::xzr::learn::data::data{});
-    return load();
-}
-}
-}
 namespace
 {
 namespace console::command::str
@@ -518,7 +486,7 @@ namespace xzr::learn::console
 {
 auto run() -> void
 {
-    auto data{::persist::read_or_create_data()};
+    auto data{::xzr::learn::persist::load_or_create_empty_data()};
     auto console_data{
         ::console::states::data{.data_act = std::nullopt,
                                 .console_state = ::console::states::books{}}};
@@ -532,7 +500,7 @@ auto run() -> void
         if (const auto data_act{console_data.data_act})
         {
             data = data::update(std::move(data), data_act.value());
-            ::persist::save(data);
+            ::xzr::learn::persist::save(data);
         }
         if (std::holds_alternative<::console::actions::exit>(act))
             break;
