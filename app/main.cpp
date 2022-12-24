@@ -1,5 +1,5 @@
-#include "console.hpp"
-#include "view.hpp"
+#include <console/console.hpp>
+#include <console/view.hpp>
 
 #include <boost/program_options.hpp>
 

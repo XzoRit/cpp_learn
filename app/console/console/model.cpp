@@ -1,4 +1,4 @@
-#include "model.hpp"
+#include <console/model.hpp>
 
 #include <boost/hof/match.hpp>
 

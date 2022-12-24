@@ -1,9 +1,9 @@
-#include "console.hpp"
+#include <console/console.hpp>
 
-#include "commands.hpp"
-#include "model.hpp"
-#include "persist.hpp"
-#include "view.hpp"
+#include <console/commands.hpp>
+#include <console/model.hpp>
+#include <console/persist.hpp>
+#include <console/view.hpp>
 
 #include <data/data.hpp>
 

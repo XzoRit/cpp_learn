@@ -1,4 +1,4 @@
-#include "commands.hpp"
+#include <console/commands.hpp>
 
 namespace xzr::learn::console::commands
 {
