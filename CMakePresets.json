@@ -17,6 +17,23 @@
       }
     },
     {
+      "name": "based",
+      "hidden": true,
+      "inherits": [
+        "base"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "shared",
+      "hidden": true,
+      "cacheVariables": {
+          "BUILD_SHARED_LIBS": "ON"
+      }
+    },
+    {
       "name": "gcc",
       "inherits": [
         "base"
@@ -25,6 +42,28 @@
         "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++"
       }
+    },
+    {
+      "name": "gccd",
+      "inherits": [
+        "based",
+        "gcc"
+      ]
+    },
+    {
+      "name": "gccshrd",
+      "inherits": [
+        "shared",
+        "gcc"
+      ]
+    },
+    {
+      "name": "gccdshrd",
+      "inherits": [
+        "based",
+        "shared",
+        "gcc"
+      ]
     },
     {
       "name": "clang",
@@ -37,26 +76,24 @@
       }
     },
     {
-      "name": "based",
-      "hidden": true,
-      "inherits": [
-        "base"
-      ],
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
-    },
-    {
-      "name": "gccd",
-      "inherits": [
-        "based",
-        "gcc"
-      ]
-    },
-    {
       "name": "clangd",
       "inherits": [
         "based",
+        "clang"
+      ]
+    },
+    {
+      "name": "clangshrd",
+      "inherits": [
+        "shared",
+        "clang"
+      ]
+    },
+    {
+      "name": "clangdshrd",
+      "inherits": [
+        "based",
+        "shared",
         "clang"
       ]
     }
@@ -67,16 +104,32 @@
       "configurePreset": "gcc"
     },
     {
-      "name": "clang",
-      "configurePreset": "clang"
-    },
-    {
       "name": "gccd",
       "configurePreset": "gccd"
     },
     {
+      "name": "gccshrd",
+      "configurePreset": "gccshrd"
+    },
+    {
+      "name": "gccdshrd",
+      "configurePreset": "gccdshrd"
+    },
+    {
+      "name": "clang",
+      "configurePreset": "clang"
+    },
+    {
       "name": "clangd",
       "configurePreset": "clangd"
+    },
+    {
+      "name": "clangshrd",
+      "configurePreset": "clangshrd"
+    },
+    {
+      "name": "clangdshrd",
+      "configurePreset": "clangdshrd"
     }
   ],
   "testPresets": [
@@ -95,13 +148,6 @@
       ]
     },
     {
-      "name": "clang",
-      "configurePreset": "clang",
-      "inherits": [
-        "base"
-      ]
-    },
-    {
       "name": "gccd",
       "configurePreset": "gccd",
       "inherits": [
@@ -109,8 +155,43 @@
       ]
     },
     {
+      "name": "gccshrd",
+      "configurePreset": "gccshrd",
+      "inherits": [
+        "base"
+      ]
+    },
+    {
+      "name": "gccdshrd",
+      "configurePreset": "gccdshrd",
+      "inherits": [
+        "base"
+      ]
+    },
+    {
+      "name": "clang",
+      "configurePreset": "clang",
+      "inherits": [
+        "base"
+      ]
+    },
+    {
       "name": "clangd",
       "configurePreset": "clangd",
+      "inherits": [
+        "base"
+      ]
+    },
+    {
+      "name": "clangshrd",
+      "configurePreset": "clangshrd",
+      "inherits": [
+        "base"
+      ]
+    },
+    {
+      "name": "clangdshrd",
+      "configurePreset": "clangdshrd",
       "inherits": [
         "base"
       ]
