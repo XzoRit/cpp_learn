@@ -26,11 +26,11 @@ constant sources
 lib console_lib
     : $(sources)
     : <include>$(inc_dir)
-      <library>/data//lib
+      <library>/data//data_lib
       <library>/boost//serialization
     :
     : <include>$(inc_dir)
-      <library>/data//lib
+      <library>/data//data_lib
       <library>/boost//serialization
     ;
 

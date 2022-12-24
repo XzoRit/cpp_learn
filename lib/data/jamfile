@@ -23,7 +23,7 @@ constant sources
     : [ glob $(src_dir)/*.cpp : $(test_sources) ]
     ;
 
-lib lib
+lib data_lib
     : $(sources)
     : <include>$(inc_dir)
       <library>/boost//serialization
@@ -35,7 +35,7 @@ lib lib
 run $(test_sources)
     : --color_output=false
     :
-    : <library>lib
+    : <library>data_lib
       <library>/boost//unit_test_framework
       <library>/boost//serialization
     : test

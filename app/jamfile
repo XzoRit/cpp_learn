@@ -11,7 +11,7 @@ constant sources
 exe exe
     : $(sources)
       /console//console_lib
-      /data//lib
+      /data//data_lib
       /boost//program_options
     ;
 

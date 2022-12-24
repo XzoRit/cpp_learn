@@ -9,7 +9,7 @@ Boost.Build and CMake build files are available.
 # build and run all targets
 b2
 # build lib
-b2 lib//lib
+b2 lib//lib_lib
 # build/run tests of lib
 b2 lib//test
 # build app
