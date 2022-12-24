@@ -102,7 +102,6 @@ struct content
             println(++i, ".\t", b.name);
     }
 };
-auto intent(model::states::state s, const std::string& cmd_str)
-    -> model::actions::action;
+auto intent(const std::string& cmd_str) -> model::actions::action;
 auto draw(const data::data& data, model::states::state s) -> void;
 }

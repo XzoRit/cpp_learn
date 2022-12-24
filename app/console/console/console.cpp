@@ -23,8 +23,7 @@ auto run() -> void
     for (;;)
     {
         view::draw(data, view_model_data.view_state);
-        const auto view_model_act{
-            view::intent(view_model_data.view_state, view::readln())};
+        const auto view_model_act{view::intent(view::readln())};
         view_model_data = view::model::update(view_model_act,
                                               view_model_data.view_state,
                                               data);
@@ -33,7 +32,10 @@ auto run() -> void
             data = data::update(data, data_act.value());
             save(data);
         }
-        if (std::holds_alternative<view::model::actions::exit>(view_model_act))
+        if (std::holds_alternative<view::model::actions::exit>(
+                view_model_act) &&
+            std::holds_alternative<view::model::states::books>(
+                view_model_data.view_state))
             break;
     }
 }

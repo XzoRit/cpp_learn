@@ -4,71 +4,21 @@
 
 namespace xzr::learn::console::view
 {
-auto intent(model::states::state s, const std::string& cmd_str)
-    -> model::actions::action
+auto intent(const std::string& cmd_str) -> model::actions::action
 {
-    using ::boost::hof::match;
-    return std::visit(
-        match(
-            [&](model::states::books) -> model::actions::action {
-                if (commands::is(cmd_str, commands::select))
-                    return model::actions::select{
-                        .id = commands::extract_id(cmd_str)};
-                if (commands::is(cmd_str, commands::add))
-                    return model::actions::add{};
-                if (commands::is(cmd_str, commands::remove))
-                    return model::actions::remove{
-                        .id = commands::extract_id(cmd_str)};
-                if (commands::is(cmd_str, commands::exit))
-                    return model::actions::exit{};
-                return model::actions::text_input{cmd_str};
-            },
-            [&](model::states::add_book) -> model::actions::action {
-                return model::actions::text_input{cmd_str};
-            },
-            [&](model::states::book) -> model::actions::action {
-                if (commands::is(cmd_str, commands::select))
-                    return model::actions::select{
-                        .id = commands::extract_id(cmd_str)};
-                if (commands::is(cmd_str, commands::add))
-                    return model::actions::add{};
-                if (commands::is(cmd_str, commands::remove))
-                    return model::actions::remove{
-                        .id = commands::extract_id(cmd_str)};
-                if (commands::is(cmd_str, commands::quit))
-                    return model::actions::quit{};
-                return model::actions::text_input{cmd_str};
-            },
-            [&](model::states::add_chapter) -> model::actions::action {
-                return model::actions::text_input{cmd_str};
-            },
-            [&](model::states::chapter) -> model::actions::action {
-                if (commands::is(cmd_str, commands::add))
-                    return model::actions::add{};
-                if (commands::is(cmd_str, commands::remove))
-                    return model::actions::remove{
-                        .id = commands::extract_id(cmd_str)};
-                if (commands::is(cmd_str, commands::start_training))
-                    return model::actions::start_training{};
-                if (commands::is(cmd_str, commands::quit))
-                    return model::actions::quit{};
-                return model::actions::text_input{cmd_str};
-            },
-            [&](model::states::add_card_front) -> model::actions::action {
-                return model::actions::text_input{cmd_str};
-            },
-            [&](model::states::add_card_back) -> model::actions::action {
-                return model::actions::text_input{cmd_str};
-            },
-            [&](model::states::training) -> model::actions::action {
-                if (commands::is(cmd_str, commands::quit))
-                    return model::actions::quit{};
-                return model::actions::text_input{cmd_str};
-            },
-            [&](auto) -> model::actions::action {
-                return model::actions::text_input{cmd_str};
-            }),
-        s);
+    if (commands::is(cmd_str, commands::select))
+        return model::actions::select{.id = commands::extract_id(cmd_str)};
+    if (commands::is(cmd_str, commands::add))
+        return model::actions::add{};
+    if (commands::is(cmd_str, commands::remove))
+        return model::actions::remove{.id = commands::extract_id(cmd_str)};
+    if (commands::is(cmd_str, commands::start_training))
+        return model::actions::start_training{};
+    if (commands::is(cmd_str, commands::quit))
+        return model::actions::quit{};
+    if (commands::is(cmd_str, commands::exit))
+        return model::actions::exit{};
+    return model::actions::text_input{cmd_str};
 }
 auto draw(const data::data& data, model::states::state s) -> void
 {
