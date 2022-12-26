@@ -10,6 +10,8 @@ auto main(int ac, char* av[]) -> int
 {
     std::cout << R"(
 TODO:
+- serialize/save training
+- serialize/save view state
 - test view state machine
 - test intent function
 )";

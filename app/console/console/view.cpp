@@ -1,3 +1,4 @@
+#include "console/model.hpp"
 #include <console/view.hpp>
 
 #include <boost/hof/match.hpp>
@@ -20,13 +21,13 @@ auto intent(const std::string& cmd_str) -> model::actions::action
         return model::actions::exit{};
     return model::actions::text_input{cmd_str};
 }
-auto draw(const data::data& data, model::states::state s) -> void
+auto draw(const view::model::data view_model) -> void
 {
     using ::boost::hof::match;
     std::visit(
         match(
             [&](model::states::books) {
-                content{}.books(data.the_books);
+                content{}.books(view_model.model_data.the_books);
                 menu{"book"}.select().add().remove().exit();
             },
             [](model::states::add_book) {
@@ -34,7 +35,7 @@ auto draw(const data::data& data, model::states::state s) -> void
                 println("name: ");
             },
             [&](model::states::book s) {
-                content{}.book(data.the_books.at(s.book_id));
+                content{}.book(view_model.model_data.the_books.at(s.book_id));
                 menu{"chapter"}.select().add().remove().quit();
             },
             [](model::states::add_chapter) {
@@ -43,7 +44,8 @@ auto draw(const data::data& data, model::states::state s) -> void
             },
             [&](model::states::chapter s) {
                 content{}.chapter(
-                    data.the_books.at(s.book_id).chapters.at(s.chapter_id));
+                    view_model.model_data.the_books.at(s.book_id).chapters.at(
+                        s.chapter_id));
                 menu{"card"}.add().remove().start_training().quit();
             },
             [](model::states::add_card_front) {
@@ -59,9 +61,9 @@ auto draw(const data::data& data, model::states::state s) -> void
                                [](data::training::states::done) {
                                    menu{"training"}.quit();
                                }),
-                           data.the_training.state);
+                           view_model.model_data.the_training.state);
             },
             [](auto) {}),
-        s);
+        view_model.view_state);
 }
 }

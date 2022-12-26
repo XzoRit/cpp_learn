@@ -83,10 +83,8 @@ using state = std::variant<books,
 }
 struct data
 {
-    std::optional<learn::data::actions::action> data_act{};
     states::state view_state{};
+    learn::data::data model_data{};
 };
-[[nodiscard]] auto update(actions::action act,
-                          states::state state,
-                          const learn::data::data& model_data) -> data;
+[[nodiscard]] auto update(actions::action view_act, data view_data) -> data;
 }

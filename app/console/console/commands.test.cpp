@@ -39,17 +39,6 @@ BOOST_AUTO_TEST_CASE(is_num_cmd)
     BOOST_TEST(!is("abcd", cmd));
     BOOST_TEST(!is("abc²", cmd));
 }
-BOOST_AUTO_TEST_CASE(is_exec_cmd)
-{
-    {
-        const auto cmd{command{.cmd = "!abc"}};
-        BOOST_TEST(is("!abc", cmd));
-    }
-    {
-        const auto cmd{command{.cmd = "!abc<n>"}};
-        BOOST_TEST(is("!abc123", cmd));
-    }
-}
 BOOST_AUTO_TEST_CASE(extract_valid_id)
 {
     const auto cmd{"abc123"s};

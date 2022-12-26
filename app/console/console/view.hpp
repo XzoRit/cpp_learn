@@ -1,7 +1,7 @@
 #pragma once
 
-#include "commands.hpp"
-#include "model.hpp"
+#include <console/commands.hpp>
+#include <console/model.hpp>
 
 #include <data/books.hpp>
 
@@ -103,5 +103,5 @@ struct content
     }
 };
 auto intent(const std::string& cmd_str) -> model::actions::action;
-auto draw(const data::data& data, model::states::state s) -> void;
+auto draw(const view::model::data view_model) -> void;
 }
