@@ -1,5 +1,6 @@
-#include <console/console.hpp>
+#include <console/persist.hpp>
 #include <console/view.hpp>
+#include <data/data.hpp>
 
 #include <boost/program_options.hpp>
 
@@ -32,7 +33,30 @@ TODO:
             }
         }
         println("welcome to xzr::learn");
-        ::xzr::learn::console::run();
+        {
+            auto view_model_data{::xzr::learn::console::view::model::data{
+                .view_state =
+                    ::xzr::learn::console::view::model::states::books{},
+                .model_data =
+                    ::xzr::learn::persist::load_or_create_empty_data()}};
+            for (;;)
+            {
+                ::xzr::learn::console::view::draw(view_model_data);
+                const auto view_model_act{::xzr::learn::console::view::intent(
+                    ::xzr::learn::console::view::readln())};
+                view_model_data =
+                    ::xzr::learn::console::view::model::update(view_model_data,
+                                                               view_model_act);
+                ::xzr::learn::persist::save(view_model_data.model_data);
+                if (std::holds_alternative<
+                        ::xzr::learn::console::view::model::actions::exit>(
+                        view_model_act) &&
+                    std::holds_alternative<
+                        ::xzr::learn::console::view::model::states::books>(
+                        view_model_data.view_state))
+                    break;
+            }
+        }
         println("bye from xzr.learn");
     }
     catch (const std::exception& e)
