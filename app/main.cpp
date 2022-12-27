@@ -1,12 +1,12 @@
+#include <console/console.hpp>
 #include <console/persist.hpp>
-#include <console/view.hpp>
 #include <data/data.hpp>
 
 #include <boost/program_options.hpp>
 
 #include <stdexcept>
 
-using ::xzr::learn::console::view::println;
+using ::xzr::learn::console::println;
 auto main(int ac, char* av[]) -> int
 {
     std::cout << R"(
@@ -41,9 +41,9 @@ TODO:
                     ::xzr::learn::persist::load_or_create_empty_data()}};
             for (;;)
             {
-                ::xzr::learn::console::view::draw(view_model_data);
-                const auto view_model_act{::xzr::learn::console::view::intent(
-                    ::xzr::learn::console::view::readln())};
+                ::xzr::learn::console::draw(view_model_data);
+                const auto view_model_act{::xzr::learn::console::intent(
+                    ::xzr::learn::console::readln())};
                 view_model_data =
                     ::xzr::learn::console::view::model::update(view_model_data,
                                                                view_model_act);

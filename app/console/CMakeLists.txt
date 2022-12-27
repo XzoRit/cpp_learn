@@ -11,8 +11,6 @@ target_sources(
           "${SOURCE}/console.hpp"
           "${SOURCE}/model.cpp"
           "${SOURCE}/model.hpp"
-          "${SOURCE}/view.cpp"
-          "${SOURCE}/view.hpp"
           "${SOURCE}/persist.cpp"
           "${SOURCE}/persist.hpp"
 )
