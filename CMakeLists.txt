@@ -10,4 +10,5 @@ enable_testing()
 
 add_subdirectory(app)
 add_subdirectory(lib/data)
+add_subdirectory(lib/view)
 add_subdirectory(external)

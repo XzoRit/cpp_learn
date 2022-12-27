@@ -12,12 +12,19 @@ build-project app/console
 build-project lib/data
     ;
 
+build-project lib/view
+    ;
+
 use-project /console
     : app/console
     ;
 
 use-project /data
     : lib/data
+    ;
+
+use-project /view
+    : lib/view
     ;
 
 use-project /external

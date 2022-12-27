@@ -1,4 +1,4 @@
-#include <console/commands.hpp>
+#include <commands.hpp>
 
 #include <boost/test/unit_test.hpp>
 

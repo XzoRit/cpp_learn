@@ -1,7 +1,8 @@
-#include <console/console.hpp>
+#include <console.hpp>
 
-#include <console/commands.hpp>
-#include <console/model.hpp>
+#include <commands.hpp>
+
+#include <view/model.hpp>
 
 #include <boost/hof/match.hpp>
 

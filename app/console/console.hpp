@@ -1,8 +1,7 @@
 #pragma once
 
-#include <console/model.hpp>
-
 #include <data/books.hpp>
+#include <view/model.hpp>
 
 #include <iostream>
 #include <string>

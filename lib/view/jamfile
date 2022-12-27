@@ -12,7 +12,7 @@ constant inc_dir
     ;
 
 constant src_dir
-    : $(inc_dir)
+    : $(inc_dir)/view
     ;
 
 constant test_sources
@@ -23,21 +23,23 @@ constant sources
     : [ glob $(src_dir)/*.cpp : $(test_sources) ]
     ;
 
-lib console_lib
+lib view_lib
     : $(sources)
     : <include>$(inc_dir)
       <library>/data//data_lib
-      <library>/view//view_lib
+      <library>/boost//serialization
     :
     : <include>$(inc_dir)
       <library>/data//data_lib
-      <library>/view//view_lib
+      <library>/boost//serialization
     ;
 
 run $(test_sources)
     : --color_output=false
     :
-    : <library>console_lib
+    : <library>view_lib
+      <library>/data//data_lib
+      <library>/boost//serialization
       <library>/boost//unit_test_framework
     : test
     ;

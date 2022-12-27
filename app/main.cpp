@@ -1,6 +1,6 @@
-#include <console/console.hpp>
-#include <console/persist.hpp>
+#include <console.hpp>
 #include <data/data.hpp>
+#include <view/persist.hpp>
 
 #include <boost/program_options.hpp>
 

@@ -1,7 +1,5 @@
 set(INCLUDE ${CMAKE_CURRENT_SOURCE_DIR})
-
-set(SOURCE ${INCLUDE}/console)
-
+set(SOURCE ${INCLUDE})
 add_library(console)
 target_sources(
   console
@@ -9,13 +7,9 @@ target_sources(
           "${SOURCE}/commands.hpp"
           "${SOURCE}/console.cpp"
           "${SOURCE}/console.hpp"
-          "${SOURCE}/model.cpp"
-          "${SOURCE}/model.hpp"
-          "${SOURCE}/persist.cpp"
-          "${SOURCE}/persist.hpp"
 )
 target_include_directories(console PUBLIC ${INCLUDE})
-target_link_libraries(console PUBLIC lib::data Boost::serialization)
+target_link_libraries(console PUBLIC lib::data lib::view)
 add_library(lib::console ALIAS console)
 
 add_executable(console_test)
