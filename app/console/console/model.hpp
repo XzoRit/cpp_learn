@@ -65,9 +65,9 @@ struct add_card_front
 };
 struct add_card_back
 {
-    std::string front_txt{};
     int book_id{};
     int chapter_id{};
+    std::string front_txt{};
 };
 struct training
 {
@@ -86,5 +86,5 @@ struct data
     states::state view_state{};
     learn::data::data model_data{};
 };
-[[nodiscard]] auto update(actions::action view_act, data view_data) -> data;
+[[nodiscard]] auto update(data view_data, actions::action view_act) -> data;
 }

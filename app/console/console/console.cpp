@@ -23,7 +23,7 @@ auto run() -> void
     {
         view::draw(view_model_data);
         const auto view_model_act{view::intent(view::readln())};
-        view_model_data = view::model::update(view_model_act, view_model_data);
+        view_model_data = view::model::update(view_model_data, view_model_act);
         save(view_model_data.model_data);
         if (std::holds_alternative<view::model::actions::exit>(
                 view_model_act) &&
