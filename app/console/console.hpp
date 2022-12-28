@@ -1,7 +1,7 @@
 #pragma once
 
-#include <data/books.hpp>
-#include <view/model.hpp>
+#include <data/data.hpp>
+#include <view/data.hpp>
 
 #include <iostream>
 #include <string>
@@ -22,6 +22,6 @@ inline auto println(auto&&... txt)
     std::getline(std::cin, str);
     return str;
 }
-auto intent(const std::string& cmd_str) -> view::model::actions::action;
-auto draw(const view::model::data view_model) -> void;
+auto intent(const std::string& cmd_str) -> view::actions::action;
+auto draw(const view::data view_model) -> void;
 }

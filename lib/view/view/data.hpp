@@ -6,7 +6,7 @@
 #include <string>
 #include <variant>
 
-namespace xzr::learn::console::view::model
+namespace xzr::learn::view
 {
 namespace actions
 {

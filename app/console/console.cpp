@@ -2,7 +2,7 @@
 
 #include <commands.hpp>
 
-#include <view/model.hpp>
+#include <view/data.hpp>
 
 #include <boost/hof/match.hpp>
 
@@ -86,57 +86,55 @@ struct content
             println(++i, ".\t", b.name);
     }
 };
-auto intent(const std::string& cmd_str) -> view::model::actions::action
+auto intent(const std::string& cmd_str) -> view::actions::action
 {
     if (commands::is(cmd_str, commands::select))
-        return view::model::actions::select{.id =
-                                                commands::extract_id(cmd_str)};
+        return view::actions::select{.id = commands::extract_id(cmd_str)};
     if (commands::is(cmd_str, commands::add))
-        return view::model::actions::add{};
+        return view::actions::add{};
     if (commands::is(cmd_str, commands::remove))
-        return view::model::actions::remove{.id =
-                                                commands::extract_id(cmd_str)};
+        return view::actions::remove{.id = commands::extract_id(cmd_str)};
     if (commands::is(cmd_str, commands::start_training))
-        return view::model::actions::start_training{};
+        return view::actions::start_training{};
     if (commands::is(cmd_str, commands::quit))
-        return view::model::actions::quit{};
+        return view::actions::quit{};
     if (commands::is(cmd_str, commands::exit))
-        return view::model::actions::exit{};
-    return view::model::actions::text_input{cmd_str};
+        return view::actions::exit{};
+    return view::actions::text_input{cmd_str};
 }
-auto draw(const view::model::data view_model) -> void
+auto draw(const view::data view_model) -> void
 {
     using ::boost::hof::match;
     std::visit(
         match(
-            [&](view::model::states::books) {
+            [&](view::states::books) {
                 content{}.books(view_model.model_data.the_books);
                 menu{"book"}.select().add().remove().exit();
             },
-            [](view::model::states::add_book) {
+            [](view::states::add_book) {
                 println("add book");
                 println("name: ");
             },
-            [&](view::model::states::book s) {
+            [&](view::states::book s) {
                 content{}.book(view_model.model_data.the_books.at(s.book_id));
                 menu{"chapter"}.select().add().remove().quit();
             },
-            [](view::model::states::add_chapter) {
+            [](view::states::add_chapter) {
                 println("add chapter");
                 println("name: ");
             },
-            [&](view::model::states::chapter s) {
+            [&](view::states::chapter s) {
                 content{}.chapter(
                     view_model.model_data.the_books.at(s.book_id).chapters.at(
                         s.chapter_id));
                 menu{"card"}.add().remove().start_training().quit();
             },
-            [](view::model::states::add_card_front) {
+            [](view::states::add_card_front) {
                 println("add chard");
                 println("front: ");
             },
-            [](view::model::states::add_card_back) { println("back: "); },
-            [&](view::model::states::training) {
+            [](view::states::add_card_back) { println("back: "); },
+            [&](view::states::training) {
                 std::visit(match(
                                [](data::training::states::show_card s) {
                                    println(s.card.front);

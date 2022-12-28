@@ -8,7 +8,7 @@
 namespace
 {
 BOOST_AUTO_TEST_SUITE(data_tests)
-BOOST_AUTO_TEST_SUITE(update_tests)
+BOOST_AUTO_TEST_SUITE(books_tests)
 using ::xzr::learn::data::books::book;
 using ::xzr::learn::data::books::books;
 using ::xzr::learn::data::books::card;

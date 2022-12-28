@@ -1,8 +1,8 @@
-#include <view/model.hpp>
+#include <view/data.hpp>
 
 #include <boost/hof/match.hpp>
 
-namespace xzr::learn::console::view::model
+namespace xzr::learn::view
 {
 struct on_books
 {
