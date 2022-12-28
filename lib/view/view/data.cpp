@@ -11,7 +11,7 @@ struct on_books
         if (a.id)
             return {.view_state = states::book{a.id.value()},
                     .model_data = data};
-        return {.view_state = states::books{}, .model_data = data};
+        return {.view_state = cur_state, .model_data = data};
     }
     auto operator()(actions::add) const -> data
     {
