@@ -5,6 +5,7 @@
 #include <boost/pfr/functions_for.hpp>
 
 #include <ostream>
+#include <variant>
 
 #define XZR_LEARN_DATA_OSTREAM_FOR(A)                                          \
     inline ::std::ostream& operator<<(::std::ostream& out, const A& value)     \
@@ -27,11 +28,21 @@ inline auto operator<<(std::ostream& o, const container<A>& v) -> std::ostream&
     return o;
 }
 }
+namespace xzr::learn::data::training::states
+{
+XZR_LEARN_DATA_OSTREAM_FOR(done)
+XZR_LEARN_DATA_OSTREAM_FOR(show_card)
+inline auto operator<<(std::ostream& o, const state& s) -> std::ostream&
+{
+    std::visit([&](const auto& a) { o << a; }, s);
+    return o;
+}
+}
 namespace xzr::learn::data::training
 {
 inline auto operator<<(std::ostream& o, const training& t) -> std::ostream&
 {
-    o << "{.cards = " << t.cards << '}';
+    o << "{.state = " << t.state << ", .cards = " << t.cards << '}';
     return o;
 }
 }

@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(with_add_book)
     const auto new_bs{update(bs, add_book{.name = "book name"})};
     BOOST_TEST(new_bs != bs);
     BOOST_REQUIRE(new_bs.size() == 1u);
-    BOOST_TEST(new_bs[0].name == "book name");
+    BOOST_TEST(new_bs.at(0).name == "book name");
 }
 BOOST_AUTO_TEST_CASE(with_remove_book)
 {
