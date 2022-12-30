@@ -13,5 +13,7 @@ add_executable(view_test)
 target_sources(
   view_test PRIVATE "${SOURCE}/main.test.cpp" "${SOURCE}/data.test.cpp"
 )
-target_link_libraries(view_test PRIVATE lib::view lib::data Boost::unit_test_framework)
+target_link_libraries(
+  view_test PRIVATE lib::view lib::data Boost::unit_test_framework
+)
 add_test(NAME view::test COMMAND view_test "--color_output=false")

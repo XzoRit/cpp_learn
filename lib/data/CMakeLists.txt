@@ -20,8 +20,10 @@ add_library(lib::data ALIAS data)
 
 add_executable(data_test)
 target_sources(
-  data_test PRIVATE "${SOURCE}/books.test.cpp" "${SOURCE}/training.test.cpp"
-                    "${SOURCE}/serialize.test.cpp" "${SOURCE}/main.test.cpp"
+  data_test
+  PRIVATE "${SOURCE}/books.test.cpp" "${SOURCE}/training.test.cpp"
+          "${SOURCE}/serialize.test.cpp" "${SOURCE}/ostream.test.cpp"
+          "${SOURCE}/main.test.cpp"
 )
 target_link_libraries(
   data_test PRIVATE lib::data Boost::unit_test_framework Boost::serialization

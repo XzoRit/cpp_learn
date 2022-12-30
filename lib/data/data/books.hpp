@@ -46,22 +46,6 @@ using action = std::variant<add_book,
 }
 namespace xzr::learn::data::books
 {
-template <class A>
-struct container : public std::vector<A>
-{
-  public:
-    using std::vector<A>::vector;
-
-    [[nodiscard]] auto base() const -> const std::vector<A>&
-    {
-        return *this;
-    }
-
-    [[nodiscard]] auto base() -> std::vector<A>&
-    {
-        return *this;
-    }
-};
 struct card
 {
     std::string front{};
@@ -69,7 +53,7 @@ struct card
 
     [[nodiscard]] auto operator<=>(const card&) const = default;
 };
-using cards = container<card>;
+using cards = std::vector<card>;
 struct chapter
 {
     std::string name{};
@@ -77,7 +61,7 @@ struct chapter
 
     [[nodiscard]] auto operator<=>(const chapter&) const = default;
 };
-using chapters = container<chapter>;
+using chapters = std::vector<chapter>;
 struct book
 {
     std::string name{};
@@ -85,7 +69,7 @@ struct book
 
     [[nodiscard]] auto operator<=>(const book&) const = default;
 };
-using books = container<book>;
+using books = std::vector<book>;
 }
 namespace xzr::learn::data::books
 {

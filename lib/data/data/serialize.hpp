@@ -7,16 +7,6 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 
-namespace boost::serialization
-{
-template <class A>
-inline auto serialize(auto& ar,
-                      ::xzr::learn::data::books::container<A>& a,
-                      const unsigned int) -> void
-{
-    ar& a.base();
-}
-}
 #define XZR_LEARN_DATA_SERIALIZE_FOR(A)                                        \
     namespace boost::serialization                                             \
     {                                                                          \
