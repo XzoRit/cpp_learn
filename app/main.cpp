@@ -13,7 +13,6 @@ auto main(int ac, char* av[]) -> int
 TODO:
 - serialize/save training
 - serialize/save view state
-- test view state machine
 - test intent function
 )";
     try
