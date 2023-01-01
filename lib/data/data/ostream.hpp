@@ -7,6 +7,15 @@
 
 #include <ostream>
 
+namespace xzr::learn::data::books::actions
+{
+auto operator<<(std::ostream& o, const add_book& a) -> std::ostream&;
+auto operator<<(std::ostream& o, const remove_book& a) -> std::ostream&;
+auto operator<<(std::ostream& o, const add_chapter& a) -> std::ostream&;
+auto operator<<(std::ostream& o, const remove_chapter& a) -> std::ostream&;
+auto operator<<(std::ostream& o, const add_card& a) -> std::ostream&;
+auto operator<<(std::ostream& o, const remove_card& a) -> std::ostream&;
+}
 namespace xzr::learn::data::books
 {
 auto operator<<(std::ostream& o, const card& c) -> std::ostream&;
@@ -17,6 +26,11 @@ namespace xzr::learn::data::training::states
 {
 auto operator<<(std::ostream& o, const done& d) -> std::ostream&;
 auto operator<<(std::ostream& o, const show_card& s) -> std::ostream&;
+}
+namespace xzr::learn::data::training::actions
+{
+auto operator<<(std::ostream& o, const start& a) -> std::ostream&;
+auto operator<<(std::ostream& o, const answer& a) -> std::ostream&;
 }
 namespace xzr::learn::data::training
 {

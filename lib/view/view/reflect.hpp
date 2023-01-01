@@ -4,6 +4,16 @@
 
 #include <boost/describe/class.hpp>
 
+namespace xzr::learn::view::actions
+{
+BOOST_DESCRIBE_STRUCT(select, (), (id))
+BOOST_DESCRIBE_STRUCT(add, (), ())
+BOOST_DESCRIBE_STRUCT(remove, (), (id))
+BOOST_DESCRIBE_STRUCT(text_input, (), (txt))
+BOOST_DESCRIBE_STRUCT(start_training, (), ())
+BOOST_DESCRIBE_STRUCT(quit, (), ())
+BOOST_DESCRIBE_STRUCT(exit, (), ())
+}
 namespace xzr::learn::view::states
 {
 BOOST_DESCRIBE_STRUCT(books, (), ())

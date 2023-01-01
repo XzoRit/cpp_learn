@@ -28,7 +28,7 @@ add_executable(data_test)
 target_sources(
   data_test
   PRIVATE "${SOURCE}/books.test.cpp" "${SOURCE}/training.test.cpp"
-          "${SOURCE}/serialize.test.cpp" "${SOURCE}/ostream.test.cpp"
+          "${SOURCE}/serialize.test.cpp" "${SOURCE}/ostream_generic.test.cpp"
           "${SOURCE}/main.test.cpp"
 )
 target_link_libraries(
