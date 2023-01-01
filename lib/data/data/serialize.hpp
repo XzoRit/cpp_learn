@@ -2,44 +2,55 @@
 
 #include <data/books.hpp>
 #include <data/data.hpp>
+#include <data/reflect.hpp>
+#include <data/serialize_generic.hpp>
+#include <data/serialize_std_variant.hpp>
+#include <data/training.hpp>
 
-#include <boost/pfr/core.hpp>
+#include <boost/serialization/nvp.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 
-#define XZR_LEARN_DATA_SERIALIZE_FOR(A)                                        \
-    namespace boost::serialization                                             \
-    {                                                                          \
-    inline auto serialize(auto& ar, A& a, const unsigned int)                  \
-    {                                                                          \
-        ::boost::pfr::for_each_field(a, [&ar](auto& field) { ar& field; });    \
-    }                                                                          \
-    }
+#include <type_traits>
+#include <variant>
 
-XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::books::book)
-XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::books::card)
-XZR_LEARN_DATA_SERIALIZE_FOR(::xzr::learn::data::books::chapter)
-namespace boost::serialization
+namespace xzr::learn::data::books
 {
-inline auto serialize(auto& ar, ::xzr::learn::data::data& a, const unsigned int)
+inline auto serialize(auto& ar, card& c, const unsigned int v)
 {
-    ar& a.the_books;
+    generic::serialize(ar, c, v);
+}
+inline auto serialize(auto& ar, chapter& c, const unsigned int v)
+{
+    generic::serialize(ar, c, v);
+}
+inline auto serialize(auto& ar, book& b, const unsigned int v)
+{
+    generic::serialize(ar, b, v);
+}
+}
+namespace xzr::learn::data::training::states
+{
+inline auto serialize(auto& ar, done& s, const unsigned int v)
+{
+    generic::serialize(ar, s, v);
+}
+inline auto serialize(auto& ar, show_card& s, const unsigned int v)
+{
+    generic::serialize(ar, s, v);
+}
+}
+namespace xzr::learn::data::training
+{
+inline auto serialize(auto& ar, training& t, const unsigned int v)
+{
+    generic::serialize(ar, t, v);
 }
 }
 namespace xzr::learn::data
 {
-inline auto serialize(auto& ar, data& a)
+inline auto serialize(auto& ar, data& d, const unsigned int v)
 {
-    ar& a;
-}
-inline auto save(auto& ar, const data& a)
-{
-    ar& a;
-}
-inline auto load(auto& ar)
-{
-    data a{};
-    ar& a;
-    return a;
+    generic::serialize(ar, d, v);
 }
 }

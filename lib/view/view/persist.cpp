@@ -1,9 +1,12 @@
+#include <libs/core/include/boost/core/nvp.hpp>
 #include <view/persist.hpp>
 
-#include <data/serialize.hpp>
+#include <view/serialize.hpp>
 
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
 
 #include <filesystem>
 #include <fstream>
@@ -12,30 +15,30 @@ namespace fs = std::filesystem;
 
 namespace
 {
-const auto books_path{fs::path{"xzr_learn_books.txt"}};
+const auto books_path{fs::path{"xzr_learn_books.xml"}};
 }
 namespace xzr::learn::persist
 {
-auto save(const data::data& data) -> void
+auto save(const view::data& data) -> void
 {
-    using oarchive = ::boost::archive::text_oarchive;
-    using data::save;
+    using oarchive = ::boost::archive::xml_oarchive;
     auto f{std::ofstream{::books_path}};
     auto o{oarchive{f}};
-    save(o, data);
+    o << ::boost::serialization::make_nvp("data", data);
 }
-[[nodiscard]] auto load() -> data::data
+[[nodiscard]] auto load() -> view::data
 {
-    using iarchive = ::boost::archive::text_iarchive;
-    using ::xzr::learn::data::load;
+    using iarchive = ::boost::archive::xml_iarchive;
     auto f{std::ifstream{::books_path}};
     auto i{iarchive{f}};
-    return load(i);
+    view::data d{};
+    i >> ::boost::serialization::make_nvp("data", d);
+    return d;
 }
-[[nodiscard]] auto load_or_create_empty_data() -> data::data
+[[nodiscard]] auto load_or_create_empty_data() -> view::data
 {
     if (!fs::exists(::books_path))
-        save(data::data{});
+        save(view::data{});
     return load();
 }
 }

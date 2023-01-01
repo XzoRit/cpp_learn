@@ -9,12 +9,6 @@
 using ::xzr::learn::console::println;
 auto main(int ac, char* av[]) -> int
 {
-    std::cout << R"(
-TODO:
-- serialize/save training
-- serialize/save view state
-- test intent function
-)";
     try
     {
         {
@@ -32,25 +26,21 @@ TODO:
             }
         }
         println("welcome to xzr::learn");
+        auto view_model_data{::xzr::learn::view::data{
+            ::xzr::learn::persist::load_or_create_empty_data()}};
+        for (;;)
         {
-            auto view_model_data{::xzr::learn::view::data{
-                .view_state = ::xzr::learn::view::states::books{},
-                .model_data =
-                    ::xzr::learn::persist::load_or_create_empty_data()}};
-            for (;;)
-            {
-                ::xzr::learn::console::draw(view_model_data);
-                const auto view_model_act{::xzr::learn::console::intent(
-                    ::xzr::learn::console::readln())};
-                view_model_data =
-                    ::xzr::learn::view::update(view_model_data, view_model_act);
-                ::xzr::learn::persist::save(view_model_data.model_data);
-                if (std::holds_alternative<::xzr::learn::view::actions::exit>(
-                        view_model_act) &&
-                    std::holds_alternative<::xzr::learn::view::states::books>(
-                        view_model_data.view_state))
-                    break;
-            }
+            ::xzr::learn::console::draw(view_model_data);
+            const auto view_model_act{
+                ::xzr::learn::console::intent(::xzr::learn::console::readln())};
+            view_model_data =
+                ::xzr::learn::view::update(view_model_data, view_model_act);
+            ::xzr::learn::persist::save(view_model_data);
+            if (std::holds_alternative<::xzr::learn::view::actions::exit>(
+                    view_model_act) &&
+                std::holds_alternative<::xzr::learn::view::states::books>(
+                    view_model_data.view_state))
+                break;
         }
         println("bye from xzr.learn");
     }

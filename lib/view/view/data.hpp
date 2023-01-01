@@ -6,9 +6,7 @@
 #include <string>
 #include <variant>
 
-namespace xzr::learn::view
-{
-namespace actions
+namespace xzr::learn::view::actions
 {
 struct select
 {
@@ -37,7 +35,7 @@ struct exit
 using action =
     std::variant<select, add, remove, text_input, start_training, quit, exit>;
 }
-namespace states
+namespace xzr::learn::view::states
 {
 struct books
 {
@@ -81,6 +79,8 @@ using state = std::variant<books,
                            add_card_back,
                            training>;
 }
+namespace xzr::learn::view
+{
 struct data
 {
     states::state view_state{};

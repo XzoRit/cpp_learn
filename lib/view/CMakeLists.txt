@@ -6,6 +6,7 @@ target_sources(
                "${SOURCE}/persist.cpp" "${SOURCE}/persist.hpp"
                "${SOURCE}/ostream.cpp" "${SOURCE}/ostream.hpp"
                "${SOURCE}/reflect.cpp" "${SOURCE}/reflect.hpp"
+               "${SOURCE}/serialize.cpp" "${SOURCE}/serialize.hpp"
 )
 target_include_directories(view PUBLIC ${INCLUDE})
 target_link_libraries(view PUBLIC lib::data Boost::serialization)

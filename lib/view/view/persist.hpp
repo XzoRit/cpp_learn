@@ -1,10 +1,10 @@
 #pragma once
 
-#include <data/data.hpp>
+#include <view/data.hpp>
 
 namespace xzr::learn::persist
 {
-auto save(const data::data& data) -> void;
-[[nodiscard]] auto load() -> data::data;
-[[nodiscard]] auto load_or_create_empty_data() -> data::data;
+auto save(const view::data& data) -> void;
+[[nodiscard]] auto load() -> view::data;
+[[nodiscard]] auto load_or_create_empty_data() -> view::data;
 }
