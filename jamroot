@@ -3,10 +3,10 @@ project app_project
     : build-dir build_boost
     ;
 
-build-project app
+build-project app/console
     ;
 
-build-project app/console
+build-project app/console/lib
     ;
 
 build-project lib/data
@@ -16,7 +16,7 @@ build-project lib/view
     ;
 
 use-project /console
-    : app/console
+    : app/console/lib
     ;
 
 use-project /data
