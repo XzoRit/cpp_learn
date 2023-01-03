@@ -9,6 +9,7 @@ project(
 enable_testing()
 
 add_subdirectory(app/console)
+add_subdirectory(app/dear_imgui)
 add_subdirectory(lib/data)
 add_subdirectory(lib/view)
 add_subdirectory(external)

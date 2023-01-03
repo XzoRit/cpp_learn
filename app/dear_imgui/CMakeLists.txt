@@ -1,0 +1,5 @@
+add_subdirectory(lib)
+add_executable(dear_imgui_exe)
+target_sources(dear_imgui_exe PRIVATE "main.cpp")
+target_link_libraries(dear_imgui_exe PRIVATE lib::dear_imgui)
+add_test(NAME app::exe COMMAND dear_imgui_exe)
