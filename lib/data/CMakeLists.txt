@@ -1,3 +1,4 @@
+find_package(Boost REQUIRED COMPONENTS unit_test_framework serialization)
 set(INCLUDE ${CMAKE_CURRENT_SOURCE_DIR})
 set(SOURCE ${INCLUDE}/data)
 add_library(data)

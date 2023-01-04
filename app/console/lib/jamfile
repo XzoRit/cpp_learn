@@ -1,12 +1,6 @@
 import testing
     ;
 
-import boost
-    ;
-
-boost.use-project
-    ;
-
 constant inc_dir
     : .
     ;
@@ -28,16 +22,18 @@ lib console_lib
     : <include>$(inc_dir)
       <library>/data//data_lib
       <library>/view//view_lib
+      <library>/site-config//boost_headers
     :
     : <include>$(inc_dir)
       <library>/data//data_lib
       <library>/view//view_lib
+      <library>/site-config//boost_headers
     ;
 
 run $(test_sources)
     : --color_output=false
     :
     : <library>console_lib
-      <library>/boost//unit_test_framework
+      <library>/site-config//boost_unit_test_framework
     : test
     ;

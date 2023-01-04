@@ -1,3 +1,4 @@
+find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 set(INCLUDE ${CMAKE_CURRENT_SOURCE_DIR})
 set(SOURCE ${INCLUDE})
 add_library(console)

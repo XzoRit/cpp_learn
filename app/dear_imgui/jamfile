@@ -1,22 +1,10 @@
-import boost
-    ;
-
-boost.use-project
-    ;
-
 constant sources
     : [ glob *.cpp ]
     ;
 
 exe dear_imgui_exe
     : $(sources)
-      /dear_imgui//dear_imgui_lib
-    ;
-
-import testing
-    ;
-
-unit-test run
-    : dear_imgui_exe
-    : <testing.arg>"--help"
+      /site-config//ftxui-dom
+      /site-config//ftxui-component
+      /site-config//ftxui-screen
     ;

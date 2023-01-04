@@ -1,12 +1,6 @@
 import testing
     ;
 
-import boost
-    ;
-
-boost.use-project
-    ;
-
 constant inc_dir
     : .
     ;
@@ -27,11 +21,13 @@ lib view_lib
     : $(sources)
     : <include>$(inc_dir)
       <library>/data//data_lib
-      <library>/boost//serialization
+      <library>/site-config//boost_headers
+      <library>/site-config//boost_serialization
     :
     : <include>$(inc_dir)
       <library>/data//data_lib
-      <library>/boost//serialization
+      <library>/site-config//boost_headers
+      <library>/site-config//boost_serialization
     ;
 
 run $(test_sources)
@@ -39,7 +35,8 @@ run $(test_sources)
     :
     : <library>view_lib
       <library>/data//data_lib
-      <library>/boost//serialization
-      <library>/boost//unit_test_framework
+      <library>/site-config//boost_headers
+      <library>/site-config//boost_serialization
+      <library>/site-config//boost_unit_test_framework
     : test
     ;

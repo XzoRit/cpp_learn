@@ -1,3 +1,4 @@
+find_package(Boost REQUIRED COMPONENTS program_options)
 add_subdirectory(lib)
 add_executable(app_exe)
 target_sources(app_exe PRIVATE "main.cpp")

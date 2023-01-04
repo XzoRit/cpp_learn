@@ -1,4 +1,3 @@
-#include <libs/core/include/boost/core/nvp.hpp>
 #include <view/persist.hpp>
 
 #include <view/serialize.hpp>
@@ -7,6 +6,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/nvp.hpp>
 
 #include <filesystem>
 #include <fstream>

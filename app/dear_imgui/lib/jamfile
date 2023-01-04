@@ -1,12 +1,6 @@
 import testing
     ;
 
-import boost
-    ;
-
-boost.use-project
-    ;
-
 constant inc_dir
     : .
     ;
@@ -34,6 +28,6 @@ run $(test_sources)
     : --color_output=false
     :
     : <library>dear_imgui_lib
-      <library>/boost//unit_test_framework
+      <library>/site-config//boost_unit_test_framework
     : test
     ;
