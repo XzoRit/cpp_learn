@@ -4,6 +4,7 @@ constant sources
 
 exe dear_imgui_exe
     : $(sources)
+      /view//view_lib
       /site-config//ftxui-dom
       /site-config//ftxui-component
       /site-config//ftxui-screen
