@@ -9,7 +9,7 @@ namespace xzr::learn::data::training::actions
 {
 struct start
 {
-    books::cards cards{};
+    books::cards_t cards{};
 };
 struct answer
 {
@@ -33,7 +33,7 @@ namespace xzr::learn::data::training
 struct training
 {
     states::state state{};
-    books::cards cards{};
+    books::cards_t cards{};
     bool operator==(const training&) const noexcept = default;
 };
 [[nodiscard]] auto update(training, actions::action) -> training;

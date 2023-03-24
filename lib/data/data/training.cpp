@@ -15,7 +15,7 @@ auto shuffle(Range& r) -> void
     static auto g{std::mt19937{rd()}};
     std::ranges::shuffle(r.begin(), r.end(), g);
 }
-auto eval_answer(::xzr::learn::data::books::cards cs,
+auto eval_answer(::xzr::learn::data::books::cards_t cs,
                  ::xzr::learn::data::books::card c,
                  std::string_view answer)
 {

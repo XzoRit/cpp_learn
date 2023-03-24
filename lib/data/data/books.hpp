@@ -53,19 +53,19 @@ struct card
 
     [[nodiscard]] auto operator<=>(const card&) const = default;
 };
-using cards = std::vector<card>;
+using cards_t = std::vector<card>;
 struct chapter
 {
     std::string name{};
-    cards cards{};
+    cards_t cards{};
 
     [[nodiscard]] auto operator<=>(const chapter&) const = default;
 };
-using chapters = std::vector<chapter>;
+using chapters_t = std::vector<chapter>;
 struct book
 {
     std::string name{};
-    chapters chapters{};
+    chapters_t chapters{};
 
     [[nodiscard]] auto operator<=>(const book&) const = default;
 };

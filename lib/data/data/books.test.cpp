@@ -12,9 +12,9 @@ BOOST_AUTO_TEST_SUITE(books_tests)
 using ::xzr::learn::data::books::book;
 using ::xzr::learn::data::books::books;
 using ::xzr::learn::data::books::card;
-using ::xzr::learn::data::books::cards;
+using ::xzr::learn::data::books::cards_t;
 using ::xzr::learn::data::books::chapter;
-using ::xzr::learn::data::books::chapters;
+using ::xzr::learn::data::books::chapters_t;
 using ::xzr::learn::data::books::update;
 using ::xzr::learn::data::books::actions::add_book;
 using ::xzr::learn::data::books::actions::add_card;
