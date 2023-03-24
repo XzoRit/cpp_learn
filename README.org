@@ -54,3 +54,6 @@ This is achieved by creating a link e.g.:
 # cmake generated the build files into the folder named 'build'
 ln -s build/clang/compile_commands.json
 #+END_SRC
+* TODO
+** model each as type (card, chapter, book) with own actions and update function
+** model relationship between types (card, chapter, book) with unique IDs
