@@ -40,10 +40,13 @@ auto make_books(const std::string& book_name,
                 const std::string& card_front,
                 const std::string& card_back)
 {
-    return books{book{.name = book_name,
-                      .chapters{chapter{.name = chapter_name,
-                                        .cards{card{.front = card_front,
-                                                    .back = card_back}}}}}};
+    // making this a one-liner creates an internal compiler error in msvc
+    auto c{card{.front = card_front, .back = card_back}};
+    auto cs{cards{std::move(c)}};
+    auto ch{chapter{.name = chapter_name, .cards = std::move(cs)}};
+    auto chs{chapters{std::move(ch)}};
+    auto b{book{.name = book_name, .chapters = std::move(chs)}};
+    return books{b};
 }
 BOOST_AUTO_TEST_CASE(with_add_book)
 {
