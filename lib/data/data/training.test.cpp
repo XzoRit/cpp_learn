@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_SUITE(data_tests)
 BOOST_AUTO_TEST_SUITE(training_tests)
 using ::boost::hof::match;
 using ::xzr::learn::data::books::card;
-using ::xzr::learn::data::books::cards;
+using ::xzr::learn::data::books::cards_t;
 using ::xzr::learn::data::training::training;
 using ::xzr::learn::data::training::update;
 using ::xzr::learn::data::training::actions::answer;
@@ -30,12 +30,12 @@ const auto contains{[](auto cs, auto c) {
 }};
 // cards must have unique front
 // cards must have back != ""
-const auto cs{cards{card{.front = "1", .back = "2"},
-                    card{.front = "3", .back = "4"},
-                    card{.front = "5", .back = "6"}}};
+const auto cs{cards_t{card{.front = "1", .back = "2"},
+                      card{.front = "3", .back = "4"},
+                      card{.front = "5", .back = "6"}}};
 BOOST_AUTO_TEST_CASE(start_with_empty_cards)
 {
-    const auto empty_cards{cards{}};
+    const auto empty_cards{cards_t{}};
     auto t{training{}};
     t = update(t, start{empty_cards});
     std::visit(

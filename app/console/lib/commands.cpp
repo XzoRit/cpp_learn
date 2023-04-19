@@ -18,12 +18,12 @@ inline auto str_to_id(const std::string& s) -> std::optional<int>
 }
 namespace xzr::learn::console::commands
 {
-const command select{.cmd = "!a<n>", .desc = "select"};
-const command add{.cmd = "!b", .desc = "add"};
-const command remove{.cmd = "!c<n>", .desc = "remove"};
-const command start_training{.cmd = "!s", .desc = "start training"};
-const command quit{.cmd = "!d", .desc = "quit"};
-const command exit{.cmd = "!e", .desc = "exit"};
+const command select{command{.cmd = "!a<n>", .desc = "select"}};
+const command add{command{.cmd = "!b", .desc = "add"}};
+const command remove{command{.cmd = "!c<n>", .desc = "remove"}};
+const command start_training{command{.cmd = "!s", .desc = "start training"}};
+const command quit{command{.cmd = "!d", .desc = "quit"}};
+const command exit{command{.cmd = "!e", .desc = "exit"}};
 [[nodiscard]] auto as_str(const command& c) -> std::string
 {
     return c.cmd + ":\t" + c.desc;

@@ -7,9 +7,9 @@ namespace
 using ::xzr::learn::data::books::book;
 using ::xzr::learn::data::books::books;
 using ::xzr::learn::data::books::card;
-using ::xzr::learn::data::books::cards;
+using ::xzr::learn::data::books::cards_t;
 using ::xzr::learn::data::books::chapter;
-using ::xzr::learn::data::books::chapters;
+using ::xzr::learn::data::books::chapters_t;
 auto erase_id(auto& container, int id)
 {
     using std::cbegin;
@@ -27,19 +27,19 @@ auto remove_book_from(books& bs, int id)
 {
     ::erase_id(bs, id);
 }
-auto add_chapter_to(chapters& cs, const std::string& name)
+auto add_chapter_to(chapters_t& cs, const std::string& name)
 {
     cs.push_back(chapter{.name = name});
 }
-auto remove_chapter_from(chapters& cs, int id)
+auto remove_chapter_from(chapters_t& cs, int id)
 {
     ::erase_id(cs, id);
 }
-auto add_card_to(cards& cs, const std::string& front, const std::string& back)
+auto add_card_to(cards_t& cs, const std::string& front, const std::string& back)
 {
     cs.push_back(card{.front = front, .back = back});
 }
-auto remove_card_from(cards& cs, int id)
+auto remove_card_from(cards_t& cs, int id)
 {
     ::erase_id(cs, id);
 }
