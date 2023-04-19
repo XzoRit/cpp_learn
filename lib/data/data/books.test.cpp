@@ -4,6 +4,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <string>
+#include <utility>
 
 namespace
 {
@@ -42,11 +43,11 @@ auto make_books(const std::string& book_name,
 {
     // making this a one-liner creates an internal compiler error in msvc
     auto c{card{.front = card_front, .back = card_back}};
-    auto cs{cards{std::move(c)}};
+    auto cs{cards_t{std::move(c)}};
     auto ch{chapter{.name = chapter_name, .cards = std::move(cs)}};
-    auto chs{chapters{std::move(ch)}};
+    auto chs{chapters_t{std::move(ch)}};
     auto b{book{.name = book_name, .chapters = std::move(chs)}};
-    return books{b};
+    return books{std::move(b)};
 }
 BOOST_AUTO_TEST_CASE(with_add_book)
 {
