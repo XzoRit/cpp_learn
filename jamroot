@@ -36,7 +36,3 @@ use-project /data
 use-project /view
     : lib/view
     ;
-
-use-project /external
-    : external
-    ;
